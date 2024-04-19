@@ -32,7 +32,7 @@
 }
 
 html {
-  font-size: 16px;
+  font-size: 14px;
 }
 body {
   margin: 0;
@@ -159,4 +159,11 @@ btn-primary:disabled:hover {
 .w3-half-centered {
   margin: auto;
   max-width: 500px;
+}
+
+.p-fileupload-buttonbar {
+  background-color: transparent;
+}
+.p-fileupload-content {
+  background-color: #2d58a711;
 }
