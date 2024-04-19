@@ -9,20 +9,19 @@ import {
   computed,
   signal,
 } from '@angular/core';
-import { PO } from '../../models/ProductOffering';
+import { Column, ExportColumn, PO } from '@models/index';
 import { TableModule } from 'primeng/table';
 import { ButtonModule } from 'primeng/button';
-import { MenuItem, MessageService, SelectItem } from 'primeng/api';
+import { MenuItem, MessageService } from 'primeng/api';
 import { MessageModule } from 'primeng/message';
 import { MessagesModule } from 'primeng/messages';
 import { FormsModule } from '@angular/forms';
 import { PrimeNGConfig } from 'primeng/api';
 import { DropdownModule } from 'primeng/dropdown';
-import { InputText, InputTextModule } from 'primeng/inputtext';
+import { InputTextModule } from 'primeng/inputtext';
 import { DialogModule } from 'primeng/dialog';
 import { AvatarModule } from 'primeng/avatar';
 import { DividerModule } from 'primeng/divider';
-import { Column, ExportColumn } from '../../models/Table';
 import { cols } from './columns';
 import { TagModule } from 'primeng/tag';
 import { PdfViewerComponent, PdfViewerModule } from 'ng2-pdf-viewer';
@@ -42,7 +41,7 @@ import { PdfViewerComponent, PdfViewerModule } from 'ng2-pdf-viewer';
         [value]="servicesArray()"
         [(contextMenuSelection)]="selectedRow"
         [contextMenu]="cm"
-        [tableStyle]="{ 'min-width': '80rem',}"
+        [tableStyle]="{ 'min-width': '80rem', 'font-size': '14px' }"
         styleClass=" p-datatable-striped "
         [paginator]="true"
         [rows]="10"
@@ -73,11 +72,11 @@ import { PdfViewerComponent, PdfViewerModule } from 'ng2-pdf-viewer';
         <ng-template pTemplate="header" let-columns>
           <tr>
             @for( col of columns ; track col.field ){
-            <th pSortableColumn="{{ col.field }}">
+            <th style=" white-space: nowrap " pSortableColumn="{{ col.field }}">
               {{ col.header }} <p-sortIcon field="{{ col.field }}"></p-sortIcon>
             </th>
             }
-            <th style="width: 125px;"></th>
+            <th style="width: 80px;"></th>
           </tr>
         </ng-template>
 
@@ -85,14 +84,18 @@ import { PdfViewerComponent, PdfViewerModule } from 'ng2-pdf-viewer';
           <tr [pSelectableRow]="service" [pContextMenuRow]="service">
             <td>{{ service.id_PO }}</td>
             <td>{{ service.service_name }}</td>
-
+            <td>{{ service.service_version }}</td>
             <td>
               <p-tag
+                class="text-nowrap"
                 [value]="service.status"
                 [severity]="getSeverity(service.status)"
               ></p-tag>
             </td>
-            <td>{{ service.date }}</td>
+            <td>{{ service.request_date }}</td>
+            <td>{{ service.issue_date }}</td>
+            <td>{{ service.expiration_date }}</td>
+            <td>{{ service.issuer }}</td>
 
             <td>
               <div class="flex items-center justify-center h-4 ">
@@ -294,7 +297,6 @@ export class TableRequestComponent implements OnInit {
   servicesArray = computed(() => this.services());
   computedVc = computed(() => this.vc());
   selectedRow!: PO;
-  states!: SelectItem[];
   items!: MenuItem[];
   visible!: boolean;
   cols!: Column[];
@@ -345,12 +347,6 @@ export class TableRequestComponent implements OnInit {
     this.apiServices.getOneVC(1).subscribe((vc) => {
       this.vc.set(vc);
     });
-
-    this.states = [
-      { label: 'In Progress', value: 'in progress' },
-      { label: 'Validated', value: 'validated' },
-      { label: 'Rejected', value: 'rejected' },
-    ];
 
     this.exportColumns = this.cols.map((col) => ({
       title: col.header,

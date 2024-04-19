@@ -3,6 +3,11 @@
 export interface PO {
   id: number;
   service_name: string;
+  service_version: string;
+  request_date: string;
+  issue_date: string;
+  expiration_date: string;
+  issuer: string;
   id_PO: string;
   status: Status;
   date: string;
