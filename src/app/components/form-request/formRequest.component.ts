@@ -190,28 +190,40 @@ interface City {
               [multiple]="true"
               accept=".pdf"
               [maxFileSize]="1000000"
-              uploadStyleClass="py-2"
-              chooseStyleClass="py-2"
-              cancelStyleClass="py-2"
+              uploadStyleClass="py-2 w-[150px]"
+              chooseStyleClass="py-2 w-[150px]"
+              cancelStyleClass="py-2 w-[146px]"
             >
-              <ng-template pTemplate="toolbar">
-                <div class="mt-1">Drag and drop files here</div>
-              </ng-template>
+              <ng-template pTemplate="toolbar"> </ng-template>
               <ng-template pTemplate="file" let-file>
-                <div class="flex items-center gap-2">
-                  <i class="pi pi-file-pdf " style="font-size: 2rem"></i>
-                  <p>{{ file.name }}</p>
-                  <p>({{ file.size }} bytes)</p>
+                <div class="flex items-baseline gap-2 mb-4">
+                  <i class="pi pi-file-pdf " style="font-size: 1.6rem"></i>
+                  <p class="truncate w-9/12 text-base m-0">
+                    {{ file.name }}
+                  </p>
+                  <p class="text-xs m-0 font-bold">
+                    ({{ file.size / 1048576 | number : '1.2-2' }} MB)
+                  </p>
                 </div>
+              </ng-template>
+              <ng-template pTemplate="content" let-files>
+                @if(files.length <= 0){
+                <div class="w-full  mt-4 mb-0">
+                  <p class="text-center m-0">Drag and drop files here</p>
+                </div>
+
+                }
               </ng-template>
             </p-fileUpload>
           </div>
         </div>
-        <p-button
-          label="Submit"
-          (onClick)="submitForm()"
-          class="mt-4"
-        ></p-button>
+        <div class="mt-8">
+          <p-button
+            label="Submit"
+            (onClick)="submitForm()"
+            class="mt-4"
+          ></p-button>
+        </div>
       </form>
     </div>
   `,

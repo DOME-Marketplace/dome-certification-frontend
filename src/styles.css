@@ -166,4 +166,6 @@ btn-primary:disabled:hover {
 }
 .p-fileupload-content {
   background-color: #2d58a711;
+  height: 308px;
+  overflow: scroll;
 }
