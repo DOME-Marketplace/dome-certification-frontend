@@ -6,6 +6,8 @@ import { PasswordModule } from 'primeng/password';
 import { FormsModule } from '@angular/forms';
 import { InputTextModule } from 'primeng/inputtext';
 import { Router, RouterLink } from '@angular/router';
+import { AuthService } from '@services/auth.service';
+import { MessageService } from 'primeng/api';
 
 @Component({
   selector: 'app-auth-login',
@@ -83,13 +85,36 @@ import { Router, RouterLink } from '@angular/router';
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class LoginComponent {
-  router = inject(Router);
+  private router = inject(Router);
+  private auth = inject(AuthService);
+  private messageService = inject(MessageService);
   password = '';
   username = '';
   constructor() {}
 
   onSubmit() {
     //redireccionar a dashboard
-    this.router.navigate(['/dashboard']);
+
+    if (this.username === '' || this.password === '') {
+      return;
+    }
+
+    this.auth.login(this.username, this.password).subscribe({
+      next: () => {
+        this.messageService.add({
+          severity: 'success',
+          summary: 'Success',
+          detail: 'Login successful',
+        });
+        this.router.navigate(['/dashboard']);
+      },
+      error: () => {
+        this.messageService.add({
+          severity: 'error',
+          summary: 'Error',
+          detail: 'Invalid credentials',
+        });
+      },
+    });
   }
 }

@@ -1,7 +1,8 @@
 import { PO } from '../models/ProductOffering';
-import { HttpClient } from '@angular/common/http';
+import { HttpClient, HttpHeaders } from '@angular/common/http';
 import { Injectable, inject } from '@angular/core';
 import { environment } from '../../environments/environment';
+import { Observable } from 'rxjs';
 
 @Injectable({
   providedIn: 'root',
@@ -9,17 +10,38 @@ import { environment } from '../../environments/environment';
 export class ApiServices {
   private http = inject(HttpClient);
 
-  constructor() {}
-
-  getAllCloudServices() {
-    return this.http.get<PO[]>(`${environment.API_URL}/services`);
+  getAllCloudServices(): Observable<PO[]> {
+    return this.http.get<PO[]>(
+      `${environment.API_URL}/api/v1/product-offering/`
+    );
   }
 
-  getOne(id: number) {
-    return this.http.get<PO>(`${environment.API_URL}/services/${id}`);
+  getOne(id: number): Observable<PO> {
+    return this.http.get<PO>(
+      `${environment.API_URL}/api/v1/product-offering/${id}`
+    );
   }
 
-  getOneVC(id: number) {
-    return this.http.get(`${environment.API_URL}/vcs?id=${id}`);
+  createPO(formData: FormData): Observable<PO> {
+    // URL para enviar el nuevo ProductOffering
+    const url = `${environment.API_URL}/api/v1/product-offering/create`;
+
+    // Configurar cabeceras para indicar que se envía un formulario
+    // const headers = new HttpHeaders({
+    //   'Content-Type': 'multipart/form-data',
+    // });
+
+    // Enviar la solicitud POST para crear un nuevo PO
+    return this.http.post<PO>(url, formData);
+  }
+
+  getOneVC(id: number): Observable<Blob> {
+    // Para descargar un archivo, esperamos una respuesta de Blob (archivo binario)
+    return this.http.get(
+      `${environment.API_URL}/api/v1/product-offering/download/${id}`,
+      {
+        responseType: 'blob',
+      }
+    );
   }
 }

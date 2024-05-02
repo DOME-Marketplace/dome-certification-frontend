@@ -184,7 +184,7 @@ import { PdfViewerComponent, PdfViewerModule } from 'ng2-pdf-viewer';
           <p class="mt-0 mb-2">{{ selectedRow.status }}</p>
 
           <h6 class="text-base m-0">Date</h6>
-          <p class="mt-0 mb-2">{{ selectedRow.date }}</p>
+          <p class="mt-0 mb-2">{{ selectedRow.request_date }}</p>
           <p-divider />
 
           <h6 class="text-base m-0">Files</h6>

@@ -1,5 +1,5 @@
 import { CommonModule } from '@angular/common';
-import { ChangeDetectionStrategy, Component, OnInit } from '@angular/core';
+import { Component, Inject, OnInit } from '@angular/core';
 import {
   FormBuilder,
   FormsModule,
@@ -8,12 +8,14 @@ import {
 } from '@angular/forms';
 import { InputTextModule } from 'primeng/inputtext';
 import { ButtonModule } from 'primeng/button';
-import { FileUploadModule } from 'primeng/fileupload';
+import { FileUploadModule, UploadEvent } from 'primeng/fileupload';
 import { MessageService } from 'primeng/api';
 import { DropdownFilterOptions } from 'primeng/dropdown';
 import { DropdownModule } from 'primeng/dropdown';
 import { countries } from './countries';
 import { InputMaskModule } from 'primeng/inputmask';
+import { PO } from '@models/ProductOffering';
+import { ApiServices } from '@services/api.service';
 
 interface City {
   name: string;
@@ -53,7 +55,7 @@ interface City {
                   class="w-full"
                   pInputText
                   id="organization-name"
-                  formControlName="organizationName"
+                  formControlName="name_organization"
                 />
                 <label for="organization-name"
                   >Name of the Organization *</label
@@ -65,15 +67,25 @@ interface City {
                   class="w-full"
                   pInputText
                   id="service-name"
-                  formControlName="serviceName"
+                  formControlName="service_name"
                 />
                 <label for="service-name">Service Name *</label>
+              </span>
+
+              <span class="p-float-label w-full">
+                <input
+                  class="w-full"
+                  pInputText
+                  id="id_PO"
+                  formControlName="id_PO"
+                />
+                <label for="id_PO">ID *</label>
               </span>
 
               <div class="flex gap-8">
                 <p-dropdown
                   [options]="countries"
-                  formControlName="isoCountryCode"
+                  formControlName="ISO_Country_Code"
                   optionLabel="name"
                   [filter]="true"
                   filterBy="name"
@@ -133,7 +145,7 @@ interface City {
 
                 <span class="p-float-label ">
                   <p-inputMask
-                    formControlName="serviceVersion"
+                    formControlName="service_version"
                     class="w-full"
                     id="service-version"
                     mask="9.9"
@@ -150,7 +162,7 @@ interface City {
                   class="w-full"
                   pInputText
                   id="address"
-                  formControlName="address"
+                  formControlName="address_organization"
                 />
                 <label for="address">Address *</label>
               </span>
@@ -161,7 +173,7 @@ interface City {
                   pInputText
                   type="url"
                   id="website"
-                  formControlName="website"
+                  formControlName="url_organization"
                 />
                 <label for="website">Website of the Organization *</label>
               </span>
@@ -171,7 +183,7 @@ interface City {
                   class="w-full"
                   pInputText
                   id="contact-email"
-                  formControlName="contactEmail"
+                  formControlName="email_organization"
                 />
                 <label for="contact-email">Organization Email Contact *</label>
               </span>
@@ -186,7 +198,7 @@ interface City {
             <p-fileUpload
               name="certificates"
               mode="advanced"
-              url="/upload"
+              (onSelect)="onFileUpload($event)"
               [multiple]="true"
               accept=".pdf"
               [maxFileSize]="1000000"
@@ -228,16 +240,16 @@ interface City {
     </div>
   `,
   styleUrl: './form-request.component.css',
-  changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class FormRequestComponent implements OnInit {
   form = this.fb.group({
-    serviceName: ['', Validators.required],
-    serviceVersion: [null, Validators.required],
-    organizationName: ['', Validators.required],
-    address: ['', Validators.required],
-    isoCountryCode: [null, Validators.required],
-    website: [
+    service_name: ['', Validators.required],
+    service_version: [null, Validators.required],
+    name_organization: ['', Validators.required],
+    address_organization: ['', Validators.required],
+    ISO_Country_Code: [null, Validators.required],
+    id_PO: ['', Validators.required],
+    url_organization: [
       '',
       [
         Validators.required,
@@ -246,7 +258,7 @@ export class FormRequestComponent implements OnInit {
         ),
       ],
     ],
-    contactEmail: ['', [Validators.required, Validators.email]],
+    email_organization: ['', [Validators.required, Validators.email]],
   });
   uploadedFiles: any[] = [];
   countries: City[] = countries;
@@ -254,22 +266,83 @@ export class FormRequestComponent implements OnInit {
 
   constructor(
     private fb: FormBuilder,
-    private messageService: MessageService
+    private messageService: MessageService,
+    private apiService: ApiServices
   ) {}
 
   ngOnInit() {
     this.countries = this.countries;
   }
-
+  onFileUpload(event: any) {
+    this.uploadedFiles = event.currentFiles;
+    // Agregar cada archivo nuevo al array uploadedFiles
+  }
   submitForm() {
-    if (this.form.valid) {
-      // post data
-      console.log(this.form.value);
+    // console.log(this.form.get('ISO_Country_Code')?.value);
+    if (this.form.valid && this.uploadedFiles.length > 0) {
+      // if (true) {
+
+      const formData = new FormData();
+      formData.append('service_name', this.form.get('service_name')?.value);
+      formData.append(
+        'service_version',
+        this.form.get('service_version')?.value
+      );
+      formData.append(
+        'name_organization',
+        this.form.get('name_organization')?.value
+      );
+      formData.append(
+        'address_organization',
+        this.form.get('address_organization')?.value
+      );
+      const ISO_Country_Code: any = this.form.get('ISO_Country_Code')?.value;
+      if (ISO_Country_Code) {
+        formData.append('ISO_Country_Code', ISO_Country_Code?.code);
+      }
+
+      formData.append('id_PO', this.form.get('id_PO')?.value);
+      formData.append(
+        'url_organization',
+        this.form.get('url_organization')?.value
+      );
+      formData.append(
+        'email_organization',
+        this.form.get('email_organization')?.value
+      );
+      console.log(this.uploadedFiles);
+      // Append uploaded files to FormData under 'files' key
+      if (this.uploadedFiles && this.uploadedFiles.length > 0) {
+        this.uploadedFiles.forEach((file, index) => {
+          formData.append(`files`, file, file.name);
+        });
+      }
+
+      // Enviar el formData al servicio para crear una nueva PO
+      this.apiService.createPO(formData).subscribe({
+        next: (createdPO: PO) => {
+          console.log('Nueva PO creada:', createdPO);
+          this.messageService.add({
+            severity: 'success',
+            summary: 'Éxito',
+            detail: 'Formulario enviado exitosamente',
+          });
+        },
+        error: (error) => {
+          console.error('Error al enviar formulario:', error);
+          this.messageService.add({
+            severity: 'error',
+            summary: 'Error',
+            detail: 'Error al enviar formulario',
+          });
+        },
+      });
     } else {
       this.messageService.add({
         severity: 'error',
         summary: 'Error',
-        detail: 'Please fill all the mandatory fields correctly.',
+        detail:
+          'Por favor complete todos los campos obligatorios correctamente',
       });
     }
   }

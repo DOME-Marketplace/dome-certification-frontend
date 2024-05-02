@@ -6,11 +6,12 @@ import { ResetComponent } from './auth/reset/reset.component';
 import { LayoutComponent } from './layout/layout/layout.component';
 import { DashboardComponent } from './pages/dashboard/dashboard.component';
 import { NewRequestComponent } from './pages/newRequest/newRequest.component';
+import { authGuardFn } from '@guards/auth-fn.guard';
 
 export const routes: Routes = [
   {
     path: '',
-    // canActivate: [authGuardFn],
+    canActivate: [authGuardFn],
     component: LayoutComponent,
     children: [
       {
