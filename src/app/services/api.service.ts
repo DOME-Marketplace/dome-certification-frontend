@@ -1,4 +1,4 @@
-import { PO } from '../models/ProductOffering';
+import { PO, ResPO } from '../models/ProductOffering';
 import { HttpClient, HttpHeaders } from '@angular/common/http';
 import { Injectable, inject } from '@angular/core';
 import { environment } from '../../environments/environment';
@@ -10,14 +10,14 @@ import { Observable } from 'rxjs';
 export class ApiServices {
   private http = inject(HttpClient);
 
-  getAllCloudServices(): Observable<PO[]> {
-    return this.http.get<PO[]>(
+  getAllCloudServices(): Observable<ResPO[]> {
+    return this.http.get<ResPO[]>(
       `${environment.API_URL}/api/v1/product-offering/`
     );
   }
 
-  getOne(id: number): Observable<PO> {
-    return this.http.get<PO>(
+  getOne(id: number): Observable<ResPO> {
+    return this.http.get<ResPO>(
       `${environment.API_URL}/api/v1/product-offering/${id}`
     );
   }

@@ -1,5 +1,5 @@
 import { CommonModule } from '@angular/common';
-import { Component, Inject, OnInit } from '@angular/core';
+import { Component, Inject, OnInit, ViewChild, signal } from '@angular/core';
 import {
   FormBuilder,
   FormsModule,
@@ -8,7 +8,7 @@ import {
 } from '@angular/forms';
 import { InputTextModule } from 'primeng/inputtext';
 import { ButtonModule } from 'primeng/button';
-import { FileUploadModule, UploadEvent } from 'primeng/fileupload';
+import { FileUpload, FileUploadModule, UploadEvent } from 'primeng/fileupload';
 import { MessageService } from 'primeng/api';
 import { DropdownFilterOptions } from 'primeng/dropdown';
 import { DropdownModule } from 'primeng/dropdown';
@@ -41,10 +41,7 @@ interface City {
       style="border: 1px solid #e5e5e5;"
     >
       <form [formGroup]="form">
-        <!-- <h3 class="text-2xl text-gray-500 font-medium m-0 text-center">
-          New certification request
-        </h3> -->
-        <div class="flex gap-8 mt-4">
+        <div class="flex flex-col gap-8 mt-4 md:flex-row">
           <div class="flex flex-col justify-between  flex-1 ">
             <h3 class="text-2xl text-gray-500 font-medium m-0 text-center mb-8">
               Service information
@@ -167,26 +164,30 @@ interface City {
                 <label for="address">Address *</label>
               </span>
 
-              <span class="p-float-label w-full">
-                <input
-                  class="w-full"
-                  pInputText
-                  type="url"
-                  id="website"
-                  formControlName="url_organization"
-                />
-                <label for="website">Website of the Organization *</label>
-              </span>
+              <div class="flex gap-8">
+                <span class="p-float-label w-full">
+                  <input
+                    class="w-full"
+                    pInputText
+                    type="url"
+                    id="website"
+                    formControlName="url_organization"
+                  />
+                  <label for="website">Website of the Organization *</label>
+                </span>
 
-              <span class="p-float-label w-full">
-                <input
-                  class="w-full"
-                  pInputText
-                  id="contact-email"
-                  formControlName="email_organization"
-                />
-                <label for="contact-email">Organization Email Contact *</label>
-              </span>
+                <span class="p-float-label w-full">
+                  <input
+                    class="w-full"
+                    pInputText
+                    id="contact-email"
+                    formControlName="email_organization"
+                  />
+                  <label for="contact-email"
+                    >Organization Email Contact *</label
+                  >
+                </span>
+              </div>
             </div>
           </div>
           <div class="flex flex-col flex-1">
@@ -196,17 +197,17 @@ interface City {
               Certificates upload
             </h3>
             <p-fileUpload
+              #fileUploadComponent
               name="certificates"
               mode="advanced"
               (onSelect)="onFileUpload($event)"
               [multiple]="true"
               accept=".pdf"
-              [maxFileSize]="1000000"
+              [maxFileSize]="10000000"
               uploadStyleClass="py-2 w-[150px]"
               chooseStyleClass="py-2 w-[150px]"
               cancelStyleClass="py-2 w-[146px]"
             >
-              <ng-template pTemplate="toolbar"> </ng-template>
               <ng-template pTemplate="file" let-file>
                 <div class="flex items-baseline gap-2 mb-4">
                   <i class="pi pi-file-pdf " style="font-size: 1.6rem"></i>
@@ -233,6 +234,8 @@ interface City {
           <p-button
             label="Submit"
             (onClick)="submitForm()"
+            [loading]="loading()"
+            [disabled]="loading()"
             class="mt-4"
           ></p-button>
         </div>
@@ -242,6 +245,9 @@ interface City {
   styleUrl: './form-request.component.css',
 })
 export class FormRequestComponent implements OnInit {
+  @ViewChild('fileUploadComponent')
+  fileUploadComponent!: FileUpload;
+
   form = this.fb.group({
     service_name: ['', Validators.required],
     service_version: [null, Validators.required],
@@ -263,6 +269,8 @@ export class FormRequestComponent implements OnInit {
   uploadedFiles: any[] = [];
   countries: City[] = countries;
   filterValue!: string;
+  //crear un signal para manejar el estado de carga
+  loading = signal<boolean>(false);
 
   constructor(
     private fb: FormBuilder,
@@ -278,9 +286,8 @@ export class FormRequestComponent implements OnInit {
     // Agregar cada archivo nuevo al array uploadedFiles
   }
   submitForm() {
-    // console.log(this.form.get('ISO_Country_Code')?.value);
     if (this.form.valid && this.uploadedFiles.length > 0) {
-      // if (true) {
+      this.loading.set(true);
 
       const formData = new FormData();
       formData.append('service_name', this.form.get('service_name')?.value);
@@ -310,7 +317,6 @@ export class FormRequestComponent implements OnInit {
         'email_organization',
         this.form.get('email_organization')?.value
       );
-      console.log(this.uploadedFiles);
       // Append uploaded files to FormData under 'files' key
       if (this.uploadedFiles && this.uploadedFiles.length > 0) {
         this.uploadedFiles.forEach((file, index) => {
@@ -321,12 +327,14 @@ export class FormRequestComponent implements OnInit {
       // Enviar el formData al servicio para crear una nueva PO
       this.apiService.createPO(formData).subscribe({
         next: (createdPO: PO) => {
-          console.log('Nueva PO creada:', createdPO);
+          this.form.reset();
+          this.fileUploadComponent.clear();
           this.messageService.add({
             severity: 'success',
             summary: 'Éxito',
             detail: 'Formulario enviado exitosamente',
           });
+          this.loading.set(false);
         },
         error: (error) => {
           console.error('Error al enviar formulario:', error);
@@ -335,6 +343,7 @@ export class FormRequestComponent implements OnInit {
             summary: 'Error',
             detail: 'Error al enviar formulario',
           });
+          this.loading.set(false);
         },
       });
     } else {
@@ -344,6 +353,7 @@ export class FormRequestComponent implements OnInit {
         detail:
           'Por favor complete todos los campos obligatorios correctamente',
       });
+      this.loading.set(false);
     }
   }
 

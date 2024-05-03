@@ -9,13 +9,20 @@ import {
   computed,
   signal,
 } from '@angular/core';
-import { Column, ExportColumn, PO } from '@models/index';
+import { Column, ExportColumn, ResPO } from '@models/index';
 import { TableModule } from 'primeng/table';
 import { ButtonModule } from 'primeng/button';
 import { MenuItem, MessageService } from 'primeng/api';
 import { MessageModule } from 'primeng/message';
 import { MessagesModule } from 'primeng/messages';
-import { FormsModule } from '@angular/forms';
+import {
+  FormBuilder,
+  FormControl,
+  FormGroup,
+  FormsModule,
+  ReactiveFormsModule,
+  Validators,
+} from '@angular/forms';
 import { PrimeNGConfig } from 'primeng/api';
 import { DropdownModule } from 'primeng/dropdown';
 import { InputTextModule } from 'primeng/inputtext';
@@ -25,10 +32,32 @@ import { DividerModule } from 'primeng/divider';
 import { cols } from './columns';
 import { TagModule } from 'primeng/tag';
 import { PdfViewerComponent, PdfViewerModule } from 'ng2-pdf-viewer';
+import { MultiSelectModule } from 'primeng/multiselect';
+import moment from 'moment';
 
 @Component({
   selector: 'app-table-request',
   standalone: true,
+  imports: [
+    CommonModule,
+    ButtonModule,
+    FormsModule,
+    ReactiveFormsModule,
+    TableModule,
+    FormsModule,
+    DropdownModule,
+    ContextMenuModule,
+    MessageModule,
+    MessagesModule,
+    InputTextModule,
+    DialogModule,
+    AvatarModule,
+    DividerModule,
+    TagModule,
+    PdfViewerModule,
+    InputTextModule,
+    MultiSelectModule,
+  ],
   template: `
     <p-contextMenu #cm [model]="items"></p-contextMenu>
     <div
@@ -92,10 +121,10 @@ import { PdfViewerComponent, PdfViewerModule } from 'ng2-pdf-viewer';
                 [severity]="getSeverity(service.status)"
               ></p-tag>
             </td>
-            <td>{{ service.request_date }}</td>
-            <td>{{ service.issue_date }}</td>
-            <td>{{ service.expiration_date }}</td>
-            <td>{{ service.issuer }}</td>
+            <td>{{ service.request_date | date }}</td>
+            <td>{{ service.issue_date | date }}</td>
+            <td>{{ service.expiration_date | date }}</td>
+            <td>{{ service.issuer.username }}</td>
 
             <td>
               <div class="flex items-center justify-center h-4 ">
@@ -128,6 +157,84 @@ import { PdfViewerComponent, PdfViewerModule } from 'ng2-pdf-viewer';
         </ng-template>
       </p-table>
     </div>
+    <p-dialog
+      header="Validate Request"
+      [(visible)]="secondModal"
+      [style]="{ width: '50vw' }"
+      [modal]="true"
+    >
+      <div class="flex flex-col gap-8 ">
+        <div class="flex gap-8 mt-6">
+          <span class="p-float-label w-full ">
+            <input
+              class="w-full"
+              pInputText
+              id="request_issue_date"
+              [(ngModel)]="request_issue_date"
+              disabled="true"
+            />
+            <label for="request_issue_date">Date *</label>
+          </span>
+
+          <span class="p-float-label w-full">
+            <input
+              class="w-full"
+              pInputText
+              id="request_expiration_date"
+              [(ngModel)]="request_expiration_date"
+              disabled="true"
+            />
+            <label for="request_expiration_date">Expiration *</label>
+          </span>
+        </div>
+
+        <span class="p-float-label w-full">
+          <input
+            class="w-full"
+            pInputText
+            id="request_issuer_name"
+            [(ngModel)]="request_issuer_name"
+          />
+          <label for="request_issuer_name">Issuer *</label>
+        </span>
+
+        <div class="flex gap-8">
+          <p-multiSelect
+            appendTo="body"
+            [options]="compliances"
+            placeholder="Select a Compliance Profile"
+            optionLabel="name"
+            [(ngModel)]="selectedCompliance"
+          ></p-multiSelect>
+          <span class="p-float-label w-full">
+            <input
+              class="w-full"
+              pInputText
+              id="request_url_organization"
+              [(ngModel)]="request_url_organization"
+            />
+            <label for="request_url_organization">Website *</label>
+          </span>
+        </div>
+      </div>
+      <ng-template pTemplate="footer">
+        <p-button
+          label="Confirm and validate"
+          [raised]="true"
+          icon="pi pi-check"
+          size="small"
+          (onClick)="handleValidate(this.selectedRow, 'validated')"
+        ></p-button>
+        <p-button
+          label="Close"
+          [raised]="true"
+          icon="pi pi-times"
+          size="small"
+          severity="danger"
+          (onClick)="handleReject(this.selectedRow, 'rejected')"
+        ></p-button>
+      </ng-template>
+    </p-dialog>
 
     <p-dialog
       [(visible)]="visible"
@@ -175,63 +282,76 @@ import { PdfViewerComponent, PdfViewerModule } from 'ng2-pdf-viewer';
           <p class="mt-0 mb-2">{{ selectedRow.address_organization }}</p>
 
           <h6 class="text-base m-0">Website of the organization</h6>
-          <p class="mt-0 mb-2">{{ selectedRow.url_organization }}</p>
+          <a
+            class="mt-0 mb-2 no-underline  text-sky-950"
+            href="{{ selectedRow.url_organization }}"
+            >{{ selectedRow.url_organization }}
+            <i class="pi pi-external-link ml-1 text-xs"></i
+          ></a>
 
-          <h6 class="text-base m-0">Organization email contact</h6>
-          <p class="mt-0 mb-2">{{ selectedRow.email_organization }}</p>
+          <h6 class="text-base m-0 mt-2">Organization email contact</h6>
+          <a
+            class="mt-0 mb-2 text no-underline text-sky-950"
+            href="mailto:{{ selectedRow.email_organization }}"
+            >{{ selectedRow.email_organization }}
+            <i class="pi pi-external-link ml-1 text-xs"></i>
+          </a>
+
+          <h6 class="text-base m-0 mt-2">Request Date</h6>
+
+          <p class="mt-0 mb-2">{{ selectedRow.request_date | date }}</p>
+
+          @if(!selectedRow.request_date){
+          <p class="mt-0 mb-2">nd</p>
+
+          }
 
           <h6 class="text-base m-0">Status</h6>
           <p class="mt-0 mb-2">{{ selectedRow.status }}</p>
 
-          <h6 class="text-base m-0">Date</h6>
-          <p class="mt-0 mb-2">{{ selectedRow.request_date }}</p>
+          <h6 class="text-base m-0">Issue Date</h6>
+          <p class="mt-0 mb-2">{{ selectedRow.issue_date | date }}</p>
+
+          @if(!selectedRow.issue_date){
+          <p class="mt-0 mb-2">nd</p>
+
+          }
+
+          <h6 class="text-base m-0">Expiration Date</h6>
+          <p class="mt-0 mb-0">{{ selectedRow.expiration_date | date }}</p>
+
+          @if(!selectedRow.expiration_date){
+          <p class="mt-0 mb-0">nd</p>
+
+          }
           <p-divider />
 
-          <h6 class="text-base m-0">Files</h6>
+          <h6 class="text-base m-0">Compliance Profiles</h6>
           <div class="flex items-center justify-start gap-4 mt-4">
+            @for ( profile of selectedRow.complianceProfiles ; track profile.id
+            ) {
             <div
               class="flex flex-col items-center justify-center cursor-pointer p-2 rounded  {{
-                this.pdfSrc ==
-                '../../../assets/pdf/DOME_PressRelease_ProjectLaunch.pdf'
-                  ? ' bg-[#2d58a721]'
-                  : ''
+                this.pdfSelected.id == profile.id ? ' bg-[#2d58a721]' : ''
               }} "
-              (click)="
-                handlePdf(
-                  '../../../assets/pdf/DOME_PressRelease_ProjectLaunch.pdf'
-                )
-              "
+              (click)="handlePdf(profile)"
             >
               <i class="pi pi-file-pdf" style="font-size: 2rem"></i>
               <p class="truncate w-32 text-sm mb-0">
-                {{ selectedRow.id_PO }}.pdf
+                {{ profile.fileName }}.pdf
               </p>
             </div>
-            <div
-              class="flex flex-col items-center justify-center cursor-pointer p-2 rounded {{
-                this.pdfSrc ==
-                '../../../assets/pdf/CORDIS_programme_H2020_DT-NMBP-40-2020_en.pdf'
-                  ? ' bg-[#2d58a721]'
-                  : ''
-              }}"
-              (click)="
-                handlePdf(
-                  '../../../assets/pdf/CORDIS_programme_H2020_DT-NMBP-40-2020_en.pdf'
-                )
-              "
-            >
-              <i class="pi pi-file-pdf" style="font-size: 2rem"></i>
-              <p class="truncate w-32 text-sm mb-0">
-                {{ selectedRow.service_name }}.pdf
-              </p>
-            </div>
+            }
           </div>
           <p-divider />
 
-          @if(pdfSrc){
+          @if(pdfSelected){
           <ul>
-            <li class="text-sm">{{ pdfSrc.split('/').pop() }}</li>
-            <li class="text-sm">size: 2.1mb</li>
+            <li class="text-sm">File: {{ pdfSelected.fileName }}</li>
+            <li class="text-sm">
+              Size: ({{ computedVcBlob().size / 1048576 | number : '1.2-2' }}
+              MB)
+            </li>
           </ul>
 
           }
@@ -241,15 +361,16 @@ import { PdfViewerComponent, PdfViewerModule } from 'ng2-pdf-viewer';
           {{ computedVc() | json }}
         </pre -->
 
+        @if(computedVc()){
         <pdf-viewer
-          [src]="
-            pdfSrc || '../../../assets/pdf/DOME_PressRelease_ProjectLaunch.pdf'
-          "
+          [src]="computedVc() ? computedVc() : ''"
           [render-text]="true"
+          [stick-to-page]="true"
           [original-size]="false"
           style="width: 100%; height: 80vh;"
         >
         </pdf-viewer>
+        }
       </div>
       }
 
@@ -272,44 +393,42 @@ import { PdfViewerComponent, PdfViewerModule } from 'ng2-pdf-viewer';
       </ng-template>
     </p-dialog>
   `,
-  imports: [
-    CommonModule,
-    ButtonModule,
-    FormsModule,
-    TableModule,
-    FormsModule,
-    DropdownModule,
-    ContextMenuModule,
-    MessageModule,
-    MessagesModule,
-    InputTextModule,
-    DialogModule,
-    AvatarModule,
-    DividerModule,
-    TagModule,
-    PdfViewerModule,
-    InputTextModule,
-  ],
 })
 export class TableRequestComponent implements OnInit {
-  private services = signal<PO[]>([]);
-  private vc = signal({} as any | null);
+  private services = signal<ResPO[]>([]);
+  public vc = signal({} as any | null);
+  public vcBlob = signal({} as any | null);
   servicesArray = computed(() => this.services());
   computedVc = computed(() => this.vc());
-  selectedRow!: PO;
+  computedVcBlob = computed(() => this.vcBlob());
+  selectedRow!: ResPO;
   items!: MenuItem[];
-  visible!: boolean;
+  visible: boolean = false;
+  secondModal = false;
   cols!: Column[];
   exportColumns!: ExportColumn[];
-  pdfSrc = '';
+  pdfSelected: any;
   value = '';
+  compliances = [
+    { name: 'ISO 27001', code: 'NY' },
+    { name: 'ISO 27017', code: 'RM' },
+    { name: 'ISO 17025', code: 'LDN' },
+    { name: 'EU Cloud Rulebook', code: 'IST' },
+    { name: 'EU Cloud Security', code: 'PRS' },
+  ];
 
+  selectedCompliance!: any | undefined;
   @ViewChild(PdfViewerComponent)
   private pdfComponent!: PdfViewerComponent;
 
   @ViewChild('search') searchInput!: ElementRef;
 
-  clonedProducts: { [s: string]: PO } = {};
+  request_issuer_name = '';
+  request_issue_date = '';
+  request_expiration_date = '';
+  request_url_organization = '';
+
+  clonedProducts: { [s: string]: ResPO } = {};
 
   constructor(
     private apiServices: ApiServices,
@@ -320,8 +439,13 @@ export class TableRequestComponent implements OnInit {
   onRowSelect(event: any) {
     console.table(event.data);
   }
-  handlePdf(file: string) {
-    this.pdfSrc = file;
+
+  handlePdf(pdfDetails: any) {
+    this.pdfSelected = pdfDetails;
+    this.apiServices.getOneVC(pdfDetails.id).subscribe((vc) => {
+      this.vcBlob.set(vc);
+      this.vc.set(URL.createObjectURL(vc));
+    });
   }
 
   handleSearch() {
@@ -338,14 +462,10 @@ export class TableRequestComponent implements OnInit {
 
   ngOnInit() {
     this.cols = cols;
-    this.pdfSrc = '../../../assets/pdf/DOME_PressRelease_ProjectLaunch.pdf';
     this.primengConfig.ripple = true;
     this.primengConfig.inputStyle = 'outlined';
     this.apiServices.getAllCloudServices().subscribe((services) => {
       this.services.set(services);
-    });
-    this.apiServices.getOneVC(1).subscribe((vc) => {
-      this.vc.set(vc);
     });
 
     this.exportColumns = this.cols.map((col) => ({
@@ -367,11 +487,11 @@ export class TableRequestComponent implements OnInit {
       },
     ];
   }
-  onRowEditInit(service: PO) {
+  onRowEditInit(service: ResPO) {
     this.clonedProducts[service.id] = { ...service };
   }
 
-  onRowEditSave(service: PO) {
+  onRowEditSave(service: ResPO) {
     this.messageService.add({
       severity: 'success',
       summary: 'Success',
@@ -380,11 +500,13 @@ export class TableRequestComponent implements OnInit {
     console.log(service, 'save');
   }
 
-  viewProduct(service: PO) {
+  viewProduct(service: ResPO) {
+    this.pdfSelected = service.complianceProfiles[0];
+    this.handlePdf(this.pdfSelected);
     this.showModal(service);
   }
 
-  deleteProduct(service: PO) {
+  deleteProduct(service: ResPO) {
     this.services.set(this.services().filter((p) => p.id !== service.id));
     this.messageService.add({
       severity: 'info',
@@ -393,31 +515,44 @@ export class TableRequestComponent implements OnInit {
     });
   }
 
-  editStatus(service: PO, status: string) {
+  editStatus(service: ResPO, status: string) {
     this.services.set(
       this.services().map(
-        (p) => (p.id === service.id ? { ...p, status } : p) as PO
+        (p) => (p.id === service.id ? { ...p, status } : p) as ResPO
       )
     );
   }
 
-  showModal(service: PO) {
+  showModal(service: ResPO) {
     this.selectedRow = service;
     this.visible = true;
   }
 
-  handleValidate(service: PO, status: string) {
-    this.visible = false;
+  handleValidate(service: ResPO, status: string) {
+    // this.visible = false;
 
-    this.editStatus(service, status);
-    this.messageService.add({
-      severity: 'success',
-      summary: 'Validated',
-      detail: 'Services status is Validated',
-    });
+    const currentDate = moment();
+
+    // Calcular la fecha de expiración (2 años después)
+    const expirationDate = currentDate.add(2, 'years');
+    const expirationDateString = expirationDate.format('YYYY-MM-DD');
+
+    // Convertir la fecha de expiración a una cadena en formato deseado
+    this.secondModal = true;
+    this.request_issue_date = currentDate.format('YYYY-MM-DD');
+    this.request_issuer_name = service.issuer.username;
+    this.request_url_organization = service.url_organization;
+    this.request_expiration_date = expirationDateString;
+
+    // this.editStatus(service, status);
+    // this.messageService.add({
+    //   severity: 'success',
+    //   summary: 'Validated',
+    //   detail: 'Services status is Validated',
+    // });
   }
 
-  handleReject(service: PO, status: string) {
+  handleReject(service: ResPO, status: string) {
     this.visible = false;
     this.editStatus(service, status);
     this.messageService.add({

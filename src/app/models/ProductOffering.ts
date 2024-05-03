@@ -32,3 +32,42 @@ interface File {
   type: string;
   data: Blob;
 }
+
+export interface ResPO {
+  id: number;
+  id_PO: string;
+  service_name: string;
+  service_version: string;
+  name_organization: string;
+  address_organization: string;
+  ISO_Country_Code: string;
+  url_organization: string;
+  email_organization: string;
+  issuer: Issuer;
+  image: null;
+  status: string;
+  request_date: Date;
+  issue_date: null;
+  expiration_date: null;
+  complianceProfiles: ComplianceProfile[];
+  iso_Country_Code: string;
+}
+
+export interface ComplianceProfile {
+  id: number;
+  fileName: string;
+  url: string;
+}
+
+export interface Issuer {
+  id: string;
+  username: string;
+  firstname: string;
+  lastname: string;
+  country_code: string;
+  address: string;
+  organization_name: string;
+  website: string;
+  last_seen: Date;
+  role: null;
+}
