@@ -51,12 +51,17 @@ export interface ResPO {
   expiration_date: null;
   complianceProfiles: ComplianceProfile[];
   iso_Country_Code: string;
+  compliances: Compliances[];
 }
 
 export interface ComplianceProfile {
   id: number;
   fileName: string;
   url: string;
+}
+export interface Compliances {
+  id: number;
+  complianceName: string;
 }
 
 export interface Issuer {

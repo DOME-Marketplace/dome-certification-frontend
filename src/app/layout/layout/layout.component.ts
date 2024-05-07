@@ -1,8 +1,15 @@
-import { RouterOutlet } from '@angular/router';
+import { Router, RouterOutlet } from '@angular/router';
 import { ToolbarComponent } from './../../components/toolbar/toolbar.component';
 import { CommonModule } from '@angular/common';
-import { ChangeDetectionStrategy, Component } from '@angular/core';
+import {
+  ChangeDetectionStrategy,
+  Component,
+  OnInit,
+  inject,
+} from '@angular/core';
 import { BreadcrumbComponent } from '../../components/breadcrumb/breadcrumb.component';
+import { AuthService } from '@services/auth.service';
+import { User } from '@models/user.model';
 
 @Component({
   selector: 'app-layout',
@@ -10,7 +17,7 @@ import { BreadcrumbComponent } from '../../components/breadcrumb/breadcrumb.comp
   imports: [CommonModule, ToolbarComponent, RouterOutlet, BreadcrumbComponent],
   template: `
     <div class=" ">
-      <app-toolbar></app-toolbar>
+      <app-toolbar [user]="user"></app-toolbar>
       <main
         class=" py-6 mt-16 max-w-screen-xl mx-auto min-h-[calc(100dvh-4rem)]"
       >
@@ -21,4 +28,18 @@ import { BreadcrumbComponent } from '../../components/breadcrumb/breadcrumb.comp
   `,
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
-export class LayoutComponent {}
+export class LayoutComponent implements OnInit {
+  private authService = inject(AuthService);
+  private router = inject(Router);
+
+  user: User | null = null;
+
+  ngOnInit(): void {
+    this.user = this.authService.getUserFromLocalStorage();
+    this.authService.setAuthState(this.user);
+    if (!this.user) {
+      console.log('user not found');
+      this.router.navigate(['/auth/login']);
+    }
+  }
+}

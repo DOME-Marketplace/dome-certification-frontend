@@ -106,7 +106,7 @@ export class LoginComponent {
           summary: 'Success',
           detail: 'Login successful',
         });
-        this.router.navigate(['/dashboard']);
+        this.router.navigate(['/']);
       },
       error: () => {
         this.messageService.add({

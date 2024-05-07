@@ -15,6 +15,11 @@ export class ApiServices {
       `${environment.API_URL}/api/v1/product-offering/`
     );
   }
+  getAllCloudServicesByUserId(): Observable<ResPO[]> {
+    return this.http.get<ResPO[]>(
+      `${environment.API_URL}/api/v1/product-offering/get-by-user-id`
+    );
+  }
 
   getOne(id: number): Observable<ResPO> {
     return this.http.get<ResPO>(
@@ -33,6 +38,12 @@ export class ApiServices {
 
     // Enviar la solicitud POST para crear un nuevo PO
     return this.http.post<PO>(url, formData);
+  }
+
+  updateStatus(data: any, id: number): Observable<PO> {
+    const url = `${environment.API_URL}/api/v1/product-offering/status-PO/${id}`;
+
+    return this.http.post<PO>(url, data);
   }
 
   getOneVC(id: number): Observable<Blob> {
