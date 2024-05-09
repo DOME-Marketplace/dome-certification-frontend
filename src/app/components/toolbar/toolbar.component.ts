@@ -6,6 +6,7 @@ import { MenuItem } from 'primeng/api';
 import { MenuModule } from 'primeng/menu';
 import { AuthService } from '@services/auth.service';
 import { User } from '@models/user.model';
+import { roleRenamer } from '@utils/roleRenamer';
 
 @Component({
   selector: 'app-toolbar',
@@ -32,9 +33,9 @@ import { User } from '@models/user.model';
           </a>
 
           <a
-            class="cursor-pointer no-underline text-white"
+            class="cursor-pointer no-underline text-white ml-8"
             routerLink="{{
-              this.user?.role === 'ADMIN' || this.user?.role === 'CUSTOMER'
+              this.user?.role === 'CUSTOMER'
                 ? '/dashboard-customer'
                 : '/dashboard'
             }}"
@@ -63,8 +64,18 @@ import { User } from '@models/user.model';
             <i class="pi pi-user  text-white"></i>
             <span class="ml-2  text-white">Profile</span>
           </button>
-          <p-menu #menuSettings [model]="itemsSettings" [popup]="true" />
-          <p-menu #menuProfile [model]="itemsProfile" [popup]="true" />
+          <p-menu
+            #menuSettings
+            [model]="itemsSettings"
+            [popup]="true"
+            [style]="{ width: 'auto', minWidth: '200px' }"
+          />
+          <p-menu
+            #menuProfile
+            [model]="itemsProfile"
+            [popup]="true"
+            [style]="{ width: 'auto', minWidth: '200px' }"
+          />
           <button
             (click)="menuSettings.toggle($event)"
             class="p-link layout-topbar-button  text-white "
@@ -94,7 +105,6 @@ export class ToolbarComponent implements OnInit {
             label: 'Logout',
             icon: 'pi pi-sign-out',
             command: () => {
-              console.log('logout');
               this.authService.logout();
             },
           },
@@ -103,10 +113,10 @@ export class ToolbarComponent implements OnInit {
     ];
     this.itemsProfile = [
       {
-        label: this.user?.role,
+        label: roleRenamer(this.user?.role),
         items: [
           {
-            label: this.user?.firstname,
+            label: `${this.user?.firstname} ${this.user?.lastname}`,
             icon: 'pi pi-user',
           },
         ],

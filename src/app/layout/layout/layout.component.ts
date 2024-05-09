@@ -38,7 +38,6 @@ export class LayoutComponent implements OnInit {
     this.user = this.authService.getUserFromLocalStorage();
     this.authService.setAuthState(this.user);
     if (!this.user) {
-      console.log('user not found');
       this.router.navigate(['/auth/login']);
     }
   }

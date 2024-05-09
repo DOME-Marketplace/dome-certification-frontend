@@ -45,6 +45,8 @@ import { MessageService } from 'primeng/api';
               styleClass="w-full"
               [(ngModel)]="password"
               [feedback]="false"
+              [toggleMask]="true"
+              [appendTo]="getToggleIcon()"
             ></p-password>
             <label for="password">Password</label>
           </span>
@@ -70,7 +72,8 @@ import { MessageService } from 'primeng/api';
             pRipple
             icon="pi pi-user"
             label="Submit"
-            (onClick)="onSubmit()"
+            [loading]="loading"
+            (click)="onSubmit()"
           ></p-button>
         </div>
         <a
@@ -90,31 +93,46 @@ export class LoginComponent {
   private messageService = inject(MessageService);
   password = '';
   username = '';
-  constructor() {}
+  showPassword: boolean = false;
+
+  loading: boolean = false;
+
+  getToggleIcon(): string {
+    return this.showPassword ? 'pi pi-eye-slash' : 'pi pi-eye';
+  }
+
+  togglePasswordVisibility(): void {
+    this.showPassword = !this.showPassword;
+  }
 
   onSubmit() {
     //redireccionar a dashboard
-
     if (this.username === '' || this.password === '') {
       return;
     }
+    this.loading = true;
 
-    this.auth.login(this.username, this.password).subscribe({
-      next: () => {
-        this.messageService.add({
-          severity: 'success',
-          summary: 'Success',
-          detail: 'Login successful',
-        });
-        this.router.navigate(['/']);
-      },
-      error: () => {
-        this.messageService.add({
-          severity: 'error',
-          summary: 'Error',
-          detail: 'Invalid credentials',
-        });
-      },
-    });
+    this.auth
+      .login(this.username, this.password)
+      .subscribe({
+        next: () => {
+          this.messageService.add({
+            severity: 'success',
+            summary: 'Success',
+            detail: 'Login successful',
+          });
+          this.router.navigate(['/home']);
+        },
+        error: () => {
+          this.messageService.add({
+            severity: 'error',
+            summary: 'Error',
+            detail: 'Invalid credentials',
+          });
+        },
+      })
+      .add(() => {
+        this.loading = false;
+      });
   }
 }

@@ -151,6 +151,173 @@ import { Compliaces } from '@models/compliaces.mode';
         </ng-template>
       </p-table>
     </div>
+
+    <p-dialog
+      [(visible)]="visible"
+      [maximizable]="true"
+      [style]="{ width: '69vw' }"
+    >
+      <ng-template pTemplate="header" class="flex flex-col items-start">
+        <div class="flex items-center justify-between gap-2">
+          <p-avatar
+            image="{{ selectedRow && selectedRow.image }}"
+            shape="circle"
+          />
+          <span class="font-bold text-lg">
+            {{ selectedRow && selectedRow.service_name }}</span
+          >
+        </div>
+        <span class="p-input-icon-left w-96">
+          <i class="pi pi-search"></i>
+          <input
+            #search
+            type="text"
+            pInputText
+            placeholder="Search"
+            (keydown)="handleSearch()"
+            class="p-inputtext-sm w-full"
+          />
+        </span>
+      </ng-template>
+      @if(selectedRow){
+      <div class="flex justify-between gap-8">
+        <div class="w-full max-w-md">
+          <h6 class="text-base m-0">PO Number</h6>
+          <p class="mt-0 mb-2">{{ selectedRow.id_PO }}</p>
+
+          <h6 class="text-base m-0">Service Name</h6>
+          <p class="mt-0 mb-2">{{ selectedRow.service_name }}</p>
+
+          <h6 class="text-base m-0">Name of the organization</h6>
+          <p class="mt-0 mb-2">{{ selectedRow.name_organization }}</p>
+
+          <h6 class="text-base m-0">ISO Country Code</h6>
+          <p class="mt-0 mb-2">{{ selectedRow.ISO_Country_Code }}</p>
+
+          <h6 class="text-base m-0">Address</h6>
+          <p class="mt-0 mb-2">{{ selectedRow.address_organization }}</p>
+
+          <h6 class="text-base m-0">Website of the organization</h6>
+          <a
+            class="mt-0 mb-2 no-underline  text-sky-950"
+            href="{{ selectedRow.url_organization }}"
+            >{{ selectedRow.url_organization }}
+            <i class="pi pi-external-link ml-1 text-xs"></i
+          ></a>
+
+          <h6 class="text-base m-0 mt-2">Organization email contact</h6>
+          <a
+            class="mt-0 mb-2 text no-underline text-sky-950"
+            href="mailto:{{ selectedRow.email_organization }}"
+            >{{ selectedRow.email_organization }}
+            <i class="pi pi-external-link ml-1 text-xs"></i>
+          </a>
+
+          <h6 class="text-base m-0 mt-2">Request Date</h6>
+
+          <p class="mt-0 mb-2">{{ selectedRow.request_date | date }}</p>
+
+          @if(!selectedRow.request_date){
+          <p class="mt-0 mb-2">nd</p>
+
+          }
+
+          <h6 class="text-base m-0">Status</h6>
+          <p class="mt-0 mb-2">{{ selectedRow.status }}</p>
+
+          <h6 class="text-base m-0">Issue Date</h6>
+          <p class="mt-0 mb-2">{{ selectedRow.issue_date | date }}</p>
+
+          @if(!selectedRow.issue_date){
+          <p class="mt-0 mb-2">-</p>
+
+          }
+
+          <h6 class="text-base m-0">Expiration Date</h6>
+          <p class="mt-0 mb-0">{{ selectedRow.expiration_date | date }}</p>
+
+          @if(!selectedRow.expiration_date){
+          <p class="mt-0 mb-0">-</p>
+
+          }
+          <p-divider />
+
+          <h6 class="text-base m-0">Compliance Profiles</h6>
+          <div class="flex items-center justify-start gap-4 mt-4">
+            @for ( profile of selectedRow.complianceProfiles ; track profile.id
+            ) {
+            <div
+              class="flex flex-col items-center justify-center cursor-pointer p-2 rounded  {{
+                this.pdfSelected.id == profile.id ? ' bg-[#2d58a721]' : ''
+              }} "
+              (click)="handlePdf(profile)"
+            >
+              <i class="pi pi-file-pdf" style="font-size: 2rem"></i>
+              <p class="truncate w-32 text-sm mb-0">
+                {{ profile.fileName }}.pdf
+              </p>
+            </div>
+            }
+          </div>
+          <p-divider />
+
+          @if(pdfSelected){
+          <ul>
+            <li class="text-sm">File: {{ pdfSelected.fileName }}</li>
+            <li class="text-sm">
+              Size: ({{ computedVcBlob().size / 1048576 | number : '1.2-2' }}
+              MB)
+            </li>
+          </ul>
+
+          } @if(this.selectedRow.status == 'VALIDATED' ){
+          <p-divider />
+          <div class="flex flex-col  mt-4">
+            <h6 class="text-base m-0">Compliances Validated</h6>
+
+            <ul>
+              @for ( compliance of this.selectedRow.compliances ; track
+              compliance.id ) {
+              <li class=" text-sm ">
+                {{ compliance.complianceName }}
+              </li>
+
+              }
+            </ul>
+          </div>
+          }
+        </div>
+
+        <!-- <pre class="code-window">
+          {{ computedVc() | json }}
+        </pre -->
+
+        @if(computedVc()){
+        <pdf-viewer
+          [src]="computedVc() ? computedVc() : ''"
+          [render-text]="true"
+          [stick-to-page]="true"
+          [original-size]="false"
+          style="width: 100%; height: 80vh;"
+        >
+        </pdf-viewer>
+        }
+      </div>
+      }
+
+      <ng-template pTemplate="footer">
+        @if(this.selectedRow.status == 'REJECTED' ){
+        <p-button
+          label="Update request"
+          [raised]="true"
+          icon="pi pi-check"
+          size="small"
+          [loading]="isLoading"
+          (onClick)="handleResendEmail(this.selectedRow)"
+        ></p-button>
+        }
+      </ng-template>
+    </p-dialog>
   `,
 })
 export class DashboardCustomerComponent {

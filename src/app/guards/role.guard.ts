@@ -16,6 +16,6 @@ export const roleGuard: CanActivateFn = (route, state) => {
   ) {
     return true;
   }
-  window.location;
+  routerService.navigate(['/unauthorized']);
   return false;
 };
