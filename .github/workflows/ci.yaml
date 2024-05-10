@@ -1,0 +1,60 @@
+name: CI/CD
+
+on:
+  push:
+    branches:
+      - develop
+      - test
+      - prod
+
+jobs:
+  build_and_deploy:
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        branch:
+          - develop
+          - test
+          - prod
+
+    steps:
+      - name: Checkout Repository
+        uses: actions/checkout@v2
+
+      - name: Set Environment Variable
+        run: |
+          if [ "${{ github.ref }}" == "refs/heads/develop" ]; then
+            echo "ENVIRONMENT=development" >> $GITHUB_ENV
+          elif [ "${{ github.ref }}" == "refs/heads/test" ]; then
+            echo "ENVIRONMENT=testing" >> $GITHUB_ENV
+          elif [ "${{ github.ref }}" == "refs/heads/prod" ]; then
+            echo "ENVIRONMENT=production" >> $GITHUB_ENV
+          fi
+
+      - name: Build and Push Docker Image
+        run: |
+          DOCKER_IMAGE=yourdockerusername/my-angular-app:${{ matrix.branch }}
+          docker build -t $DOCKER_IMAGE .
+          echo "${{ secrets.DOCKER_PASSWORD }}" | docker login -u ${{ secrets.DOCKER_USERNAME }} --password-stdin
+          docker push $DOCKER_IMAGE
+
+      - name: Deploy to Environment
+        if: matrix.branch == 'develop'
+        run: |
+          # Despliegue en entorno de desarrollo (develop)
+          # Aquí puedes usar herramientas como Docker Compose o Kubectl para desplegar en un ambiente de desarrollo
+          echo "Deploying to development environment..."
+
+      - name: Deploy to Environment
+        if: matrix.branch == 'test'
+        run: |
+          # Despliegue en entorno de pruebas (test)
+          # Puedes definir aquí los comandos para desplegar en tu entorno de pruebas
+          echo "Deploying to testing environment..."
+
+      - name: Deploy to Environment
+        if: matrix.branch == 'prod'
+        run: |
+          # Despliegue en entorno de producción (prod)
+          # Aquí debes realizar el despliegue en tu entorno de producción
+          echo "Deploying to production environment..."
