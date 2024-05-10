@@ -1,3 +1,4 @@
+import { VCVerifierComponent } from './../VCVerifier/VCVerifier.component';
 import { CommonModule } from '@angular/common';
 import { ChangeDetectionStrategy, Component, inject } from '@angular/core';
 import { CheckboxModule } from 'primeng/checkbox';
@@ -8,6 +9,7 @@ import { InputTextModule } from 'primeng/inputtext';
 import { Router, RouterLink } from '@angular/router';
 import { AuthService } from '@services/auth.service';
 import { MessageService } from 'primeng/api';
+import { DividerModule } from 'primeng/divider';
 
 @Component({
   selector: 'app-auth-login',
@@ -20,6 +22,8 @@ import { MessageService } from 'primeng/api';
     FormsModule,
     RouterLink,
     InputTextModule,
+    VCVerifierComponent,
+    DividerModule,
   ],
   template: `
     <div class=" min-h-screen  mx-auto flex items-center justify-center ">
@@ -67,21 +71,32 @@ import { MessageService } from 'primeng/api';
             >
           </div>
 
-          <p-button
-            styleClass="w-full"
-            pRipple
-            icon="pi pi-user"
-            label="Submit"
-            [loading]="loading"
-            (click)="onSubmit()"
-          ></p-button>
+          <div class="flex flex-col gap-4">
+            <p-button
+              styleClass="w-full bg-blue-500 text-white hover:bg-blue-600 "
+              pRipple
+              icon="pi pi-user"
+              label="Login"
+              [loading]="loading"
+              (click)="onSubmit()"
+            ></p-button>
+
+            <!-- oauth -->
+
+            <p-divider styleClass="text-sm" align="center">OR</p-divider>
+
+            <app-vcverifier />
+          </div>
+          <div class="text-center">
+            Don't have an account?
+            <a
+              class="font-medium no-underline ml-2   cursor-pointer"
+              style="color: var(--primary-color)"
+              routerLink="/auth/register"
+              >Sing up</a
+            >
+          </div>
         </div>
-        <a
-          class="font-medium no-underline ml-2   cursor-pointer"
-          style="color: var(--primary-color)"
-          routerLink="/auth/register"
-          >Don't have an account?</a
-        >
       </div>
     </div>
   `,
