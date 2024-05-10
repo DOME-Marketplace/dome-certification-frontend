@@ -14,7 +14,7 @@ import { v4 as uuidv4 } from 'uuid';
         pRipple
         [outlined]="true"
         severity="contrast"
-        styleClass=" w-full text-black"
+        styleClass=" w-full text-black border-black"
         label="Continue with DOME"
         (click)="initiateAuthentication()"
       >
