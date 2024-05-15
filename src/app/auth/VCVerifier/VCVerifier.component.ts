@@ -37,8 +37,11 @@ export class VCVerifierComponent {
     // URL y parámetros para abrir la ventana emergente de VCVerifier
     const vcVerifierUrl =
       'https://verifier.dome-marketplace.org/api/v1/loginQR';
-    const clientCallback = 'https://dome-marketplace.org/auth/vc/callback';
-    const clientId = 'marketplace-client';
+    // const clientCallback = 'https://dome-marketplace.org/auth/vc/callback';
+    const clientCallback =
+      'https://xs86qb08-4200.uks1.devtunnels.ms/auth/login';
+    // const clientId = 'marketplace-client';
+    const clientId = 'dome-certification';
 
     const loginUrl = `${vcVerifierUrl}?state=${state}&client_callback=${clientCallback}&client_id=${clientId}`;
 
