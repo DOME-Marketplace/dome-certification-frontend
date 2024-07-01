@@ -23,7 +23,7 @@ import { roleRenamer } from '@utils/roleRenamer';
             routerLink="/"
           >
             <img
-              src="https://dome-marketplace.org/resources/core/images/DOME_Icon_White.png"
+              src="https://dome-marketplace-prd.org/assets/logos/DOME_Icon_White.svg"
               width="44px"
               height="44px"
             />
