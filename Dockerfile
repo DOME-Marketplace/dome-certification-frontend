@@ -3,9 +3,8 @@ FROM node:20.11 as build
 
 WORKDIR /app
 
-# Copia archivos de configuración basados en la variable de entorno
-ARG ENVIRONMENT=development
-COPY ./src/environments/environment.${ENVIRONMENT}.ts ./src/environments/environment.ts
+# Instala @angular/cli globalmente
+RUN npm install -g @angular/cli
 
 # Instala dependencias
 COPY package*.json ./
@@ -15,11 +14,14 @@ RUN npm install
 COPY . .
 
 # Compila la aplicación
-RUN npm run build --prod
+RUN ng build
 
-# Etapa de producción
+# Etapa de producción para servir la aplicación
 FROM nginx:alpine
-COPY --from=build /app/dist/my-angular-app /usr/share/nginx/html
 
-# Copia la configuración de nginx dependiendo del entorno
-COPY nginx/nginx.${ENVIRONMENT}.conf /etc/nginx/conf.d/default.conf
+# Copia los archivos compilados desde la etapa de construcción
+COPY --from=build /app/dist/frontend-dome/browser /usr/share/nginx/html
+
+# Configura la exposición del puerto y el comando de inicio de Nginx
+EXPOSE 80
+CMD ["nginx", "-g", "daemon off;"]
