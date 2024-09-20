@@ -34,11 +34,7 @@ import { roleRenamer } from '@utils/roleRenamer';
 
           <a
             class="cursor-pointer no-underline text-white ml-8"
-            routerLink="{{
-              this.user?.role === 'CUSTOMER'
-                ? '/dashboard-customer'
-                : '/dashboard'
-            }}"
+            routerLink="/dashboard"
           >
             Dasboard
           </a>
@@ -54,50 +50,71 @@ import { roleRenamer } from '@utils/roleRenamer';
 
         <div
           #topbarmenu
-          class="flex justify-between items-center gap-4 text-white"
+          class="flex justify-between items-center gap-6 text-white"
         >
+          @if(user?.role === 'ADMIN' || user?.role === 'EMPLOYEE' || user?.role
+          === 'CUSTOMER'){
+          <span
+            class=" bg-slate-100 rounded-full text-sm px-3 text-color-primary py-0"
+          >
+            {{ roleRenamer(user?.role) }}
+          </span>
+          }
           <!-- <p-button size="small" icon="pi pi-plus" [rounded]="true"></p-button> -->
           <button
             class="p-link layout-topbar-button  text-white"
-            (click)="menuProfile.toggle($event)"
+            (click)="menuSettings.toggle($event)"
           >
             <i class="pi pi-user  text-white"></i>
-            <span class="ml-2  text-white">Profile</span>
+            <span class="ml-2 text-white"
+              >{{ user?.firstname }} {{ user?.lastname }}
+            </span>
           </button>
-          <p-menu
-            #menuSettings
-            [model]="itemsSettings"
-            [popup]="true"
-            [style]="{ width: 'auto', minWidth: '200px' }"
-          />
-          <p-menu
-            #menuProfile
-            [model]="itemsProfile"
-            [popup]="true"
-            [style]="{ width: 'auto', minWidth: '200px' }"
-          />
-          <button
+
+          <!-- <button
             (click)="menuSettings.toggle($event)"
             class="p-link layout-topbar-button  text-white "
           >
             <i class="pi pi-cog  text-white"></i>
             <span class="ml-2  text-white">Settings</span>
-          </button>
+          </button> -->
         </div>
       </div>
     </div>
+
+    <p-menu
+      #menuSettings
+      [model]="itemsSettings"
+      [popup]="true"
+      [style]="{ width: 'auto', minWidth: '200px' }"
+    />
+    <p-menu
+      #menuProfile
+      [model]="itemsProfile"
+      [popup]="true"
+      [style]="{ width: 'auto', minWidth: '200px' }"
+    />
   `,
 })
 export class ToolbarComponent implements OnInit {
   private authService = inject(AuthService);
 
   @Input() user: User | null = null;
-
+  roleRenamer = roleRenamer;
   itemsSettings: MenuItem[] | undefined;
   itemsProfile: MenuItem[] | undefined;
 
   ngOnInit() {
     this.itemsSettings = [
+      {
+        label: 'Profile',
+        items: [
+          {
+            label: `${this.user?.firstname} ${this.user?.lastname}`,
+            icon: 'pi pi-user',
+          },
+        ],
+      },
       {
         label: 'Settings',
         items: [

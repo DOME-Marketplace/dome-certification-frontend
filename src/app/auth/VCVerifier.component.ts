@@ -3,6 +3,7 @@ import { HttpClient, HttpHeaders } from '@angular/common/http';
 import { Component, inject } from '@angular/core';
 import { ButtonModule } from 'primeng/button';
 import { v4 as uuidv4 } from 'uuid';
+import { environment } from '@env/environment';
 
 @Component({
   selector: 'app-vcverifier',
@@ -35,13 +36,11 @@ export class VCVerifierComponent {
     const state = uuidv4();
 
     // URL y parámetros para abrir la ventana emergente de VCVerifier
-    const vcVerifierUrl =
-      'https://verifier.dome-marketplace.org/api/v1/loginQR';
+    const vcVerifierUrl = `${environment.VERIFIER_URL}/api/v1/loginQR`;
     // const clientCallback = 'https://dome-marketplace.org/auth/vc/callback';
-    const clientCallback =
-      'https://xs86qb08-4200.uks1.devtunnels.ms/auth/login';
+    const clientCallback = environment.CLIENT_CALLBACK;
     // const clientId = 'marketplace-client';
-    const clientId = 'dome-certification';
+    const clientId = environment.CLIENT_ID;
 
     const loginUrl = `${vcVerifierUrl}?state=${state}&client_callback=${clientCallback}&client_id=${clientId}`;
 
@@ -69,7 +68,7 @@ export class VCVerifierComponent {
   }
 
   requestAccessToken(code: string) {
-    const tokenEndpoint = 'https://verifier.dome-marketplace.org/token';
+    const tokenEndpoint = `${environment.VERIFIER_URL}/token`;
     const headers = new HttpHeaders({
       'Content-Type': 'application/x-www-form-urlencoded',
       Accept: 'application/json',

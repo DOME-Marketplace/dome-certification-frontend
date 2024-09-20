@@ -1,6 +1,6 @@
 import { inject, Injectable, OnInit } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
-import { BehaviorSubject } from 'rxjs';
+import { BehaviorSubject, Observable } from 'rxjs';
 import { tap } from 'rxjs/operators';
 
 import { environment } from '@env/environment';
@@ -25,6 +25,17 @@ export class AuthService {
   login(username: string, password: string) {
     const url = `${environment.API_URL}/auth/login`;
     return this.http.post<LoginRta>(url, { username, password }).pipe(
+      tap((response) => {
+        this.tokenService.saveToken(response.acces_token);
+        this.authState.next(response.user);
+        this.localStorageService.setLocalStorageItem('user', response.user);
+      })
+    );
+  }
+
+  register(user: any): Observable<any> {
+    const url = `${environment.API_URL}/auth/register`;
+    return this.http.post<any>(url, user).pipe(
       tap((response) => {
         this.tokenService.saveToken(response.acces_token);
         this.authState.next(response.user);

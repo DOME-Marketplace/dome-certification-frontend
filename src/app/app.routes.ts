@@ -1,16 +1,16 @@
 import { Routes } from '@angular/router';
-import { LoginComponent } from './auth/login/login.component';
-import { RegisterComponent } from './auth/register/register.component';
-import { ForgotComponent } from './auth/forgot/forgot.component';
-import { ResetComponent } from './auth/reset/reset.component';
-import { LayoutComponent } from './layout/layout/layout.component';
-import { DashboardComponent } from './pages/dashboard/dashboard.component';
-import { NewRequestComponent } from './pages/newRequest/newRequest.component';
-import { UserRole } from '@models/user.role.model';
 import { roleGuard } from '@guards/role.guard';
-import { UnauthorizedComponent } from './pages/unauthorized/unauthorized.component';
-import { DashboardCustomerComponent } from './pages/dashboardCustomer/dashboardCustomer.component';
-import { HomeComponent } from './pages/home/home.component';
+import { UserRole } from '@models/user.role.model';
+import { DashboardComponent } from '@pages/dashboard/dashboard.component';
+import { DashboardCustomerComponent } from '@pages/dashboardCustomer/dashboardCustomer.component';
+import { HomeComponent } from '@pages/home/home.component';
+import { NewRequestComponent } from '@pages/newRequest/newRequest.component';
+import { UnauthorizedComponent } from '@pages/unauthorized/unauthorized.component';
+import { ForgotComponent } from './auth/forgot.component';
+import { LoginComponent } from './auth/login.component';
+import { RegisterComponent } from './auth/register.component';
+import { ResetComponent } from './auth/reset.component';
+import { LayoutComponent } from './layout/layout.component';
 
 export const routes: Routes = [
   {
@@ -34,18 +34,18 @@ export const routes: Routes = [
         canActivate: [roleGuard],
         data: {
           breadcrumb: 'Dashboard',
-          roles: [UserRole.ADMIN, UserRole.EMPLOYEE],
+          roles: [UserRole.ADMIN, UserRole.EMPLOYEE, UserRole.CUSTOMER],
         },
       },
-      {
-        path: 'dashboard-customer',
-        component: DashboardCustomerComponent,
-        canActivate: [roleGuard],
-        data: {
-          breadcrumb: 'Dashboard',
-          roles: [UserRole.ADMIN, UserRole.CUSTOMER],
-        },
-      },
+      // {
+      //   path: 'dashboard-customer',
+      //   component: DashboardCustomerComponent,
+      //   canActivate: [roleGuard],
+      //   data: {
+      //     breadcrumb: 'Dashboard',
+      //     roles: [UserRole.ADMIN, UserRole.CUSTOMER],
+      //   },
+      // },
       {
         path: 'newRequest',
         component: NewRequestComponent,

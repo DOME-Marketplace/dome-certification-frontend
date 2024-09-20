@@ -1,5 +1,4 @@
 import { Router, RouterOutlet } from '@angular/router';
-import { ToolbarComponent } from './../../components/toolbar/toolbar.component';
 import { CommonModule } from '@angular/common';
 import {
   ChangeDetectionStrategy,
@@ -7,9 +6,10 @@ import {
   OnInit,
   inject,
 } from '@angular/core';
-import { BreadcrumbComponent } from '../../components/breadcrumb/breadcrumb.component';
 import { AuthService } from '@services/auth.service';
 import { User } from '@models/user.model';
+import { ToolbarComponent } from '@components/toolbar.component';
+import { BreadcrumbComponent } from '@components/breadcrumb.component';
 
 @Component({
   selector: 'app-layout',

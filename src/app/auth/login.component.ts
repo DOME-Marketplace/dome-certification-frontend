@@ -1,4 +1,3 @@
-import { VCVerifierComponent } from './../VCVerifier/VCVerifier.component';
 import { CommonModule } from '@angular/common';
 import { ChangeDetectionStrategy, Component, inject } from '@angular/core';
 import { CheckboxModule } from 'primeng/checkbox';
@@ -10,6 +9,7 @@ import { Router, RouterLink } from '@angular/router';
 import { AuthService } from '@services/auth.service';
 import { MessageService } from 'primeng/api';
 import { DividerModule } from 'primeng/divider';
+import { VCVerifierComponent } from './VCVerifier.component';
 
 @Component({
   selector: 'app-auth-login',

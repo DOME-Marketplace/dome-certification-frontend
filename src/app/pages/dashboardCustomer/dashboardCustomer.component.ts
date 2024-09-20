@@ -119,6 +119,7 @@ import { Compliaces } from '@models/compliaces.mode';
             <td>{{ service.issue_date | date }}</td>
             <td>{{ service.expiration_date | date }}</td>
             <td>{{ service.issuer.username }}</td>
+            <td>{{ service?.comments || '' }}</td>
 
             <td>
               <div class="flex items-center justify-center h-4 ">
@@ -182,7 +183,7 @@ import { Compliaces } from '@models/compliaces.mode';
       @if(selectedRow){
       <div class="flex justify-between gap-8">
         <div class="w-full max-w-md">
-          <h6 class="text-base m-0">PO Number</h6>
+          <h6 class="text-base m-0">Product Offering Id</h6>
           <p class="mt-0 mb-2">{{ selectedRow.id_PO }}</p>
 
           <h6 class="text-base m-0">Service Name</h6>
@@ -248,7 +249,7 @@ import { Compliaces } from '@models/compliaces.mode';
             ) {
             <div
               class="flex flex-col items-center justify-center cursor-pointer p-2 rounded  {{
-                this.pdfSelected.id == profile.id ? ' bg-[#2d58a721]' : ''
+                this.pdfSelected?.id == profile?.id ? ' bg-[#2d58a721]' : ''
               }} "
               (click)="handlePdf(profile)"
             >

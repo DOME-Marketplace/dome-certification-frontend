@@ -1,6 +1,6 @@
 import { CommonModule } from '@angular/common';
 import { ChangeDetectionStrategy, Component } from '@angular/core';
-import { FormRequestComponent } from '../../components/form-request/formRequest.component';
+import { FormRequestComponent } from '../../components/formRequest.component';
 
 @Component({
   selector: 'app-new-request',

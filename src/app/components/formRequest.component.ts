@@ -1,5 +1,5 @@
 import { CommonModule } from '@angular/common';
-import { Component, Inject, OnInit, ViewChild, signal } from '@angular/core';
+import { Component, OnInit, ViewChild, signal } from '@angular/core';
 import {
   FormBuilder,
   FormsModule,
@@ -8,11 +8,11 @@ import {
 } from '@angular/forms';
 import { InputTextModule } from 'primeng/inputtext';
 import { ButtonModule } from 'primeng/button';
-import { FileUpload, FileUploadModule, UploadEvent } from 'primeng/fileupload';
+import { FileUpload, FileUploadModule } from 'primeng/fileupload';
 import { MessageService } from 'primeng/api';
 import { DropdownFilterOptions } from 'primeng/dropdown';
 import { DropdownModule } from 'primeng/dropdown';
-import { countries } from './countries';
+import { countries } from '../utils/countries';
 import { InputMaskModule } from 'primeng/inputmask';
 import { PO } from '@models/ProductOffering';
 import { ApiServices } from '@services/api.service';
@@ -47,27 +47,30 @@ interface City {
               Service information
             </h3>
             <div class="flex flex-col gap-8 ">
-              <span class="p-float-label w-full">
-                <input
-                  class="w-full"
-                  pInputText
-                  id="organization-name"
-                  formControlName="name_organization"
-                />
-                <label for="organization-name"
-                  >Name of the Organization *</label
-                >
-              </span>
+              <div class="flex gap-8">
+                <span class="p-float-label w-full">
+                  <input
+                    class="w-full"
+                    pInputText
+                    id="service-name"
+                    formControlName="service_name"
+                  />
+                  <label for="service-name">Product Name *</label>
+                </span>
 
-              <span class="p-float-label w-full">
-                <input
-                  class="w-full"
-                  pInputText
-                  id="service-name"
-                  formControlName="service_name"
-                />
-                <label for="service-name">Service Name *</label>
-              </span>
+                <span class="p-float-label ">
+                  <p-inputMask
+                    formControlName="service_version"
+                    class="w-full"
+                    id="service-version"
+                    mask="9.9"
+                  ></p-inputMask>
+
+                  <label class="w-full" for="service-version"
+                    >Product Version *</label
+                  >
+                </span>
+              </div>
 
               <span class="p-float-label w-full">
                 <input
@@ -79,6 +82,27 @@ interface City {
                 <label for="id_PO">ID *</label>
               </span>
 
+              <span class="p-float-label w-full">
+                <input
+                  class="w-full"
+                  pInputText
+                  id="organization-name"
+                  formControlName="name_organization"
+                />
+                <label for="organization-name"
+                  >Name of the Organization *</label
+                >
+              </span>
+              <span class="p-float-label w-full">
+                <input
+                  class="w-full"
+                  pInputText
+                  id="address"
+                  formControlName="address_organization"
+                />
+                <label for="address">Address *</label>
+              </span>
+
               <div class="flex gap-8">
                 <p-dropdown
                   [options]="countries"
@@ -88,7 +112,7 @@ interface City {
                   filterBy="name"
                   [showClear]="true"
                   placeholder="ISO Country Code"
-                  styleClass="w-full min-w-[500px]"
+                  styleClass="w-full min-w-[200px]"
                 >
                   <ng-template pTemplate="filter" let-options="options">
                     <div class="flex gap-1 px-1 w-full ">
@@ -139,30 +163,17 @@ interface City {
                     </div>
                   </ng-template>
                 </p-dropdown>
-
-                <span class="p-float-label ">
-                  <p-inputMask
-                    formControlName="service_version"
+                <span class="p-float-label w-full">
+                  <input
                     class="w-full"
-                    id="service-version"
-                    mask="9.9"
-                  ></p-inputMask>
-
-                  <label class="w-full" for="service-version"
-                    >Service Version *</label
-                  >
+                    pInputText
+                    type="text"
+                    id="vat_id"
+                    formControlName="vat_id"
+                  />
+                  <label for="vat_id">VAT ID *</label>
                 </span>
               </div>
-
-              <span class="p-float-label w-full">
-                <input
-                  class="w-full"
-                  pInputText
-                  id="address"
-                  formControlName="address_organization"
-                />
-                <label for="address">Address *</label>
-              </span>
 
               <div class="flex gap-8">
                 <span class="p-float-label w-full">
@@ -242,7 +253,6 @@ interface City {
       </form>
     </div>
   `,
-  styleUrl: './form-request.component.css',
 })
 export class FormRequestComponent implements OnInit {
   @ViewChild('fileUploadComponent')
@@ -255,6 +265,7 @@ export class FormRequestComponent implements OnInit {
     address_organization: ['', Validators.required],
     ISO_Country_Code: [null, Validators.required],
     id_PO: ['', Validators.required],
+    vat_id: ['', Validators.required],
     url_organization: [
       '',
       [

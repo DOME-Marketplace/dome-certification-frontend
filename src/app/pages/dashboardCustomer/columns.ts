@@ -7,4 +7,5 @@ export const cols = [
   { field: 'issue_date', header: 'Issue Date' },
   { field: 'expiration_date', header: 'Exp. Date' },
   { field: 'issuer', header: 'Issuer' },
+  { field: 'comments', header: 'Comments' },
 ];

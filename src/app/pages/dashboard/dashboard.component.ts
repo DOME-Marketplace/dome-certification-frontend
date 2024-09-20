@@ -1,6 +1,6 @@
 import { CommonModule } from '@angular/common';
 import { ChangeDetectionStrategy, Component } from '@angular/core';
-import { TableRequestComponent } from '../../components/table-request/tableRequest.component';
+import { TableRequestComponent } from '@components/tableRequest.component';
 
 @Component({
   selector: 'app-dashboard',
@@ -13,6 +13,6 @@ import { TableRequestComponent } from '../../components/table-request/tableReque
       <app-table-request />
     </div>
   `,
-  changeDetection: ChangeDetectionStrategy.OnPush,
+  // changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class DashboardComponent {}

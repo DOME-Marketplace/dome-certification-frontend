@@ -5,6 +5,9 @@
 export const environment = {
   production: false,
   API_URL: 'http://localhost:8080',
+  VERIFIER_URL: 'https://verifier.dome-marketplace-prd.org',
+  CLIENT_CALLBACK: 'https://dome-marketplace.org/auth/vc/callback',
+  CLIENT_ID: 'dome-certification',
 };
 
 /*
