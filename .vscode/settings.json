@@ -1,0 +1,13 @@
+{
+  "angular-schematics.schematicsDefaultOptions": {
+    "angular-*": {
+      "inlineStyle": true
+    },
+    "angular-component": {
+      "skipPathSubfolder": true
+    },
+    "angular-page": {
+      "skipPathSubfolder": true
+    }
+  }
+}

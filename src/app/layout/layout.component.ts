@@ -26,7 +26,6 @@ import { BreadcrumbComponent } from '@components/breadcrumb.component';
       </main>
     </div>
   `,
-  changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class LayoutComponent implements OnInit {
   private authService = inject(AuthService);

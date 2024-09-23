@@ -7,7 +7,7 @@ export interface User {
   firstname: string;
   lastname: string;
   location: string;
-  organization: string;
+  organization_name: string;
   position: string;
   role: UserRole;
   last_seen: string;

@@ -169,3 +169,16 @@ btn-primary:disabled:hover {
   height: 308px;
   overflow: scroll;
 }
+
+/* Ajusta otros estilos según sea necesario */
+
+/* .p-datepicker {
+  padding: 0.5rem;
+  border-color: #007bff;
+  background-color: #007bff;
+  background: #007bff;
+  border: 0 none;
+  border-radius: 6px;
+  background-color: #f0f0f0;
+  color: #333;
+} */

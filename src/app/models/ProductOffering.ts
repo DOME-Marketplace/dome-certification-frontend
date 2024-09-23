@@ -44,7 +44,7 @@ export interface ResPO {
   url_organization: string;
   email_organization: string;
   issuer: Issuer;
-  image: null;
+  image: string | null;
   status: string;
   request_date: Date;
   issue_date: null;

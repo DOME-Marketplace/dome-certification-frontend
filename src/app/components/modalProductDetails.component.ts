@@ -1,3 +1,4 @@
+import { UserRole } from './../models/user.role.model';
 import { compliances } from './../utils/compliances';
 import { MessageService } from 'primeng/api';
 import { CommonModule } from '@angular/common';
@@ -5,9 +6,11 @@ import {
   Component,
   computed,
   ElementRef,
+  EventEmitter,
   inject,
   Input,
   OnInit,
+  Output,
   signal,
   ViewChild,
 } from '@angular/core';
@@ -19,11 +22,14 @@ import { PdfViewerComponent, PdfViewerModule } from 'ng2-pdf-viewer';
 import { InputTextModule } from 'primeng/inputtext';
 import moment from 'moment';
 import { ApiServices } from '@services/api.service';
-import { ResPO } from '@models/ProductOffering';
+import { PO, ResPO } from '@models/ProductOffering';
 import { MultiSelectModule } from 'primeng/multiselect';
 import { FormsModule, ReactiveFormsModule } from '@angular/forms';
 import { Compliaces } from '@models/compliaces.mode';
-import { catchError, finalize, of, tap } from 'rxjs';
+import { CalendarModule } from 'primeng/calendar';
+import { AuthService } from '@services/auth.service';
+import { User } from '@models/user.model';
+import { ModalRejectProductComponent } from './modalRejectProduct.component';
 
 @Component({
   selector: 'app-modal-product-details',
@@ -39,6 +45,9 @@ import { catchError, finalize, of, tap } from 'rxjs';
     PdfViewerModule,
     InputTextModule,
     MultiSelectModule,
+    CalendarModule,
+    ModalRejectProductComponent,
+    ModalRejectProductComponent,
   ],
   template: `
     <p-dialog
@@ -74,11 +83,16 @@ import { catchError, finalize, of, tap } from 'rxjs';
           <h6 class="text-base m-0">Product Offering Id</h6>
           <p class="mt-0 mb-2">{{ selectedRow.id_PO }}</p>
 
-          <h6 class="text-base m-0">Name</h6>
+          <h6 class="text-base m-0">Product Offering Name</h6>
           <p class="mt-0 mb-2">{{ selectedRow.service_name }}</p>
+
+          <h6 class="text-base m-0">Product Offering Version</h6>
+          <p class="mt-0 mb-2">{{ selectedRow.service_version }}</p>
 
           <h6 class="text-base m-0">Name of the organization</h6>
           <p class="mt-0 mb-2">{{ selectedRow.name_organization }}</p>
+          <h6 class="text-base m-0">VAT ID</h6>
+          <p class="mt-0 mb-2"></p>
 
           <h6 class="text-base m-0">ISO Country Code</h6>
           <p class="mt-0 mb-2">{{ selectedRow.ISO_Country_Code }}</p>
@@ -103,32 +117,20 @@ import { catchError, finalize, of, tap } from 'rxjs';
           </a>
 
           <h6 class="text-base m-0 mt-2">Request Date</h6>
-
           <p class="mt-0 mb-2">{{ selectedRow.request_date | date }}</p>
-
-          @if(!selectedRow.request_date){
-          <p class="mt-0 mb-2">nd</p>
-
-          }
 
           <h6 class="text-base m-0">Status</h6>
           <p class="mt-0 mb-2">{{ selectedRow.status }}</p>
 
+          @if(selectedRow.issue_date && selectedRow.status !== 'REJECTED'){
           <h6 class="text-base m-0">Issue Date</h6>
           <p class="mt-0 mb-2">{{ selectedRow.issue_date | date }}</p>
-
-          @if(!selectedRow.issue_date){
-          <p class="mt-0 mb-2">nd</p>
-
-          }
-
+          } @if(selectedRow.expiration_date && selectedRow.status !==
+          'REJECTED'){
           <h6 class="text-base m-0">Expiration Date</h6>
           <p class="mt-0 mb-0">{{ selectedRow.expiration_date | date }}</p>
-
-          @if(!selectedRow.expiration_date){
-          <p class="mt-0 mb-0">nd</p>
-
           }
+
           <p-divider />
 
           <h6 class="text-base m-0">Compliance Profiles</h6>
@@ -195,17 +197,18 @@ import { catchError, finalize, of, tap } from 'rxjs';
       }
 
       <ng-template pTemplate="footer">
-        @if(this.selectedRow.status == 'VALIDATED' || this.selectedRow.status ==
-        'REJECTED'){
+        @if(selectedRow.status !== 'IN_PROGRESS' && (user.role == userRole.ADMIN
+        || user.role == userRole.EMPLOYEE)) {
         <p-button
           label="Resend Email"
           [raised]="true"
           icon="pi pi-check"
           size="small"
           [loading]="isLoading"
-          (onClick)="handleResendEmail(this.selectedRow)"
+          (onClick)="handleResendEmail(selectedRow)"
         ></p-button>
-        } @else {
+        } @if (selectedRow.status == 'IN_PROGRESS' && (user.role ==
+        userRole.ADMIN || user.role == userRole.EMPLOYEE)) {
         <p-button
           label="Validate"
           [raised]="true"
@@ -214,7 +217,13 @@ import { catchError, finalize, of, tap } from 'rxjs';
           [loading]="isLoading"
           (onClick)="handleValidate(this.selectedRow, 'validated')"
         ></p-button>
-        <p-button
+
+        <app-modal-reject-product
+          [selectedRow]="selectedRow"
+          (updateTableFromChild)="eventToParent()"
+        />
+
+        <!-- <p-button
           label="Reject"
           [raised]="true"
           icon="pi pi-times"
@@ -222,8 +231,18 @@ import { catchError, finalize, of, tap } from 'rxjs';
           severity="danger"
           (onClick)="handleReject(this.selectedRow)"
           [loading]="rejectingLoading"
-        ></p-button>
+        ></p-button> -->
+
         }
+
+        <p-button
+          label="Close"
+          [raised]="true"
+          icon="pi pi-times"
+          styleClass="p-button-outlined"
+          size="small"
+          (onClick)="handleCloseDetailsModal()"
+        ></p-button>
       </ng-template>
     </p-dialog>
 
@@ -235,6 +254,19 @@ import { catchError, finalize, of, tap } from 'rxjs';
       [modal]="true"
     >
       <div class="flex flex-col gap-8 ">
+        <p-multiSelect
+          class=" w-full  {{ invalidForm ? 'ng-invalid ng-dirty' : '' }}"
+          appendTo="body"
+          inputId="compliance"
+          [options]="compliances"
+          placeholder="Select a Compliances*"
+          optionLabel="name"
+          [(ngModel)]="selectedCompliance"
+          (onChange)="this.invalidForm = false"
+          [style]="{ width: '100%' }"
+          [panelStyle]="{ width: '100%' }"
+        />
+
         <div class="flex gap-8 mt-6">
           <span class="p-float-label w-full ">
             <input
@@ -248,12 +280,17 @@ import { catchError, finalize, of, tap } from 'rxjs';
           </span>
 
           <span class="p-float-label w-full">
-            <input
-              class="w-full"
-              pInputText
-              id="request_expiration_date"
+            <p-calendar
               [(ngModel)]="request_expiration_date"
-              disabled="true"
+              [iconDisplay]="'input'"
+              [showIcon]="true"
+              inputId="request_expiration_date"
+              appendTo="body"
+              [style]="{
+                width: '100%',
+                background: 'white',
+                'background-color': 'white'
+              }"
             />
             <label for="request_expiration_date">Expiration Date *</label>
           </span>
@@ -269,28 +306,6 @@ import { catchError, finalize, of, tap } from 'rxjs';
           />
           <label for="request_issuer_name">Issuer *</label>
         </span>
-
-        <div class="flex gap-8">
-          <p-multiSelect
-            class="{{ this.invalidForm ? 'ng-invalid ng-dirty' : '' }}"
-            appendTo="body"
-            [options]="compliances"
-            placeholder="Select a Compliance Profile *"
-            optionLabel="name"
-            [(ngModel)]="selectedCompliance"
-            (onChange)="this.invalidForm = false"
-          ></p-multiSelect>
-          <span class="p-float-label w-full">
-            <input
-              class="w-full"
-              pInputText
-              id="request_url_organization"
-              [(ngModel)]="request_url_organization"
-              disabled="true"
-            />
-            <label for="request_url_organization">Website *</label>
-          </span>
-        </div>
       </div>
       <ng-template pTemplate="footer">
         <p-button
@@ -313,13 +328,19 @@ import { catchError, finalize, of, tap } from 'rxjs';
     </p-dialog>
   `,
 })
-export class ModalProductDetails {
+export class ModalProductDetails implements OnInit {
   private apiServices = inject(ApiServices);
   private messageService = inject(MessageService);
+  private authService = inject(AuthService);
   public vc = signal({} as any | null);
   public vcBlob = signal({} as any | null);
   @Input() selectedRow: any = {};
+  @Output() updateTable = new EventEmitter<void>();
+  @Output() updateTableFromChild = new EventEmitter<void>();
+
   visible: boolean = false;
+  user: User | null = null;
+  userRole = UserRole;
 
   pdfSelected: any = {};
   computedVc = computed(() => this.vc());
@@ -341,6 +362,10 @@ export class ModalProductDetails {
   private pdfComponent!: PdfViewerComponent;
 
   @ViewChild('search') searchInput!: ElementRef;
+
+  ngOnInit() {
+    this.user = this.authService.getUserFromLocalStorage();
+  }
 
   handleOpen(service: ResPO) {
     this.visible = !this.visible;
@@ -417,87 +442,44 @@ export class ModalProductDetails {
     // Convertir la fecha de expiración a una cadena en formato deseado
     this.secondModal = true;
     this.request_issue_date = currentDate.format('YYYY-MM-DD');
-    this.request_issuer_name = service.issuer.username;
+    this.request_issuer_name = this.user.organization_name;
     this.request_url_organization = service.url_organization;
     this.request_expiration_date = expirationDateString;
-  }
-
-  handleReject(service: ResPO) {
-    this.rejectingLoading = true;
-
-    this.apiServices
-      .updateStatus({ status: 'REJECTED' }, service.id)
-      .subscribe(
-        (res) => {
-          console.log(res);
-
-          this.messageService.add({
-            severity: 'success',
-            summary: 'Rejected',
-            detail: 'Services status is Rejected',
-          });
-          this.getAllPOs();
-          this.visible = false;
-        },
-        (error) => {
-          console.error('Error:', error);
-          this.messageService.add({
-            severity: 'warning',
-            summary: 'Connection Error',
-            detail: 'Failed to connect with server',
-          });
-        }
-      )
-      .add(() => {
-        this.rejectingLoading = false;
-      });
-  }
-
-  getAllPOs() {
-    this.apiServices.getAllCloudServices().subscribe((services) => {
-      //   this.services.set(services);
-    });
   }
 
   sendValidateConfirmation(data, id) {
     this.isLoading = true;
 
-    this.apiServices
-      .updateStatus(data, id)
-      .pipe(
-        tap((res) => {
-          this.isLoading = false;
-          this.handleCloseValidateModal();
-          this.visible = false;
-          // this.getAllPOs();
-          console.log(res);
-          console.log(this.isLoading);
-          console.log(this.secondModal);
-          this.messageService.add({
-            severity: 'success',
-            summary: 'Validated',
-            detail: 'Service status is Validated',
-          });
-        }),
-        catchError((error) => {
-          this.isLoading = false;
-          console.error('Error:', error);
-          this.messageService.add({
-            severity: 'error',
-            summary: 'Error',
-            detail: 'Failed to update service status',
-          });
-          return of(null); // Retorna un observable vacío para continuar el flujo
-        }),
-        finalize(() => {
-          this.isLoading = false; // Se ejecuta independientemente del resultado
-        })
-      )
-      .subscribe();
+    this.apiServices.updateStatus(data, id).subscribe({
+      complete: () => {
+        this.messageService.add({
+          severity: 'success',
+          summary: 'Validated',
+          detail: 'Service status is Validated',
+        });
+
+        this.handleCloseValidateModal();
+        this.handleCloseDetailsModal();
+        this.updateTable.emit();
+      },
+      error: (e) => {
+        console.error('Error:', e);
+        this.messageService.add({
+          severity: 'error',
+          summary: 'Error',
+          detail: 'Failed to update service status',
+        });
+      },
+      next: () => {
+        this.isLoading = false;
+      },
+    });
+  }
+  eventToParent() {
+    this.updateTableFromChild.emit();
   }
 
   handleConfirmValidation() {
-    console.log(this.selectedCompliance);
     if (!this.selectedCompliance) {
       this.invalidForm = true;
       this.messageService.add({
@@ -517,5 +499,8 @@ export class ModalProductDetails {
 
   handleCloseValidateModal() {
     this.secondModal = !this.secondModal;
+  }
+  handleCloseDetailsModal() {
+    this.visible = !this.visible;
   }
 }

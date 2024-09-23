@@ -151,7 +151,11 @@ import { UserRole } from '@models/user.role.model';
         </ng-template>
       </p-table>
     </div>
-    <app-modal-product-details [selectedRow]="selectedRow" />
+    <app-modal-product-details
+      [selectedRow]="selectedRow"
+      (updateTable)="getAllPOs()"
+      (updateTableFromChild)="getAllPOs()"
+    />
   `,
 })
 export class TableRequestComponent implements OnInit {
