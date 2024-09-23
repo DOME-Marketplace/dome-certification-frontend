@@ -109,11 +109,11 @@ import { Compliaces } from '@models/compliaces.mode';
             <td>{{ service.service_name }}</td>
             <td>{{ service.service_version }}</td>
             <td>
-              <p-tag
+              <!-- <p-tag
                 class="text-nowrap"
                 [value]="service.status"
                 [severity]="getSeverity(service.status)"
-              ></p-tag>
+              ></p-tag> -->
             </td>
             <td>{{ service.request_date | date }}</td>
             <td>{{ service.issue_date | date }}</td>
@@ -434,7 +434,7 @@ export class DashboardCustomerComponent {
   ngOnInit() {
     this.cols = cols;
     this.primengConfig.ripple = true;
-    this.primengConfig.inputStyle = 'outlined';
+    // this.primengConfig.inputStyle = 'outlined';
     this.getAllPOs();
 
     this.exportColumns = this.cols.map((col) => ({

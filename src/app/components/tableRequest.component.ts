@@ -182,7 +182,7 @@ export class TableRequestComponent implements OnInit {
   ngOnInit() {
     this.cols = cols;
     this.primengConfig.ripple = true;
-    this.primengConfig.inputStyle = 'outlined';
+    // this.primengConfig.inputStyle = 'outlined';
     this.user = this.authService.getUserFromLocalStorage();
     this.getAllPOs();
 
@@ -247,7 +247,7 @@ export class TableRequestComponent implements OnInit {
         return 'danger';
 
       case 'EXPIRED':
-        return 'error';
+        return 'warning'; // Cambiado de 'error' a 'warning'
 
       default:
         return 'info';

@@ -10,10 +10,12 @@ import {
 } from '@angular/common/http';
 import { MessageService } from 'primeng/api';
 import { TokenInterceptor } from './interceptors/token.interceptor';
-
+import { provideQuillConfig } from 'ngx-quill';
+import { modules } from 'src/app/quill/quill.config';
 export const appConfig: ApplicationConfig = {
   providers: [
     provideRouter(routes, withComponentInputBinding()),
+    provideQuillConfig({ modules }),
     { provide: HTTP_INTERCEPTORS, useClass: TokenInterceptor, multi: true },
     provideHttpClient(withInterceptorsFromDi()),
     provideAnimations(),

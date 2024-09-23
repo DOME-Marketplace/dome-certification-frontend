@@ -20,6 +20,6 @@ export class AppComponent implements OnInit {
 
   ngOnInit() {
     this.primengConfig.ripple = true;
-    this.primengConfig.inputStyle = 'outlined';
+    // this.primengConfig.inputStyle = 'outlined';
   }
 }

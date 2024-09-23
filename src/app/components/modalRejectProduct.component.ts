@@ -1,7 +1,9 @@
 import { CommonModule } from '@angular/common';
 import { Component, EventEmitter, Input, Output, inject } from '@angular/core';
+import { FormsModule } from '@angular/forms';
 import { ResPO } from '@models/ProductOffering';
 import { ApiServices } from '@services/api.service';
+import { QuillEditorComponent } from 'ngx-quill';
 import { MessageService } from 'primeng/api';
 import { ButtonModule } from 'primeng/button';
 import { DialogModule } from 'primeng/dialog';
@@ -9,7 +11,13 @@ import { DialogModule } from 'primeng/dialog';
 @Component({
   selector: 'app-modal-reject-product',
   standalone: true,
-  imports: [CommonModule, DialogModule, ButtonModule],
+  imports: [
+    CommonModule,
+    DialogModule,
+    ButtonModule,
+    QuillEditorComponent,
+    FormsModule,
+  ],
   template: `
     <p-button
       label="Reject"
@@ -28,6 +36,7 @@ import { DialogModule } from 'primeng/dialog';
       [draggable]="false"
       [resizable]="false"
     >
+      <quill-editor [(ngModel)]="content" />
       <ng-template pTemplate="footer">
         <p-button
           label="Reject"
@@ -55,7 +64,7 @@ export class ModalRejectProductComponent {
   private messageService = inject(MessageService);
   @Output() updateTableFromChild = new EventEmitter<void>();
   @Input() selectedRow!: ResPO;
-
+  content = 'editor';
   visible = false;
   rejectingLoading = false;
 
