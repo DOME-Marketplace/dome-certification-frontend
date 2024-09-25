@@ -28,6 +28,8 @@ import { ModalProductDetails } from '@components/modalProductDetails.component';
 import { AuthService } from '@services/auth.service';
 import { User } from '@models/user.model';
 import { UserRole } from '@models/user.role.model';
+import { EmptySvgImageComponent } from '../ui/empty-svg-image.component';
+import { ModalCommentsComponent } from './modalComments.component';
 
 @Component({
   selector: 'app-table-request',
@@ -50,20 +52,27 @@ import { UserRole } from '@models/user.role.model';
     InputTextModule,
     MultiSelectModule,
     ModalProductDetails,
+    EmptySvgImageComponent,
+    ModalCommentsComponent,
   ],
   template: `
     <p-contextMenu #cm [model]="items"></p-contextMenu>
     <div
-      class=" bg-white border border-gray-50  rounded-md px-1 pt-1 w-full z-0"
-      style="    border: 1px solid #e5e5e5;"
+      class=" bg-white border border-gray-50  rounded-md px-1 pt-1 w-full z-0 "
     >
       <p-table
         #dt
+        class="min-h-[800px]"
         [columns]="cols"
         [value]="productsArray()"
         [(contextMenuSelection)]="selectedRow"
         [contextMenu]="cm"
-        [tableStyle]="{ 'min-width': '80rem', 'font-size': '14px' }"
+        [tableStyle]="{
+          'min-width': '80rem',
+          'font-size': '14px',
+          'min-height': productsArray().length < 1 ? '600px' : 'auto',
+
+        }"
         styleClass=" p-datatable-striped "
         [paginator]="true"
         [rows]="10"
@@ -117,8 +126,16 @@ import { UserRole } from '@models/user.role.model';
             <td>{{ service.request_date | date }}</td>
             <td>{{ service.issue_date | date }}</td>
             <td>{{ service.expiration_date | date }}</td>
-            <td>{{ service.issuer.username }}</td>
-            <td>{{ service?.comments || '' }}</td>
+            <td>{{ service?.issuer?.organization_name || '' }}</td>
+            <td>
+              @if(service?.comments){
+              <p-button
+                label="Show"
+                [text]="true"
+                (onClick)="onModalCommentsToggle(service)"
+              />
+              }
+            </td>
 
             <td>
               <div class="flex items-center justify-center h-4 ">
@@ -135,11 +152,15 @@ import { UserRole } from '@models/user.role.model';
           </tr>
         </ng-template>
         <ng-template pTemplate="paginatorleft">
-          <!-- <p-button
+          <p-button
+            label="REFRESH"
+            [text]="true"
             type="button"
-            icon="pi pi-plus"
-            styleClass="p-button-text "
-          ></p-button> -->
+            size="small"
+            icon="pi pi-refresh"
+            styleClass="p-button-text"
+            (click)="getAllPOs()"
+          ></p-button>
           <p-button
             label="EXPORT"
             [text]="true"
@@ -149,6 +170,13 @@ import { UserRole } from '@models/user.role.model';
             (click)="dt.exportCSV()"
           ></p-button>
         </ng-template>
+        <ng-template pTemplate="emptymessage">
+          <td [attr.colspan]="cols.length + 1">
+            <div class="flex justify-center items-center ">
+              <app-empty-svg-image />
+            </div>
+          </td>
+        </ng-template>
       </p-table>
     </div>
     <app-modal-product-details
@@ -156,6 +184,7 @@ import { UserRole } from '@models/user.role.model';
       (updateTable)="getAllPOs()"
       (updateTableFromChild)="getAllPOs()"
     />
+    <app-modal-comments [selectedRow]="selectedRow" />
   `,
 })
 export class TableRequestComponent implements OnInit {
@@ -172,8 +201,10 @@ export class TableRequestComponent implements OnInit {
   cols!: Column[];
   exportColumns!: ExportColumn[];
   user: User | null = null;
+  modalShowComment = false;
 
   @ViewChild(ModalProductDetails) modalProductDetails!: ModalProductDetails;
+  @ViewChild(ModalCommentsComponent) modalComments!: ModalCommentsComponent;
 
   onRowSelect(event: any) {
     // console.log(event.data);
@@ -206,6 +237,11 @@ export class TableRequestComponent implements OnInit {
     ];
   }
 
+  onModalCommentsToggle(service: ResPO) {
+    this.selectedRow = service;
+    this.modalComments.handleToggle();
+  }
+
   getAllPOs() {
     if (
       this.user.role === UserRole.ADMIN ||
@@ -233,6 +269,10 @@ export class TableRequestComponent implements OnInit {
   showModal(service: ResPO) {
     this.selectedRow = service;
     this.modalProductDetails.handleOpen(service);
+  }
+  showModalComment(service: ResPO) {
+    this.selectedRow = service;
+    this.modalShowComment = !this.modalShowComment;
   }
 
   getSeverity(status: string) {

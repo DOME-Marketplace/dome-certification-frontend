@@ -2,7 +2,6 @@ import { Routes } from '@angular/router';
 import { roleGuard } from '@guards/role.guard';
 import { UserRole } from '@models/user.role.model';
 import { DashboardComponent } from '@pages/dashboard/dashboard.component';
-import { DashboardCustomerComponent } from '@pages/dashboardCustomer/dashboardCustomer.component';
 import { HomeComponent } from '@pages/home/home.component';
 import { NewRequestComponent } from '@pages/newRequest/newRequest.component';
 import { UnauthorizedComponent } from '@pages/unauthorized/unauthorized.component';
@@ -37,15 +36,6 @@ export const routes: Routes = [
           roles: [UserRole.ADMIN, UserRole.EMPLOYEE, UserRole.CUSTOMER],
         },
       },
-      // {
-      //   path: 'dashboard-customer',
-      //   component: DashboardCustomerComponent,
-      //   canActivate: [roleGuard],
-      //   data: {
-      //     breadcrumb: 'Dashboard',
-      //     roles: [UserRole.ADMIN, UserRole.CUSTOMER],
-      //   },
-      // },
       {
         path: 'newRequest',
         component: NewRequestComponent,

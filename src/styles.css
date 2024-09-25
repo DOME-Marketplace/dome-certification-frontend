@@ -182,3 +182,7 @@ btn-primary:disabled:hover {
   background-color: #f0f0f0;
   color: #333;
 } */
+
+.p-datatable > .p-datatable-wrapper {
+  min-height: 680px;
+}

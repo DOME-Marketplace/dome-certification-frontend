@@ -13,6 +13,8 @@ export interface PO {
   image: string;
   name_organization: string;
   address_organization: string;
+  vat_ID: string | null;
+  comments: string | null;
   ISO_Country_Code: string;
   url_organization: string;
   email_organization: string;
@@ -43,6 +45,8 @@ export interface ResPO {
   ISO_Country_Code: string;
   url_organization: string;
   email_organization: string;
+  vat_ID: string | null;
+  comments: string | null;
   issuer: Issuer;
   image: string | null;
   status: string;

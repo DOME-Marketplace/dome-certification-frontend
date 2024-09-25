@@ -15,7 +15,9 @@ import { modules } from 'src/app/quill/quill.config';
 export const appConfig: ApplicationConfig = {
   providers: [
     provideRouter(routes, withComponentInputBinding()),
-    provideQuillConfig({ modules }),
+    provideQuillConfig({
+      modules,
+    }),
     { provide: HTTP_INTERCEPTORS, useClass: TokenInterceptor, multi: true },
     provideHttpClient(withInterceptorsFromDi()),
     provideAnimations(),

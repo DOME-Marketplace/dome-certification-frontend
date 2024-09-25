@@ -53,6 +53,7 @@ import { ModalRejectProductComponent } from './modalRejectProduct.component';
     <p-dialog
       [(visible)]="visible"
       [maximizable]="true"
+      [modal]="true"
       [style]="{ width: '69vw' }"
     >
       <ng-template pTemplate="header" class="flex flex-col items-start">
@@ -92,7 +93,7 @@ import { ModalRejectProductComponent } from './modalRejectProduct.component';
           <h6 class="text-base m-0">Name of the organization</h6>
           <p class="mt-0 mb-2">{{ selectedRow.name_organization }}</p>
           <h6 class="text-base m-0">VAT ID</h6>
-          <p class="mt-0 mb-2"></p>
+          <p class="mt-0 mb-2">{{ selectedRow.VAT_ID }}</p>
 
           <h6 class="text-base m-0">ISO Country Code</h6>
           <p class="mt-0 mb-2">{{ selectedRow.ISO_Country_Code }}</p>
@@ -221,17 +222,8 @@ import { ModalRejectProductComponent } from './modalRejectProduct.component';
         <app-modal-reject-product
           [selectedRow]="selectedRow"
           (updateTableFromChild)="eventToParent()"
+          (closeModalFromChild)="handleCloseDetailsModal()"
         />
-
-        <!-- <p-button
-          label="Reject"
-          [raised]="true"
-          icon="pi pi-times"
-          size="small"
-          severity="danger"
-          (onClick)="handleReject(this.selectedRow)"
-          [loading]="rejectingLoading"
-        ></p-button> -->
 
         }
 
@@ -444,7 +436,6 @@ export class ModalProductDetails implements OnInit {
     this.request_issue_date = currentDate.format('YYYY-MM-DD');
     this.request_issuer_name = this.user.organization_name;
     this.request_url_organization = service.url_organization;
-    this.request_expiration_date = expirationDateString;
   }
 
   sendValidateConfirmation(data, id) {
@@ -492,6 +483,7 @@ export class ModalProductDetails implements OnInit {
 
     const data = {
       status: 'VALIDATED',
+      expiration_date: this.request_expiration_date,
       compliances: this.selectedCompliance.map((compliance) => compliance.name),
     };
     this.sendValidateConfirmation(data, this.selectedRow.id);

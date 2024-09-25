@@ -168,10 +168,10 @@ interface City {
                     class="w-full"
                     pInputText
                     type="text"
-                    id="vat_id"
-                    formControlName="vat_id"
+                    id="VAT_ID"
+                    formControlName="VAT_ID"
                   />
-                  <label for="vat_id">VAT ID *</label>
+                  <label for="VAT_ID">VAT ID *</label>
                 </span>
               </div>
 
@@ -265,7 +265,7 @@ export class FormRequestComponent implements OnInit {
     address_organization: ['', Validators.required],
     ISO_Country_Code: [null, Validators.required],
     id_PO: ['', Validators.required],
-    vat_id: ['', Validators.required],
+    VAT_ID: ['', Validators.required],
     url_organization: [
       '',
       [
@@ -328,6 +328,7 @@ export class FormRequestComponent implements OnInit {
         'email_organization',
         this.form.get('email_organization')?.value
       );
+      formData.append('VAT_ID', this.form.get('VAT_ID')?.value);
       // Append uploaded files to FormData under 'files' key
       if (this.uploadedFiles && this.uploadedFiles.length > 0) {
         this.uploadedFiles.forEach((file, index) => {

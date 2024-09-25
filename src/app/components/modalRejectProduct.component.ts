@@ -30,17 +30,24 @@ import { DialogModule } from 'primeng/dialog';
     ></p-button>
     <p-dialog
       header="Reject Request"
-      [(visible)]="visible"
-      [style]="{ width: '50vw' }"
+      appendTo="body"
       [modal]="true"
-      [draggable]="false"
-      [resizable]="false"
+      [(visible)]="visible"
+      [style]="{ width: '40vw' }"
     >
-      <quill-editor [(ngModel)]="content" />
+      <div class="flex flex-col  min-h-64  text-start text-black gap-4">
+        <h5 class="text-base text-[#043d75] m-0">
+          Enter reason below to reject this request
+        </h5>
+        <quill-editor
+          [(ngModel)]="content"
+          placeholder="Insert reason for rejection here"
+          [styles]="{ minHeight: '150px' }"
+        />
+      </div>
       <ng-template pTemplate="footer">
         <p-button
           label="Reject"
-          [raised]="true"
           icon="pi pi-times"
           size="small"
           severity="danger"
@@ -49,7 +56,6 @@ import { DialogModule } from 'primeng/dialog';
         ></p-button>
         <p-button
           label="Close"
-          [raised]="true"
           icon="pi pi-times"
           styleClass="p-button-outlined"
           size="small"
@@ -63,18 +69,17 @@ export class ModalRejectProductComponent {
   private apiServices = inject(ApiServices);
   private messageService = inject(MessageService);
   @Output() updateTableFromChild = new EventEmitter<void>();
+  @Output() closeModalFromChild = new EventEmitter<void>();
   @Input() selectedRow!: ResPO;
-  content = 'editor';
+  content = '';
   visible = false;
   rejectingLoading = false;
 
   handleReject(service: ResPO) {
-    this.updateTableFromChild.emit();
-    return;
     this.rejectingLoading = true;
 
     this.apiServices
-      .updateStatus({ status: 'REJECTED' }, service.id)
+      .updateStatus({ status: 'REJECTED', comments: this.content }, service.id)
       .subscribe({
         complete: () => {
           this.messageService.add({
@@ -82,8 +87,9 @@ export class ModalRejectProductComponent {
             summary: 'Rejected',
             detail: 'Services status is Rejected',
           });
-          // this.updateTableFromChild.emit();
-          // this.handleCloseDetailsModal();
+          this.visible = false;
+          this.closeModalFromChild.emit();
+          this.updateTableFromChild.emit();
         },
         error: (e) => {
           console.error('Error:', e);
