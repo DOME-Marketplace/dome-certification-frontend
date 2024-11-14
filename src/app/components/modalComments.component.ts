@@ -11,13 +11,13 @@ import { DialogModule } from 'primeng/dialog';
   imports: [CommonModule, DialogModule, ButtonModule, QuillViewComponent],
   template: `
     <p-dialog
-      header="Request Comments"
+      header="Request comments"
       appendTo="body"
       [modal]="true"
       [(visible)]="visible"
       [style]="{ width: '40vw' }"
     >
-      <div class="flex flex-col  min-h-64  text-start text-black gap-4">
+      <div class="flex flex-col  min-h-20  text-start text-black gap-4">
         <quill-view [content]="selectedRow?.comments" />
       </div>
 

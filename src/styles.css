@@ -29,6 +29,9 @@
 
   --border-color-primary: #2d58a7 !important;
   --border-color-medium: #3f51b5 !important;
+
+  --primary-color: #2d58a7 !important;
+  --primary-color-text: white !important;
 }
 
 html {
@@ -45,8 +48,20 @@ body {
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
 }
+
 ::-webkit-scrollbar {
-  display: none;
+  width: 8px;
+  height: 8px;
+}
+
+::-webkit-scrollbar-track {
+  background: #f1f1f1;
+  border-radius: 4px;
+}
+
+::-webkit-scrollbar-thumb {
+  background-color: #adadad;
+  border-radius: 8px;
 }
 
 .code-window {
@@ -186,3 +201,15 @@ btn-primary:disabled:hover {
 .p-datatable > .p-datatable-wrapper {
   min-height: 680px;
 }
+
+.hidden {
+  display: none !important;
+}
+.w-full {
+  width: 100% !important;
+}
+/* .p-button {
+  background-color: var(--primary-color);
+  border-color: var(--primary-color);
+  color: var(--primary-color-text);
+} */

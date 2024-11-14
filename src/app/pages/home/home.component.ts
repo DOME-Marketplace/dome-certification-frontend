@@ -17,7 +17,7 @@ export class HomeComponent implements OnInit {
   private user: User | null;
 
   ngOnInit(): void {
-    this.user = this.authService.getUserFromLocalStorage();
+    this.user = this.authService.getUserFromSessionStorage();
     if (
       this.user.role === UserRole.ADMIN ||
       this.user.role === UserRole.EMPLOYEE

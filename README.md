@@ -33,4 +33,4 @@ build imagen en test:
 podman build --build-arg BUILD_ENV=test -t dome-compliance-frontend:test .
 
 build imagen en sbx:
-podman build --build-arg BUILD_ENV=sbx -t dome-compliance-frontend:test .
+podman build --build-arg BUILD_ENV=sbx -t dome-compliance-frontend:sbx .

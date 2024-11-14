@@ -55,4 +55,8 @@ export class ApiServices {
       }
     );
   }
+  resendEmail(id: number): Observable<string> {
+    const url = `${environment.API_URL}/api/v1/product-offering/resend-email/${id}`;
+    return this.http.post(url, {}, { responseType: 'text' });
+  }
 }

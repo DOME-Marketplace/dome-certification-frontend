@@ -34,7 +34,7 @@ export class LayoutComponent implements OnInit {
   user: User | null = null;
 
   ngOnInit(): void {
-    this.user = this.authService.getUserFromLocalStorage();
+    this.user = this.authService.getUserFromSessionStorage();
     this.authService.setAuthState(this.user);
     if (!this.user) {
       this.router.navigate(['/auth/login']);

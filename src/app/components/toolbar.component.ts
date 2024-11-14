@@ -1,5 +1,5 @@
 import { CommonModule } from '@angular/common';
-import { Component, Input, OnInit, inject, input } from '@angular/core';
+import { Component, Input, OnInit, ViewChild, inject } from '@angular/core';
 import { RouterLink } from '@angular/router';
 import { ButtonModule } from 'primeng/button';
 import { MenuItem } from 'primeng/api';
@@ -7,13 +7,20 @@ import { MenuModule } from 'primeng/menu';
 import { AuthService } from '@services/auth.service';
 import { User } from '@models/user.model';
 import { roleRenamer } from '@utils/roleRenamer';
+import { ModalUserProfile } from './modalUserProfile.component';
 
 @Component({
   selector: 'app-toolbar',
   standalone: true,
-  imports: [CommonModule, RouterLink, ButtonModule, MenuModule],
+  imports: [
+    CommonModule,
+    RouterLink,
+    ButtonModule,
+    MenuModule,
+    ModalUserProfile,
+  ],
   template: `
-    <div class="fixed top-0 left-0 right-0 bg-[#2D58A7] w-full ">
+    <div class="fixed top-0 left-0 right-0 bg-[#2D58A7] w-full z-50">
       <div
         class="flex items-center justify-between shadow-lg max-w-screen-xl mx-auto  h-16  "
       >
@@ -94,6 +101,11 @@ import { roleRenamer } from '@utils/roleRenamer';
       [popup]="true"
       [style]="{ width: 'auto', minWidth: '200px' }"
     />
+    <app-modal-user-profile
+      [user]="user"
+      [visible]="visible"
+      (closed)="visible = false"
+    />
   `,
 })
 export class ToolbarComponent implements OnInit {
@@ -103,6 +115,11 @@ export class ToolbarComponent implements OnInit {
   roleRenamer = roleRenamer;
   itemsSettings: MenuItem[] | undefined;
   itemsProfile: MenuItem[] | undefined;
+  visible: boolean = false;
+
+  handleOpenModalUserProfile() {
+    this.visible = true;
+  }
 
   ngOnInit() {
     this.itemsSettings = [
@@ -112,6 +129,9 @@ export class ToolbarComponent implements OnInit {
           {
             label: `${this.user?.firstname} ${this.user?.lastname}`,
             icon: 'pi pi-user',
+            command: () => {
+              this.handleOpenModalUserProfile();
+            },
           },
         ],
       },

@@ -135,7 +135,7 @@ import { ModalRejectProductComponent } from './modalRejectProduct.component';
           <p-divider />
 
           <h6 class="text-base m-0">Compliance Profiles</h6>
-          <div class="flex items-center justify-start gap-4 mt-4">
+          <div class="grid grid-cols-3 gap-4 mt-4">
             @for ( profile of selectedRow.complianceProfiles ; track profile.id
             ) {
             <div
@@ -356,7 +356,7 @@ export class ModalProductDetails implements OnInit {
   @ViewChild('search') searchInput!: ElementRef;
 
   ngOnInit() {
-    this.user = this.authService.getUserFromLocalStorage();
+    this.user = this.authService.getUserFromSessionStorage();
   }
 
   handleOpen(service: ResPO) {
@@ -389,37 +389,30 @@ export class ModalProductDetails implements OnInit {
   handleResendEmail(service: ResPO) {
     this.isLoading = true;
 
-    // TODO: Implement resend email
-    this.messageService.add({
-      severity: 'success',
-      summary: 'Success',
-      detail: 'Email sent successfully',
-    });
+    this.apiServices
+      .resendEmail(service.id)
+      .subscribe({
+        next: () => {
+          this.visible = false;
 
-    this.visible = false;
-    this.isLoading = false;
-
-    // this.apiServices
-    //   .resendEmail(service.id)
-    //   .subscribe({
-    //     next: () => {
-    //       this.messageService.add({
-    //         severity: 'success',
-    //         summary: 'Success',
-    //         detail: 'Email sent successfully',
-    //       });
-    //     },
-    //     error: () => {
-    //       this.messageService.add({
-    //         severity: 'error',
-    //         summary: 'Error',
-    //         detail: 'An error occurred while sending the email',
-    //       });
-    //     },
-    //   })
-    //   .add(() => {
-    //     this.isLoading = false;
-    //   });
+          this.messageService.add({
+            severity: 'success',
+            summary: 'Success',
+            detail: 'Email sent successfully',
+          });
+        },
+        error: (e) => {
+          console.log(e);
+          this.messageService.add({
+            severity: 'error',
+            summary: 'Error',
+            detail: 'An error occurred while sending the email',
+          });
+        },
+      })
+      .add(() => {
+        this.isLoading = false;
+      });
   }
 
   handleValidate(service: ResPO, status: string) {

@@ -11,4 +11,7 @@ export interface User {
   position: string;
   role: UserRole;
   last_seen: string;
+  website: string;
+  address: string;
+  country_code: string;
 }

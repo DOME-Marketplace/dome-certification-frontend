@@ -113,9 +113,9 @@ import { ModalCommentsComponent } from './modalComments.component';
 
         <ng-template pTemplate="body" let-service let-ri="rowIndex">
           <tr [pSelectableRow]="service" [pContextMenuRow]="service">
-            <td>{{ service.id_PO }}</td>
-            <td>{{ service.service_name }}</td>
-            <td>{{ service.service_version }}</td>
+            <td class="text-nowrap">{{ service.id_PO }}</td>
+            <td class="text-nowrap">{{ service.service_name }}</td>
+            <td class="text-nowrap">{{ service.service_version }}</td>
             <td>
               <p-tag
                 class="text-nowrap"
@@ -214,7 +214,7 @@ export class TableRequestComponent implements OnInit {
     this.cols = cols;
     this.primengConfig.ripple = true;
     // this.primengConfig.inputStyle = 'outlined';
-    this.user = this.authService.getUserFromLocalStorage();
+    this.user = this.authService.getUserFromSessionStorage();
     this.getAllPOs();
 
     this.exportColumns = this.cols.map((col) => ({
@@ -229,11 +229,11 @@ export class TableRequestComponent implements OnInit {
         command: () => this.showModal(this.selectedRow),
       },
 
-      {
-        label: 'Delete',
-        icon: 'pi pi-fw pi-trash',
-        command: () => this.deleteProduct(this.selectedRow),
-      },
+      // {
+      //   label: 'Delete',
+      //   icon: 'pi pi-fw pi-trash',
+      //   command: () => this.deleteProduct(this.selectedRow),
+      // },
     ];
   }
 
