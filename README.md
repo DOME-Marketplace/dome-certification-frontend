@@ -33,6 +33,6 @@ build imagen en test:
 podman build --build-arg BUILD_ENV=test -t noeliaguedek/dome-compliance-frontend:test .
 
 build imagen en sbx:
-podman build --build-arg BUILD_ENV=sbx -t noeliaguedek/dome-compliance-frontend:sbx .
+podman build --build-arg BUILD_ENV=sbx -t noeliaguedek/dome-compliance-frontend:sbx-1.0.6 .
 
-podman push noeliaguedek/dome-compliance-frontend:sbx .
+podman push noeliaguedek/dome-compliance-frontend:sbx-1.0.6 .
