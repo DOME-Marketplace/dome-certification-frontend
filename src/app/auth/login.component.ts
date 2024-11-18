@@ -10,6 +10,7 @@ import { AuthService } from '@services/auth.service';
 import { MessageService } from 'primeng/api';
 import { DividerModule } from 'primeng/divider';
 import { VCVerifierComponent } from './VCVerifier.component';
+import { OauthButtonComponent } from './Oauth.button.component';
 
 @Component({
   selector: 'app-auth-login',
@@ -24,6 +25,7 @@ import { VCVerifierComponent } from './VCVerifier.component';
     InputTextModule,
     VCVerifierComponent,
     DividerModule,
+    OauthButtonComponent,
   ],
   template: `
     <div class=" min-h-screen  mx-auto flex items-center justify-center ">
@@ -85,7 +87,8 @@ import { VCVerifierComponent } from './VCVerifier.component';
 
             <p-divider styleClass="text-sm" align="center">OR</p-divider>
 
-            <app-vcverifier />
+            <!-- <app-vcverifier /> -->
+            <app-oauth-button />
           </div>
           <div class="text-center">
             Don't have an account?
@@ -100,7 +103,6 @@ import { VCVerifierComponent } from './VCVerifier.component';
       </div>
     </div>
   `,
-  changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class LoginComponent {
   private router = inject(Router);

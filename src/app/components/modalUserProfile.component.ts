@@ -1,5 +1,5 @@
 import { CommonModule } from '@angular/common';
-import { Component, EventEmitter, Input, Output } from '@angular/core';
+import { Component, Input } from '@angular/core';
 import { User } from '@models/user.model';
 import { ButtonModule } from 'primeng/button';
 import { DialogModule } from 'primeng/dialog';
@@ -14,7 +14,7 @@ import { DialogModule } from 'primeng/dialog';
       appendTo="body"
       [modal]="true"
       [(visible)]="visible"
-      [style]="{ width: '40vw' }"
+      [style]="{ width: '20vw' }"
     >
       <div class="flex flex-col text-start text-black gap-4">
         <div class="flex justify-between">
@@ -53,21 +53,18 @@ import { DialogModule } from 'primeng/dialog';
           icon="pi pi-times"
           styleClass="p-button-outlined"
           size="small"
-          (onClick)="closeModal()"
+          (onClick)="handleToggle()"
         ></p-button>
       </ng-template>
     </p-dialog>
   `,
 })
 export class ModalUserProfile {
-  @Input()
   visible = false;
+
   @Input() user!: User;
 
-  @Output() closed = new EventEmitter<void>();
-
-  closeModal() {
-    this.visible = false;
-    this.closed.emit();
+  handleToggle() {
+    this.visible = !this.visible;
   }
 }

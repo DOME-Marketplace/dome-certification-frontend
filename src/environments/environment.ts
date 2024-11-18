@@ -5,9 +5,10 @@
 export const environment = {
   production: false,
   API_URL: 'http://localhost:8080',
-  VERIFIER_URL: 'https://verifier.dome-marketplace-prd.org',
-  CLIENT_CALLBACK: 'https://dome-marketplace.org/auth/vc/callback',
-  CLIENT_ID: 'dome-certification',
+  VERIFIER_URL: 'https://verifier.dome-marketplace-sbx.org',
+  CLIENT_CALLBACK:
+    'https://dome-certification.dome-marketplace-sbx.org/auth/login',
+  CLIENT_ID: 'did:key:zDnaehmkEhoybLgRkVbKpAv47Vu81Rw5TmLUA5PrRKuWSbhxn',
 };
 
 /*

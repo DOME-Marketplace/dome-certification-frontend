@@ -47,6 +47,22 @@ export class AuthService {
     this.authState.next(user);
   }
 
+  exchangeToken(token: string): Observable<any> {
+    const url = `${environment.API_URL}/auth/exchange-token`;
+    return this.http.post<any>(url, { token }).pipe(
+      tap((response) => {
+        this.tokenService.saveToken(response.acces_token);
+        this.authState.next(response.user);
+        this.sessionStorageService.setSessionStorageItem('user', response.user);
+      })
+    );
+  }
+
+  getClientSecret(): Observable<any> {
+    const url = `${environment.API_URL}/auth/oauth-token`;
+    return this.http.get<any>(url, { responseType: 'text' as 'json' });
+  }
+
   isAuthenticated(): boolean {
     return !!this.tokenService.getToken();
   }

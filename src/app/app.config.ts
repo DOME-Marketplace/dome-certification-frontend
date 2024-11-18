@@ -1,7 +1,7 @@
 import { ApplicationConfig } from '@angular/core';
 import { provideRouter, withComponentInputBinding } from '@angular/router';
 import { provideAnimations } from '@angular/platform-browser/animations';
-
+import { provideOAuthClient } from 'angular-oauth2-oidc';
 import { routes } from './app.routes';
 import {
   HTTP_INTERCEPTORS,
@@ -12,6 +12,7 @@ import { MessageService } from 'primeng/api';
 import { TokenInterceptor } from './interceptors/token.interceptor';
 import { provideQuillConfig } from 'ngx-quill';
 import { modules } from 'src/app/quill/quill.config';
+
 export const appConfig: ApplicationConfig = {
   providers: [
     provideRouter(routes, withComponentInputBinding()),
@@ -21,6 +22,8 @@ export const appConfig: ApplicationConfig = {
     { provide: HTTP_INTERCEPTORS, useClass: TokenInterceptor, multi: true },
     provideHttpClient(withInterceptorsFromDi()),
     provideAnimations(),
+    provideOAuthClient(),
+
     MessageService,
   ],
 };

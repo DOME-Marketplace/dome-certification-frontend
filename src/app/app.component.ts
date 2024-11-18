@@ -1,9 +1,11 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, inject, OnInit } from '@angular/core';
 import { RouterOutlet } from '@angular/router';
 import { ButtonModule } from 'primeng/button';
 import { PrimeNGConfig } from 'primeng/api';
 import { InputTextModule } from 'primeng/inputtext';
 import { ToastModule } from 'primeng/toast';
+import { OAuthService } from 'angular-oauth2-oidc';
+import { authCodeFlowConfig } from 'src/app/oauth.config';
 
 @Component({
   selector: 'app-root',
@@ -16,7 +18,8 @@ import { ToastModule } from 'primeng/toast';
 })
 export class AppComponent implements OnInit {
   title = 'frontend-dome';
-  constructor(private primengConfig: PrimeNGConfig) {}
+
+  private primengConfig = inject(PrimeNGConfig);
 
   ngOnInit() {
     this.primengConfig.ripple = true;

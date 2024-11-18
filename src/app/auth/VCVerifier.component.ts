@@ -4,7 +4,6 @@ import { Component, inject } from '@angular/core';
 import { ButtonModule } from 'primeng/button';
 import { v4 as uuidv4 } from 'uuid';
 import { environment } from '@env/environment';
-
 @Component({
   selector: 'app-vcverifier',
   standalone: true,
@@ -20,7 +19,7 @@ import { environment } from '@env/environment';
         (click)="initiateAuthentication()"
       >
         <img
-          src="../../../assets/img/logo-dome-color.png"
+          src="../../assets/img/logo-dome-color.png"
           width="20px"
           height="20px"
           class="mr-2"
@@ -36,7 +35,8 @@ export class VCVerifierComponent {
     const state = uuidv4();
 
     // URL y parámetros para abrir la ventana emergente de VCVerifier
-    const vcVerifierUrl = `${environment.VERIFIER_URL}/api/v1/loginQR`;
+    // const vcVerifierUrl = `${environment.VERIFIER_URL}/api/v1/loginQR`;
+    const vcVerifierUrl = `${environment.VERIFIER_URL}/oidc/authorize`;
     // const clientCallback = 'https://dome-marketplace.org/auth/vc/callback';
     const clientCallback = environment.CLIENT_CALLBACK;
     // const clientId = 'marketplace-client';
@@ -57,7 +57,7 @@ export class VCVerifierComponent {
 
     // Manejar la respuesta de VCVerifier después de la autenticación
     window.addEventListener('message', (event) => {
-      if (event.origin === 'https://dome-marketplace.org') {
+      if (event.origin === environment.VERIFIER_URL) {
         // Recibir el código de autorización de VCVerifier
         const code = event.data.code;
 
@@ -77,8 +77,8 @@ export class VCVerifierComponent {
     const body = `grant_type=authorization_code&code=${code}`;
 
     // Enviar una solicitud POST para obtener el token de acceso
-    this.http.post(tokenEndpoint, body, { headers }).subscribe(
-      (response: any) => {
+    this.http.post(tokenEndpoint, body, { headers }).subscribe({
+      next: (response: any) => {
         // Manejar la respuesta del token de acceso
         const accessToken = response.access_token;
 
@@ -91,9 +91,29 @@ export class VCVerifierComponent {
         console.log('Mandatee:', learCredential.mandatee);
         console.log('Mandator:', learCredential.mandator);
       },
-      (error) => {
+      error: (error) => {
         console.error('Error al obtener el token de acceso:', error);
-      }
-    );
+      },
+      complete: () => {
+        console.log('Solicitud completada.');
+      },
+    });
+
+    // (response: any) => {
+    //   // Manejar la respuesta del token de acceso
+    //   const accessToken = response.access_token;
+
+    //   // Decodificar el token de acceso para obtener la LEARCredential
+    //   const payload = JSON.parse(atob(accessToken.split('.')[1]));
+    //   const learCredential = payload.LEARCredential;
+
+    //   // Utilizar la LEARCredential en tu lógica de aplicación
+    //   console.log('User capabilities:', learCredential.power);
+    //   console.log('Mandatee:', learCredential.mandatee);
+    //   console.log('Mandator:', learCredential.mandator);
+    // },
+    // (error) => {
+    //   console.error('Error al obtener el token de acceso:', error);
+    // }
   }
 }

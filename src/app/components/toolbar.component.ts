@@ -101,11 +101,7 @@ import { ModalUserProfile } from './modalUserProfile.component';
       [popup]="true"
       [style]="{ width: 'auto', minWidth: '200px' }"
     />
-    <app-modal-user-profile
-      [user]="user"
-      [visible]="visible"
-      (closed)="visible = false"
-    />
+    <app-modal-user-profile [user]="user" />
   `,
 })
 export class ToolbarComponent implements OnInit {
@@ -115,10 +111,11 @@ export class ToolbarComponent implements OnInit {
   roleRenamer = roleRenamer;
   itemsSettings: MenuItem[] | undefined;
   itemsProfile: MenuItem[] | undefined;
-  visible: boolean = false;
+
+  @ViewChild(ModalUserProfile) modalUserProfile!: ModalUserProfile;
 
   handleOpenModalUserProfile() {
-    this.visible = true;
+    this.modalUserProfile.handleToggle();
   }
 
   ngOnInit() {
