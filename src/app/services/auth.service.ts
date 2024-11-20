@@ -59,7 +59,7 @@ export class AuthService {
   }
 
   getClientSecret(): Observable<any> {
-    const url = `${environment.API_URL}/auth/oauth-token`;
+    const url = `${environment.API_URL}/auth/client-assertion-token`;
     return this.http.get<any>(url, { responseType: 'text' as 'json' });
   }
 
