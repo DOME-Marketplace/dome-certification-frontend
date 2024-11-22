@@ -49,7 +49,7 @@ export class AuthService {
 
   exchangeToken(token: string): Observable<any> {
     const url = `${environment.API_URL}/auth/exchange-token`;
-    return this.http.post<any>(url, { token }).pipe(
+    return this.http.post<any>(url, token).pipe(
       tap((response) => {
         this.tokenService.saveToken(response.acces_token);
         this.authState.next(response.user);

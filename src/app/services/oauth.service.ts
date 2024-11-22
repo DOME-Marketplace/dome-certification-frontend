@@ -1,3 +1,4 @@
+import { environment } from '@env/environment';
 import { inject, Injectable } from '@angular/core';
 import { authCodeFlowConfig, loginOptions } from 'src/app/oauth.config';
 import { OAuthService as OAuth } from 'angular-oauth2-oidc';
@@ -32,11 +33,10 @@ export class CustomOAuthService {
             client_assertion_type:
               'urn:ietf:params:oauth:client-assertion-type:jwt-bearer',
             request_uri:
-              'https://dome-certification-api.dome-marketplace-sbx.org/auth/oauth-token',
+              `${environment.API_URL}/auth/oauth-token`,
           },
         };
         this.oauthService.configure(config);
-        console.log(config);
 
         await this.oauthService.loadDiscoveryDocument();
 
@@ -87,6 +87,7 @@ export class CustomOAuthService {
 
     this.authService.exchangeToken(token).subscribe({
       next: (response) => {
+        this.oauthService.logOut(true);
         this.messageService.add({
           severity: 'success',
           summary: 'Success',

@@ -10,7 +10,6 @@ import { LoginComponent } from './auth/login.component';
 import { RegisterComponent } from './auth/register.component';
 import { ResetComponent } from './auth/reset.component';
 import { LayoutComponent } from './layout/layout.component';
-import { VCVerifierCallbackComponent } from './auth/VCCallback.component';
 
 export const routes: Routes = [
   {
@@ -68,10 +67,7 @@ export const routes: Routes = [
         path: 'reset/:token',
         component: ResetComponent,
       },
-      {
-        path: 'vc/callback',
-        component: VCVerifierCallbackComponent,
-      },
+
     ],
   },
   // Agrega cualquier otra ruta principal aquí si es necesario

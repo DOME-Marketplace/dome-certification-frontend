@@ -1,16 +1,10 @@
 import { CommonModule } from '@angular/common';
 import {
   Component,
-  EventEmitter,
   inject,
-  Inject,
-  OnInit,
-  Output,
 } from '@angular/core';
 import { ButtonModule } from 'primeng/button';
-import { authCodeFlowConfig } from '../oauth.config';
 import { CustomOAuthService } from '@services/oauth.service';
-import { Router, ActivatedRoute } from '@angular/router';
 
 @Component({
   selector: 'app-oauth-button',

@@ -1,5 +1,5 @@
 import { CommonModule } from '@angular/common';
-import { ChangeDetectionStrategy, Component, inject } from '@angular/core';
+import { Component, inject } from '@angular/core';
 import { CheckboxModule } from 'primeng/checkbox';
 import { ButtonModule } from 'primeng/button';
 import { PasswordModule } from 'primeng/password';
@@ -9,7 +9,6 @@ import { Router, RouterLink } from '@angular/router';
 import { AuthService } from '@services/auth.service';
 import { MessageService } from 'primeng/api';
 import { DividerModule } from 'primeng/divider';
-import { VCVerifierComponent } from './VCVerifier.component';
 import { OauthButtonComponent } from './Oauth.button.component';
 
 @Component({
@@ -23,7 +22,6 @@ import { OauthButtonComponent } from './Oauth.button.component';
     FormsModule,
     RouterLink,
     InputTextModule,
-    VCVerifierComponent,
     DividerModule,
     OauthButtonComponent,
   ],
@@ -95,7 +93,8 @@ import { OauthButtonComponent } from './Oauth.button.component';
             <a
               class="font-medium no-underline ml-2   cursor-pointer"
               style="color: var(--primary-color)"
-              routerLink="/auth/register"
+              href="https://knowledgebase.dome-marketplace.org/shelves/company-onboarding-process"
+              target="_blank"
               >Sing up</a
             >
           </div>
