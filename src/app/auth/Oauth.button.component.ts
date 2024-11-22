@@ -5,6 +5,7 @@ import {
 } from '@angular/core';
 import { ButtonModule } from 'primeng/button';
 import { CustomOAuthService } from '@services/oauth.service';
+import { map, Observable } from 'rxjs';
 
 @Component({
   selector: 'app-oauth-button',
@@ -17,10 +18,12 @@ import { CustomOAuthService } from '@services/oauth.service';
         [outlined]="true"
         severity="contrast"
         styleClass=" w-full text-black border-black"
-        label="Continue with DOME"
+        [label]="label$ | async"
         (click)="login()"
+        [loading]="loading$ | async"
       >
         <img
+          *ngIf="!(loading$ | async)"
           src="../../assets/img/logo-dome-color.png"
           width="20px"
           height="20px"
@@ -31,8 +34,13 @@ import { CustomOAuthService } from '@services/oauth.service';
 })
 export class OauthButtonComponent {
   private oauthService = inject(CustomOAuthService);
-
+  loading$: Observable<boolean> = this.oauthService.loading$;
+  label$: Observable<string> = this.loading$.pipe(
+    map((loading) => (loading ? 'Authenticating...' : 'Continue with DOME'))
+  );
   login(): void {
     this.oauthService.login();
   }
+
+
 }

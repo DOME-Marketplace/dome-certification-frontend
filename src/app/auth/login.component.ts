@@ -122,7 +122,6 @@ export class LoginComponent {
   }
 
   onSubmit() {
-    //redireccionar a dashboard
     if (this.username === '' || this.password === '') {
       return;
     }
@@ -137,7 +136,7 @@ export class LoginComponent {
             summary: 'Success',
             detail: 'Login successful',
           });
-          this.router.navigate(['/home']);
+          this.router.navigate(['/dashboard']);
         },
         error: () => {
           this.messageService.add({

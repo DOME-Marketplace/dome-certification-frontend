@@ -2,7 +2,6 @@ import { Routes } from '@angular/router';
 import { roleGuard } from '@guards/role.guard';
 import { UserRole } from '@models/user.role.model';
 import { DashboardComponent } from '@pages/dashboard/dashboard.component';
-import { HomeComponent } from '@pages/home/home.component';
 import { NewRequestComponent } from '@pages/newRequest/newRequest.component';
 import { UnauthorizedComponent } from '@pages/unauthorized/unauthorized.component';
 import { ForgotComponent } from './auth/forgot.component';
@@ -18,15 +17,7 @@ export const routes: Routes = [
     canActivate: [roleGuard],
     data: { roles: [UserRole.ADMIN, UserRole.CUSTOMER, UserRole.EMPLOYEE] },
     children: [
-      {
-        path: 'home',
-        component: HomeComponent,
-        canActivate: [roleGuard],
-        data: {
-          breadcrumb: 'home',
-          roles: [UserRole.ADMIN, UserRole.EMPLOYEE, UserRole.CUSTOMER],
-        },
-      },
+
       {
         path: 'dashboard',
         component: DashboardComponent,
@@ -45,9 +36,9 @@ export const routes: Routes = [
           roles: [UserRole.ADMIN, UserRole.CUSTOMER],
         },
       },
+
     ],
   },
-
   {
     path: 'auth',
     children: [
@@ -67,19 +58,23 @@ export const routes: Routes = [
         path: 'reset/:token',
         component: ResetComponent,
       },
+      {
+        path: '**',
+        redirectTo: 'login',
+        pathMatch: 'full',
+      },
 
     ],
   },
-  // Agrega cualquier otra ruta principal aquí si es necesario
-  {
-    path: '',
-    redirectTo: 'home',
-    pathMatch: 'full',
-  },
+
   {
     path: 'unauthorized',
     component: UnauthorizedComponent,
   },
-  // Si quieres manejar rutas no definidas, agrega una ruta comodín
-  // { path: '**', component: PageNotFoundComponent }
+  {
+    path: '**',
+    redirectTo: '',
+    pathMatch: 'full',
+  },
+
 ];

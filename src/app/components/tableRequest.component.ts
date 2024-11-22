@@ -126,7 +126,7 @@ import { ModalCommentsComponent } from './modalComments.component';
             <td>{{ service.request_date | date }}</td>
             <td>{{ service.issue_date | date }}</td>
             <td>{{ service.expiration_date | date }}</td>
-            <td>{{ service?.issuer?.organization_name || '' }}</td>
+            <td      class="text-nowrap">{{ service?.issuer?.organization_name || '' }}</td>
             <td>
               @if(service?.comments){
               <p-button
