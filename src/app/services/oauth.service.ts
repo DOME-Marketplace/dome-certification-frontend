@@ -35,10 +35,7 @@ export class CustomOAuthService {
             client_assertion: clientSecret,
             client_assertion_type:
               'urn:ietf:params:oauth:client-assertion-type:jwt-bearer',
-            // request_uri:
-            //   `${environment.API_URL}/auth/oauth-token`,
-            request_uri:
-              `https://dome-certification-api.dome-marketplace-sbx.org/auth/oauth-token`,
+            request_uri: environment.REQUEST_URI,
           },
         };
         this.oauthService.configure(config);
