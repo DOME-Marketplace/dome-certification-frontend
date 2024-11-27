@@ -245,19 +245,28 @@ import { ModalRejectProductComponent } from './modalRejectProduct.component';
       [style]="{ width: '50vw' }"
       [modal]="true"
     >
-      <div class="flex flex-col gap-8 ">
+      <div class="flex flex-col gap-6 ">
+        <div>
         <p-multiSelect
-          class=" w-full  {{ invalidForm ? 'ng-invalid ng-dirty' : '' }}"
+          class=" w-full  {{ invalidForm.selectedCompliance ? 'ng-invalid ng-dirty' : '' }}"
           appendTo="body"
           inputId="compliance"
           [options]="compliances"
-          placeholder="Select a Compliances*"
+          styleClass="w-full"
+          
+          placeholder="Select Compliances"
           optionLabel="name"
           [(ngModel)]="selectedCompliance"
-          (onChange)="this.invalidForm = false"
+          (onChange)="this.invalidForm.selectedCompliance = false"
           [style]="{ width: '100%' }"
           [panelStyle]="{ width: '100%' }"
         />
+
+        @if(invalidForm.selectedCompliance){
+            <small class="ml-2 p-error">Required</small>
+          }
+
+          </div>
 
         <div class="flex gap-8 mt-6">
           <span class="p-float-label w-full ">
@@ -270,14 +279,18 @@ import { ModalRejectProductComponent } from './modalRejectProduct.component';
             />
             <label for="request_issue_date">Issue Date *</label>
           </span>
-
-          <span class="p-float-label w-full">
-            <p-calendar
-              [(ngModel)]="request_expiration_date"
+<div class= "w-full">
+  
+  <span class="p-float-label w-full">
+    <p-calendar
+    [(ngModel)]="request_expiration_date"
               [iconDisplay]="'input'"
               [showIcon]="true"
               inputId="request_expiration_date"
+              (ngModelChange)="this.invalidForm.request_expiration_date = false"
               appendTo="body"
+              class="{{ invalidForm.request_expiration_date ? 'ng-invalid ng-dirty' : '' }}"
+              [minDate]="currentDate"
               [style]="{
                 width: '100%',
                 background: 'white',
@@ -286,9 +299,13 @@ import { ModalRejectProductComponent } from './modalRejectProduct.component';
             />
             <label for="request_expiration_date">Expiration Date *</label>
           </span>
+          @if(invalidForm.request_expiration_date){
+            <small class="ml-2 p-error">Required</small>
+          }
+        </div>
         </div>
 
-        <span class="p-float-label w-full">
+        <span class="p-float-label w-full mt-6">
           <input
             class="w-full"
             pInputText
@@ -342,11 +359,15 @@ export class ModalProductDetails implements OnInit {
   secondModal = false;
   isLoading = false;
   rejectingLoading = false;
-  invalidForm = false;
+  invalidForm = {
+    selectedCompliance: false,
+    request_expiration_date: false,
+  };
   request_issuer_name = '';
   request_issue_date = '';
   request_expiration_date = '';
   request_url_organization = '';
+  currentDate = new Date();
 
   selectedCompliance!: Compliaces[] | [];
 
@@ -464,13 +485,15 @@ export class ModalProductDetails implements OnInit {
   }
 
   handleConfirmValidation() {
-    if (!this.selectedCompliance) {
-      this.invalidForm = true;
-      this.messageService.add({
-        severity: 'error',
-        summary: 'Error',
-        detail: 'Please select at least one compliance',
-      });
+    if (!this.selectedCompliance || this.selectedCompliance.length === 0) {
+      this.invalidForm.selectedCompliance = true;
+
+    }
+    if (!this.request_expiration_date) {
+      this.invalidForm.request_expiration_date = true;
+
+    }
+    if (this.invalidForm.selectedCompliance || this.invalidForm.request_expiration_date) {
       return;
     }
 
@@ -483,6 +506,10 @@ export class ModalProductDetails implements OnInit {
   }
 
   handleCloseValidateModal() {
+    this.selectedCompliance = [];
+    this.request_expiration_date = '';
+    this.invalidForm.selectedCompliance = false;
+    this.invalidForm.request_expiration_date = false;
     this.secondModal = !this.secondModal;
   }
   handleCloseDetailsModal() {
