@@ -87,7 +87,7 @@ import { OauthButtonComponent } from './Oauth.button.component';
 
             <!-- oauth -->
 
-            <p-divider styleClass="text-sm " align="center">OR</p-divider>
+            <p-divider   styleClass="text-sm custom-divider" align="center"><b>OR</b></p-divider>
 
             <!-- <app-vcverifier /> -->
             <app-oauth-button />

@@ -221,3 +221,7 @@ btn-primary:disabled:hover {
 .p-paginator.p-component > .p-disabled {
   visibility: hidden !important;
 }
+
+.custom-divider .p-divider-content {
+  background-color: inherit;
+}
