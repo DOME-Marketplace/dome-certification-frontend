@@ -17,7 +17,11 @@ export const routes: Routes = [
     canActivate: [roleGuard],
     data: { roles: [UserRole.ADMIN, UserRole.CUSTOMER, UserRole.EMPLOYEE] },
     children: [
-
+      {
+        path: '',
+        redirectTo: 'dashboard',
+        pathMatch: 'full',
+      },
       {
         path: 'dashboard',
         component: DashboardComponent,

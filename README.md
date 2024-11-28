@@ -30,9 +30,9 @@ build image production:
 podman build --build-arg BUILD_ENV=production -t noeliaguedek/dome-compliance-frontend:production .
 
 build imagen en test:
-podman build --build-arg BUILD_ENV=test -t noeliaguedek/dome-compliance-frontend:dev2-1.0.9 .
+podman build --build-arg BUILD_ENV=test -t noeliaguedek/dome-compliance-frontend:dev2-1.0.10 .
 
 build imagen en sbx:
 podman build --build-arg BUILD_ENV=sbx -t noeliaguedek/dome-compliance-frontend:sbx-1.0.7 .
 
-podman push noeliaguedek/dome-compliance-frontend:dev2-1.0.9
+podman push noeliaguedek/dome-compliance-frontend:dev2-1.0.10

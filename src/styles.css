@@ -185,19 +185,6 @@ btn-primary:disabled:hover {
   overflow: scroll;
 }
 
-/* Ajusta otros estilos según sea necesario */
-
-/* .p-datepicker {
-  padding: 0.5rem;
-  border-color: #007bff;
-  background-color: #007bff;
-  background: #007bff;
-  border: 0 none;
-  border-radius: 6px;
-  background-color: #f0f0f0;
-  color: #333;
-} */
-
 .p-datatable > .p-datatable-wrapper {
   min-height: 680px;
 }
@@ -207,15 +194,6 @@ btn-primary:disabled:hover {
 }
 .w-full {
   width: 100% !important;
-}
-/* .p-button {
-  background-color: var(--primary-color);
-  border-color: var(--primary-color);
-  color: var(--primary-color-text);
-} */
-
-.p-dropdown-items-wrapper {
-  min-height: 220px;
 }
 
 .p-paginator.p-component > .p-disabled {

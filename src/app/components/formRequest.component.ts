@@ -1,5 +1,5 @@
 import { CommonModule } from '@angular/common';
-import { Component, OnInit, ViewChild, signal } from '@angular/core';
+import { Component, OnInit, ViewChild, ViewEncapsulation, signal } from '@angular/core';
 import {
   FormBuilder,
   FormsModule,
@@ -35,6 +35,11 @@ interface City {
     DropdownModule,
     InputMaskModule,
   ],
+  styles: `
+  .p-dropdown-items-wrapper {
+  min-height: 220px;
+}
+  `,
   template: `
     <div
       class="bg-white border border-gray-50 rounded-md px-6 py-6 w-screen max-w-screen-xl "
@@ -178,7 +183,7 @@ interface City {
                     optionLabel="name"
                     [filter]="true"
                     filterBy="name"
-             
+                    [panelStyle]="{ 'min-height': '220px' }"
                     [showClear]="true"
                     placeholder="ISO Country Code"
                     styleClass="w-full"
