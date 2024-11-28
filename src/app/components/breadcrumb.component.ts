@@ -18,8 +18,9 @@ import { filter } from 'rxjs/operators';
     <div class=" flex justify-start mb-8  max-w-screen-xl mx-auto ">
       <p-breadcrumb
         class="max-w-full text-xs"
-        styleClass="text-xs p-1"
+        styleClass="text-xs p-1 pointer-events-none"
         [model]="menuItems"
+        (onItemClick)="onBreadcrumbClick($event)"
         [home]="home"
       ></p-breadcrumb>
     </div>
@@ -27,10 +28,10 @@ import { filter } from 'rxjs/operators';
 })
 export class BreadcrumbComponent implements OnInit {
   static readonly ROUTE_DATA_BREADCRUMB = 'breadcrumb';
-  readonly home = { icon: 'pi pi-home', url: '/' };
+  readonly home = { icon: 'pi pi-home', url: '/dashboard' };
   public menuItems!: MenuItem[];
 
-  constructor(private router: Router, private activatedRoute: ActivatedRoute) {}
+  constructor(private router: Router, private activatedRoute: ActivatedRoute) { }
 
   ngOnInit(): void {
     this.router.events
@@ -39,6 +40,10 @@ export class BreadcrumbComponent implements OnInit {
         () =>
           (this.menuItems = this.createBreadcrumbs(this.activatedRoute.root))
       );
+  }
+  onBreadcrumbClick(event: any): void {
+    event.originalEvent.preventDefault(); // Evita la navegación
+    event.originalEvent.stopPropagation(); // Detiene la propagación del evento
   }
 
   private createBreadcrumbs(

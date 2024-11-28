@@ -1,7 +1,7 @@
-import { PO, ResPO } from '../models/ProductOffering';
-import { HttpClient, HttpHeaders } from '@angular/common/http';
+import { PO, ResPO } from '@models/ProductOffering';
+import { HttpClient, } from '@angular/common/http';
 import { Injectable, inject } from '@angular/core';
-import { environment } from '../../environments/environment';
+import { environment } from '@env/environment';
 import { Observable } from 'rxjs';
 
 @Injectable({

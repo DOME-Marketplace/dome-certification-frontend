@@ -28,8 +28,8 @@ import { ModalProductDetails } from '@components/modalProductDetails.component';
 import { AuthService } from '@services/auth.service';
 import { User } from '@models/user.model';
 import { UserRole } from '@models/user.role.model';
-import { EmptySvgImageComponent } from '../ui/empty-svg-image.component';
-import { ModalCommentsComponent } from './modalComments.component';
+import { EmptySvgImageComponent } from '@ui/empty-svg-image.component';
+import { ModalCommentsComponent } from '@components/modalComments.component';
 
 @Component({
   selector: 'app-table-request',
@@ -132,6 +132,7 @@ import { ModalCommentsComponent } from './modalComments.component';
               <p-button
                 label="Show"
                 [text]="true"
+                styleClass="py-0"
                 (onClick)="onModalCommentsToggle(service)"
               />
               }
@@ -287,7 +288,7 @@ export class TableRequestComponent implements OnInit {
         return 'danger';
 
       case 'EXPIRED':
-        return 'warning'; // Cambiado de 'error' a 'warning'
+        return 'warning';
 
       default:
         return 'info';

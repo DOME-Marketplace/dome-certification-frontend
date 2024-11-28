@@ -213,3 +213,11 @@ btn-primary:disabled:hover {
   border-color: var(--primary-color);
   color: var(--primary-color-text);
 } */
+
+.p-dropdown-items-wrapper {
+  min-height: 220px;
+}
+
+.p-paginator.p-component > .p-disabled {
+  visibility: hidden !important;
+}

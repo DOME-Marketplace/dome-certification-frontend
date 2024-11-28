@@ -28,6 +28,7 @@
       "@modules/*": ["src/app/modules/*"],
       "@models/*": ["src/app/models/*"],
       "@utils/*": ["src/app/utils/*"],
+      "@ui/*": ["src/app/ui/*"],
       "@env/*": ["src/environments/*"]
     },
     "useDefineForClassFields": false,

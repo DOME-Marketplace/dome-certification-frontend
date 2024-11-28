@@ -1,5 +1,4 @@
-import { UserRole } from './../models/user.role.model';
-import { compliances } from './../utils/compliances';
+
 import { MessageService } from 'primeng/api';
 import { CommonModule } from '@angular/common';
 import {
@@ -29,7 +28,9 @@ import { Compliaces } from '@models/compliaces.mode';
 import { CalendarModule } from 'primeng/calendar';
 import { AuthService } from '@services/auth.service';
 import { User } from '@models/user.model';
-import { ModalRejectProductComponent } from './modalRejectProduct.component';
+import { ModalRejectProductComponent } from '@components/modalRejectProduct.component';
+import { UserRole } from '@models/user.role.model';
+import { compliances } from '@utils/compliances';
 
 @Component({
   selector: 'app-modal-product-details',

@@ -7,7 +7,7 @@ import { MenuModule } from 'primeng/menu';
 import { AuthService } from '@services/auth.service';
 import { User } from '@models/user.model';
 import { roleRenamer } from '@utils/roleRenamer';
-import { ModalUserProfile } from './modalUserProfile.component';
+import { ModalUserProfile } from '@components/modalUserProfile.component';
 
 @Component({
   selector: 'app-toolbar',
@@ -27,10 +27,10 @@ import { ModalUserProfile } from './modalUserProfile.component';
         <div class="flex items-center justify-start gap-8 ">
           <a
             class="no-underline flex justify-between items-center gap-2"
-            routerLink="/"
+            routerLink="/dashboard"
           >
             <img
-              src="https://dome-marketplace-prd.org/assets/logos/DOME_Icon_White.svg"
+              src="../../assets/icon/DOME_Icon_White.svg"
               width="44px"
               height="44px"
             />

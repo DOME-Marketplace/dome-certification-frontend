@@ -12,7 +12,7 @@ import { FileUpload, FileUploadModule } from 'primeng/fileupload';
 import { MessageService } from 'primeng/api';
 import { DropdownFilterOptions } from 'primeng/dropdown';
 import { DropdownModule } from 'primeng/dropdown';
-import { countries } from '../utils/countries';
+import { countries } from '@utils/countries';
 import { InputMaskModule } from 'primeng/inputmask';
 import { PO } from '@models/ProductOffering';
 import { ApiServices } from '@services/api.service';
@@ -47,7 +47,7 @@ interface City {
               Service information
             </h3>
             <div class="flex flex-col gap-8 ">
-              <div class="flex gap-8">
+            <div class="flex flex-col md:flex-row gap-8">
                 <div class="w-full">
                   <span class="p-float-label w-full">
                     <input
@@ -72,17 +72,17 @@ interface City {
                   </small>
                   }
                 </div>
-                <div>
+                <div class="md:max-w-40 w-full">
                   <span class="p-float-label ">
                     <p-inputMask
                       formControlName="service_version"
-                      class="w-full"
+                      styleClass="w-full"
                       id="service-version"
                       mask="9.9"
                       aria-errormessage="service_version-error"
                     ></p-inputMask>
 
-                    <label class="w-full" for="service-version"
+                    <label  for="service-version"
                       >Product Version *</label
                     >
                   </span>
@@ -170,17 +170,18 @@ interface City {
                 }
               </div>
 
-              <div class="flex gap-8">
-                <div>
+              <div class="flex flex-col md:flex-row gap-8 ">
+                <div class="w-full">
                   <p-dropdown
                     [options]="countries"
                     formControlName="ISO_Country_Code"
                     optionLabel="name"
                     [filter]="true"
                     filterBy="name"
+             
                     [showClear]="true"
                     placeholder="ISO Country Code"
-                    styleClass="w-full min-w-[200px]"
+                    styleClass="w-full"
                   >
                     <ng-template pTemplate="filter" let-options="options">
                       <div class="flex gap-1 px-1 w-full ">
@@ -222,7 +223,7 @@ interface City {
                       </div>
                     </ng-template>
                     <ng-template let-country pTemplate="item">
-                      <div class="flex items-center gap-2 w-full">
+                      <div class="flex items-center gap-2 w-full ">
                         <img
                           src="https://primefaces.org/cdn/primeng/images/demo/flag/flag_placeholder.png"
                           [class]="'flag flag-' + country.code.toLowerCase()"
@@ -267,7 +268,7 @@ interface City {
                 </div>
               </div>
 
-              <div class="flex gap-8">
+              <div class="flex flex-col md:flex-row gap-8">
                 <div class="w-full">
                   <span class="p-float-label w-full">
                     <input
@@ -439,7 +440,7 @@ export class FormRequestComponent implements OnInit {
     private fb: FormBuilder,
     private messageService: MessageService,
     private apiService: ApiServices
-  ) {}
+  ) { }
 
   ngOnInit() {
     this.countries = this.countries;

@@ -32,27 +32,31 @@ import { OauthButtonComponent } from './Oauth.button.component';
           <h1 class="text-3xl font-bold my-4">Login</h1>
           <p></p>
         </div>
-        <div class="flex flex-col gap-8 p-2 mb-4">
-          <span class="p-float-label w-full">
+        <form class="flex flex-col gap-8 p-2 mb-4" (ngSubmit)="onSubmit()">
+          <span class="flex flex-col gap-2 w-full">
+            <label for="username">Username</label>
             <input
               class="w-full"
               pInputText
               id="username"
+              name="username"
               [(ngModel)]="username"
+              placeholder="Username or email"
             />
-            <label for="username">Username</label>
           </span>
 
-          <span class="p-float-label w-full">
+          <span class="w-full flex flex-col gap-2">
+            <label for="password" >Password</label>
             <p-password
               inputStyleClass="w-full"
               styleClass="w-full"
               [(ngModel)]="password"
               [feedback]="false"
+              name="password"
+              placeholder="Your password"
               [toggleMask]="true"
               [appendTo]="getToggleIcon()"
             ></p-password>
-            <label for="password">Password</label>
           </span>
           <div class="flex items-center justify-between gap-5">
             <div class="flex align-items-center">
@@ -78,12 +82,12 @@ import { OauthButtonComponent } from './Oauth.button.component';
               icon="pi pi-user"
               label="Login"
               [loading]="loading"
-              (click)="onSubmit()"
+              type="submit"
             ></p-button>
 
             <!-- oauth -->
 
-            <p-divider styleClass="text-sm" align="center">OR</p-divider>
+            <p-divider styleClass="text-sm " align="center">OR</p-divider>
 
             <!-- <app-vcverifier /> -->
             <app-oauth-button />
@@ -98,7 +102,7 @@ import { OauthButtonComponent } from './Oauth.button.component';
               >Sing up</a
             >
           </div>
-        </div>
+        </form>
       </div>
     </div>
   `,

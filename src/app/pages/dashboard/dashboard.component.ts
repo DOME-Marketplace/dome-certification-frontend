@@ -1,5 +1,5 @@
 import { CommonModule } from '@angular/common';
-import { ChangeDetectionStrategy, Component } from '@angular/core';
+import { Component } from '@angular/core';
 import { TableRequestComponent } from '@components/tableRequest.component';
 
 @Component({
@@ -8,4 +8,4 @@ import { TableRequestComponent } from '@components/tableRequest.component';
   imports: [CommonModule, TableRequestComponent],
   template: ` <app-table-request /> `,
 })
-export class DashboardComponent {}
+export class DashboardComponent { }

@@ -2,7 +2,7 @@ import { environment } from '@env/environment';
 import { inject, Injectable } from '@angular/core';
 import { authCodeFlowConfig, loginOptions } from 'src/app/oauth.config';
 import { OAuthService as OAuth } from 'angular-oauth2-oidc';
-import { AuthService } from './auth.service';
+import { AuthService } from '@services/auth.service';
 import { MessageService } from 'primeng/api';
 import { Router } from '@angular/router';
 import { BehaviorSubject, firstValueFrom } from 'rxjs';
