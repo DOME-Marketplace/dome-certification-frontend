@@ -18,7 +18,6 @@ export class CustomOAuthService {
   private loadingSubject = new BehaviorSubject<boolean>(false);
   loading$ = this.loadingSubject.asObservable();
 
-
   constructor() {
     this.configureOAuth();
   }
@@ -42,12 +41,10 @@ export class CustomOAuthService {
 
         await this.oauthService.loadDiscoveryDocument();
 
-
         await this.oauthService.tryLoginCodeFlow(loginOptions);
         const accessToken = this.oauthService.getAccessToken();
         if (!accessToken) {
           return;
-
         }
         this.exchangeToken(accessToken);
       }
@@ -57,7 +54,6 @@ export class CustomOAuthService {
       console.log(idtoken);
     }
   }
-
 
   // Método para iniciar el flujo de autenticación
   login() {
@@ -83,7 +79,7 @@ export class CustomOAuthService {
     this.setLoading(true);
 
     this.authService.exchangeToken(token).subscribe({
-      next: (response) => {
+      complete: () => {
         this.messageService.add({
           severity: 'success',
           summary: 'Success',
@@ -99,7 +95,8 @@ export class CustomOAuthService {
           detail: 'Unable to exchange token. Please try again.',
         });
       },
-      complete: () => {
+
+      next: (response) => {
         this.oauthService.logOut(true);
         this.setLoading(false);
       },
