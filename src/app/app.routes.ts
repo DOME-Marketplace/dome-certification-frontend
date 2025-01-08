@@ -9,6 +9,7 @@ import { LoginComponent } from './auth/login.component';
 import { RegisterComponent } from './auth/register.component';
 import { ResetComponent } from './auth/reset.component';
 import { LayoutComponent } from './layout/layout.component';
+import { IndexComponent } from '@pages/index/index.component';
 
 export const routes: Routes = [
   {
@@ -17,10 +18,19 @@ export const routes: Routes = [
     canActivate: [roleGuard],
     data: { roles: [UserRole.ADMIN, UserRole.CUSTOMER, UserRole.EMPLOYEE] },
     children: [
+      // {
+      //   path: '',
+      //   redirectTo: 'dashboard',
+      //   pathMatch: 'full',
+      // },
       {
         path: '',
-        redirectTo: 'dashboard',
-        pathMatch: 'full',
+        component: IndexComponent,
+        canActivate: [roleGuard],
+        data: {
+          breadcrumb: '',
+          roles: [UserRole.ADMIN, UserRole.EMPLOYEE, UserRole.CUSTOMER],
+        },
       },
       {
         path: 'dashboard',
@@ -40,8 +50,6 @@ export const routes: Routes = [
           roles: [UserRole.ADMIN, UserRole.CUSTOMER],
         },
       },
-
-
     ],
   },
   {
@@ -68,7 +76,6 @@ export const routes: Routes = [
         redirectTo: 'login',
         pathMatch: 'full',
       },
-
     ],
   },
 
@@ -81,5 +88,4 @@ export const routes: Routes = [
     redirectTo: '',
     pathMatch: 'full',
   },
-
 ];

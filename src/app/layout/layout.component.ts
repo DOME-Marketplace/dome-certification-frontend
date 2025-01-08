@@ -19,7 +19,7 @@ import { BreadcrumbComponent } from '@components/breadcrumb.component';
     <div class=" ">
       <app-toolbar [user]="user"></app-toolbar>
       <main
-        class=" py-6 mt-16 max-w-screen-xl mx-auto min-h-[calc(100dvh-4rem)]"
+        class=" py-6 mt-[75px] max-w-screen-xl mx-auto min-h-[calc(100dvh-4rem)]"
       >
         <app-breadcrumb></app-breadcrumb>
         <router-outlet></router-outlet>

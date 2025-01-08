@@ -118,7 +118,8 @@ import { ModalCommentsComponent } from '@components/modalComments.component';
             <td class="text-nowrap">{{ service.service_version }}</td>
             <td>
               <p-tag
-                class="text-nowrap"
+                class="text-nowrap font-normal"
+                styleClass="font-normal"
                 [value]="service.status"
                 [severity]="getSeverity(service.status)"
               ></p-tag>
@@ -126,7 +127,9 @@ import { ModalCommentsComponent } from '@components/modalComments.component';
             <td>{{ service.request_date | date }}</td>
             <td>{{ service.issue_date | date }}</td>
             <td>{{ service.expiration_date | date }}</td>
-            <td      class="text-nowrap">{{ service?.issuer?.organization_name || '' }}</td>
+            <td class="text-nowrap">
+              {{ service?.issuer?.organization_name || '' }}
+            </td>
             <td>
               @if(service?.comments){
               <p-button
@@ -162,14 +165,14 @@ import { ModalCommentsComponent } from '@components/modalComments.component';
             styleClass="p-button-text"
             (click)="getAllPOs()"
           ></p-button>
-          <p-button
+          <!-- <p-button
             label="EXPORT"
             [text]="true"
             icon="pi pi-file-export"
             iconPos="left"
             size="small"
             (click)="dt.exportCSV()"
-          ></p-button>
+          ></p-button> -->
         </ng-template>
         <ng-template pTemplate="emptymessage">
           <td [attr.colspan]="cols.length + 1">
@@ -217,11 +220,19 @@ export class TableRequestComponent implements OnInit {
     // this.primengConfig.inputStyle = 'outlined';
     this.user = this.authService.getUserFromSessionStorage();
     this.getAllPOs();
-
-    this.exportColumns = this.cols.map((col) => ({
-      title: col.header,
-      dataKey: col.field,
-    }));
+    this.exportColumns = this.cols.map((col) => {
+      if (col.exportFunction) {
+        return {
+          title: col.header,
+          dataKey: col.exportFunction(col.field),
+        };
+      } else {
+        return {
+          title: col.header,
+          dataKey: col.field,
+        };
+      }
+    });
 
     this.items = [
       {
@@ -304,6 +315,10 @@ const cols = [
   { field: 'request_date', header: 'Request Date' },
   { field: 'issue_date', header: 'Issue Date' },
   { field: 'expiration_date', header: 'Exp. Date' },
-  { field: 'issuer', header: 'Issuer' },
+  {
+    field: 'issuer',
+    header: 'Issuer',
+    exportFunction: (value: any) => value?.organization_name || '', // Transformación para la columna issuer
+  },
   { field: 'comments', header: 'Comments' },
 ];

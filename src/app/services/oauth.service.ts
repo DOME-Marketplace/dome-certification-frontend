@@ -85,7 +85,7 @@ export class CustomOAuthService {
           summary: 'Success',
           detail: 'Login successful',
         });
-        this.router.navigate(['/dashboard']);
+        this.router.navigate(['/']);
       },
       error: (error) => {
         console.error('Token exchange failed:', error);

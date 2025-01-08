@@ -46,7 +46,7 @@ import { OauthButtonComponent } from './Oauth.button.component';
           </span>
 
           <span class="w-full flex flex-col gap-2">
-            <label for="password" >Password</label>
+            <label for="password">Password</label>
             <p-password
               inputStyleClass="w-full"
               styleClass="w-full"
@@ -87,7 +87,9 @@ import { OauthButtonComponent } from './Oauth.button.component';
 
             <!-- oauth -->
 
-            <p-divider   styleClass="text-sm custom-divider" align="center"><b>OR</b></p-divider>
+            <p-divider styleClass="text-sm custom-divider" align="center"
+              ><b>OR</b></p-divider
+            >
 
             <!-- <app-vcverifier /> -->
             <app-oauth-button />
@@ -140,7 +142,7 @@ export class LoginComponent {
             summary: 'Success',
             detail: 'Login successful',
           });
-          this.router.navigate(['/dashboard']);
+          this.router.navigate(['/']);
         },
         error: () => {
           this.messageService.add({

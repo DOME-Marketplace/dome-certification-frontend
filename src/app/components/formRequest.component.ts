@@ -1,5 +1,11 @@
 import { CommonModule } from '@angular/common';
-import { Component, OnInit, ViewChild, ViewEncapsulation, signal } from '@angular/core';
+import {
+  Component,
+  OnInit,
+  ViewChild,
+  ViewEncapsulation,
+  signal,
+} from '@angular/core';
 import {
   FormBuilder,
   FormsModule,
@@ -16,6 +22,7 @@ import { countries } from '@utils/countries';
 import { InputMaskModule } from 'primeng/inputmask';
 import { PO } from '@models/ProductOffering';
 import { ApiServices } from '@services/api.service';
+import { Router } from '@angular/router';
 
 interface City {
   name: string;
@@ -52,7 +59,7 @@ interface City {
               Service information
             </h3>
             <div class="flex flex-col gap-8 ">
-            <div class="flex flex-col md:flex-row gap-8">
+              <div class="flex flex-col md:flex-row gap-8">
                 <div class="w-full">
                   <span class="p-float-label w-full">
                     <input
@@ -87,9 +94,7 @@ interface City {
                       aria-errormessage="service_version-error"
                     ></p-inputMask>
 
-                    <label  for="service-version"
-                      >Product Version *</label
-                    >
+                    <label for="service-version">Product Version *</label>
                   </span>
                   @if(form.get('service_version')?.touched &&
                   form.get('service_version')?.hasError('required')){
@@ -185,7 +190,7 @@ interface City {
                     filterBy="name"
                     [panelStyle]="{ 'min-height': '220px' }"
                     [showClear]="true"
-                    placeholder="ISO Country Code"
+                    placeholder="ISO Country Code *"
                     styleClass="w-full"
                   >
                     <ng-template pTemplate="filter" let-options="options">
@@ -344,7 +349,7 @@ interface City {
             <h3
               class="text-2xl text-gray-500 font-medium m-0 text-center mb-8 "
             >
-              Certificates upload
+              Certificates upload *
             </h3>
             <p-fileUpload
               #fileUploadComponent
@@ -372,7 +377,7 @@ interface City {
               <ng-template pTemplate="content" let-files>
                 @if(files.length <= 0){
                 <div class="w-full  mt-4 mb-0">
-                  <p class="text-center m-0">Drag and drop files here</p>
+                  <p class="text-center m-0">Drag and drop files here *</p>
                 </div>
 
                 }
@@ -444,8 +449,9 @@ export class FormRequestComponent implements OnInit {
   constructor(
     private fb: FormBuilder,
     private messageService: MessageService,
-    private apiService: ApiServices
-  ) { }
+    private apiService: ApiServices,
+    private router: Router
+  ) {}
 
   ngOnInit() {
     this.countries = this.countries;
@@ -505,6 +511,7 @@ export class FormRequestComponent implements OnInit {
             detail: 'Form sent successfully',
           });
           this.loading.set(false);
+          this.router.navigate(['/dashboard']);
         },
         error: (error) => {
           console.error('Error al enviar formulario:', error);

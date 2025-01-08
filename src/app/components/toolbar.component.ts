@@ -22,20 +22,21 @@ import { ModalUserProfile } from '@components/modalUserProfile.component';
   template: `
     <div class="fixed top-0 left-0 right-0 bg-[#2D58A7] w-full z-50">
       <div
-        class="flex items-center justify-between shadow-lg max-w-screen-xl mx-auto  h-16  "
+        class="flex items-center justify-between shadow-lg max-w-screen-xl mx-auto  h-[75px]  py-4 "
       >
         <div class="flex items-center justify-start gap-8 ">
           <a
-            class="no-underline flex justify-between items-center gap-2"
-            routerLink="/dashboard"
+            class="no-underline flex justify-between items-center gap-3"
+            routerLink="/"
           >
             <img
               src="../../assets/icon/DOME_Icon_White.svg"
-              width="44px"
-              height="44px"
+              class="h-4 lg:h-8"
+              alt="logo dome certification"
             />
-            <span class=" text-2xl cursor-pointer text-white font-normal mb-1"
-              >Certification
+            <span
+              class="self-center text-xl lg:text-[24px] font-semibold whitespace-nowrap dark:text-white"
+              >DOME CERTIFICATION
             </span>
           </a>
 
@@ -62,7 +63,7 @@ import { ModalUserProfile } from '@components/modalUserProfile.component';
           @if(user?.role === 'ADMIN' || user?.role === 'EMPLOYEE' || user?.role
           === 'CUSTOMER'){
           <span
-            class=" bg-slate-100 rounded-full text-sm px-3 text-color-primary py-0"
+            class=" bg-slate-100 rounded-full  px-3 text-color-primary py-0"
           >
             {{ roleRenamer(user?.role) }}
           </span>

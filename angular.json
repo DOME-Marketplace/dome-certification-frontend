@@ -107,6 +107,17 @@
               "optimization": false,
               "extractLicenses": false,
               "sourceMap": true
+            },
+            "development-sbx": {
+              "fileReplacements": [
+                {
+                  "replace": "src/environments/environment.ts",
+                  "with": "src/environments/environment.test.ts"
+                }
+              ],
+              "optimization": false,
+              "extractLicenses": false,
+              "sourceMap": true
             }
           },
           "defaultConfiguration": "production"
@@ -119,6 +130,9 @@
             },
             "development": {
               "buildTarget": "frontend-dome:build:development"
+            },
+            "test": {
+              "buildTarget": "frontend-dome:build:development-sbx"
             }
           },
           "defaultConfiguration": "development"

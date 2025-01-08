@@ -32,6 +32,8 @@
 
   --primary-color: #2d58a7 !important;
   --primary-color-text: white !important;
+
+  --font-family: "Blinker", "Segoe UI", "Roboto";
 }
 
 html {
@@ -39,6 +41,7 @@ html {
 }
 body {
   margin: 0;
+  font-size: 16px;
   background-color: #f5f5f5;
   font-family: var(--font-family);
   font-weight: normal;
