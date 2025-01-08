@@ -230,7 +230,7 @@ export class RegisterComponent {
             summary: 'Success',
             detail: 'Login successful',
           });
-          this.router.navigate(['/home']);
+          this.router.navigate(['/']);
         },
         error: () => {
           this.messageService.add({
