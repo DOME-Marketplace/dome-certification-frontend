@@ -27,13 +27,14 @@ Run `ng e2e` to execute the end-to-end tests via a platform of your choice. To u
 To get more help on the Angular CLI use `ng help` or go check out the [Angular CLI Overview and Command Reference](https://angular.io/cli) page.
 
 build image production:
-podman build --build-arg BUILD_ENV=production -t noeliaguedek/dome-compliance-frontend:production .
+podman build --build-arg BUILD_ENV=production -t noeliaguedek/dome-compliance-frontend:prd-1.0.13 .
 
 build imagen en test:
-podman build --build-arg BUILD_ENV=test -t noeliaguedek/dome-compliance-frontend:dev2-1.0.12 .
+podman build --build-arg BUILD_ENV=test -t noeliaguedek/dome-compliance-frontend:dev2-1.0.13 .
 
 build imagen en sbx:
 podman build --build-arg BUILD_ENV=sbx -t noeliaguedek/dome-compliance-frontend:sbx-1.0.12 .
 
 podman push noeliaguedek/dome-compliance-frontend:sbx-1.0.12
-podman push noeliaguedek/dome-compliance-frontend:dev2-1.0.12
+podman push noeliaguedek/dome-compliance-frontend:dev2-1.0.13
+podman push noeliaguedek/dome-compliance-frontend:prd-1.0.13
