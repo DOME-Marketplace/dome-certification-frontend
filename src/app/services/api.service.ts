@@ -1,8 +1,9 @@
 import { PO, ResPO } from '@models/ProductOffering';
-import { HttpClient, } from '@angular/common/http';
+import { HttpClient } from '@angular/common/http';
 import { Injectable, inject } from '@angular/core';
 import { environment } from '@env/environment';
 import { Observable } from 'rxjs';
+import { CompliancesStandards } from '@models/compliances';
 
 @Injectable({
   providedIn: 'root',
@@ -13,6 +14,12 @@ export class ApiServices {
   getAllCloudServices(): Observable<ResPO[]> {
     return this.http.get<ResPO[]>(
       `${environment.API_URL}/api/v1/product-offering/`
+    );
+  }
+
+  getAllCompliancesStandards(): Observable<CompliancesStandards[]> {
+    return this.http.get<CompliancesStandards[]>(
+      `${environment.API_URL}/api/v1/compliance-standards/`
     );
   }
   getAllCloudServicesByUserId(): Observable<ResPO[]> {
@@ -28,21 +35,12 @@ export class ApiServices {
   }
 
   createPO(formData: FormData): Observable<PO> {
-    // URL para enviar el nuevo ProductOffering
     const url = `${environment.API_URL}/api/v1/product-offering/create`;
-
-    // Configurar cabeceras para indicar que se envía un formulario
-    // const headers = new HttpHeaders({
-    //   'Content-Type': 'multipart/form-data',
-    // });
-
-    // Enviar la solicitud POST para crear un nuevo PO
     return this.http.post<PO>(url, formData);
   }
 
   updateStatus(data: any, id: number): Observable<PO> {
     const url = `${environment.API_URL}/api/v1/product-offering/status-PO/${id}`;
-
     return this.http.post<PO>(url, data);
   }
 

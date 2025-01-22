@@ -6,6 +6,7 @@ import { AuthService } from '@services/auth.service';
 import { MessageService } from 'primeng/api';
 import { Router } from '@angular/router';
 import { BehaviorSubject, firstValueFrom } from 'rxjs';
+import { TokenService } from '@services/token.service';
 
 @Injectable({
   providedIn: 'root',
@@ -15,6 +16,7 @@ export class CustomOAuthService {
   private messageService = inject(MessageService);
   private router = inject(Router);
   private oauthService = inject(OAuth);
+  private tokenService = inject(TokenService);
   private loadingSubject = new BehaviorSubject<boolean>(false);
   loading$ = this.loadingSubject.asObservable();
 
@@ -43,9 +45,11 @@ export class CustomOAuthService {
 
         await this.oauthService.tryLoginCodeFlow(loginOptions);
         const accessToken = this.oauthService.getAccessToken();
+
         if (!accessToken) {
           return;
         }
+        this.tokenService.saveOAuthToken(accessToken);
         this.exchangeToken(accessToken);
       }
     } catch (error) {

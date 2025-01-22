@@ -1,8 +1,16 @@
 import { Injectable } from '@angular/core';
-import { HttpRequest, HttpHandler, HttpEvent, HttpInterceptor } from '@angular/common/http';
+import {
+  HttpRequest,
+  HttpHandler,
+  HttpEvent,
+  HttpInterceptor,
+  HttpContextToken,
+} from '@angular/common/http';
 import { Observable } from 'rxjs';
 
 import { TokenService } from '@services/token.service';
+
+export const BYPASS_AUTH = new HttpContextToken(() => false);
 
 @Injectable()
 export class TokenInterceptor implements HttpInterceptor {
@@ -12,6 +20,10 @@ export class TokenInterceptor implements HttpInterceptor {
     request: HttpRequest<unknown>,
     next: HttpHandler
   ): Observable<HttpEvent<unknown>> {
+    if (request.context.get(BYPASS_AUTH)) {
+      return next.handle(request);
+    }
+
     request = this.addToken(request);
     return next.handle(request);
   }

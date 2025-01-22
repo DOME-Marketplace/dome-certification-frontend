@@ -1,4 +1,9 @@
-
+import {
+  ComplianceProfile,
+  CompliancesStandards,
+  CompliancesToValidate,
+  IssuerCompliance,
+} from '@models/compliances';
 import { MessageService } from 'primeng/api';
 import { CommonModule } from '@angular/common';
 import {
@@ -21,7 +26,7 @@ import { PdfViewerComponent, PdfViewerModule } from 'ng2-pdf-viewer';
 import { InputTextModule } from 'primeng/inputtext';
 import moment from 'moment';
 import { ApiServices } from '@services/api.service';
-import { PO, ResPO } from '@models/ProductOffering';
+import { ResPO } from '@models/ProductOffering';
 import { MultiSelectModule } from 'primeng/multiselect';
 import { FormsModule, ReactiveFormsModule } from '@angular/forms';
 import { Compliaces } from '@models/compliaces.mode';
@@ -31,6 +36,9 @@ import { User } from '@models/user.model';
 import { ModalRejectProductComponent } from '@components/modalRejectProduct.component';
 import { UserRole } from '@models/user.role.model';
 import { compliances } from '@utils/compliances';
+import { DropdownModule } from 'primeng/dropdown';
+import { TokenService } from '@services/token.service';
+import { IssuerService } from '@services/issuer.service';
 
 @Component({
   selector: 'app-modal-product-details',
@@ -46,6 +54,7 @@ import { compliances } from '@utils/compliances';
     PdfViewerModule,
     InputTextModule,
     MultiSelectModule,
+    DropdownModule,
     CalendarModule,
     ModalRejectProductComponent,
     ModalRejectProductComponent,
@@ -94,7 +103,7 @@ import { compliances } from '@utils/compliances';
           <h6 class="text-base m-0">Name of the organization</h6>
           <p class="mt-0 mb-2">{{ selectedRow.name_organization }}</p>
           <h6 class="text-base m-0">VAT ID</h6>
-          <p class="mt-0 mb-2">{{ selectedRow.VAT_ID }}</p>
+          <p class="mt-0 mb-2">{{ selectedRow.vat_ID }}</p>
 
           <h6 class="text-base m-0">ISO Country Code</h6>
           <p class="mt-0 mb-2">{{ selectedRow.ISO_Country_Code }}</p>
@@ -170,12 +179,12 @@ import { compliances } from '@utils/compliances';
 
             <ul>
               @for ( compliance of this.selectedRow.compliances ; track
-              compliance.id ) {
+              compliance?.id ) { @if(compliance?.complianceStandard.standard !==
+              "NOT SUPPORTED"){
               <li class=" text-sm ">
-                {{ compliance.complianceName }}
+                {{ compliance?.complianceStandard?.standard }}
               </li>
-
-              }
+              } }
             </ul>
           </div>
           }
@@ -243,80 +252,107 @@ import { compliances } from '@utils/compliances';
     <p-dialog
       header="Validate Request"
       [(visible)]="secondModal"
-      [style]="{ width: '50vw' }"
+      [style]="{ width: '36vw' }"
       [modal]="true"
     >
-      <div class="flex flex-col gap-6 ">
+      <div class="flex flex-col  ">
         <div>
-        <p-multiSelect
-          class=" w-full  {{ invalidForm.selectedCompliance ? 'ng-invalid ng-dirty' : '' }}"
-          appendTo="body"
-          inputId="compliance"
-          [options]="compliances"
-          styleClass="w-full"
-          
-          placeholder="Select Compliances"
-          optionLabel="name"
-          [(ngModel)]="selectedCompliance"
-          (onChange)="this.invalidForm.selectedCompliance = false"
-          [style]="{ width: '100%' }"
-          [panelStyle]="{ width: '100%' }"
-        />
+          <h6 class="text-base m-0 mb-4">Compliance uploads</h6>
+          <div class="flex flex-col gap-2">
+            @for ( profile of selectedRow?.complianceProfiles ; track
+            profile.id; ) {
+            <div class="flex items-center ">
+              <a
+                class="flex my-0 flex-1 max-w-1/2 flex-row items-center gap-2 no-underline text-"
+                href="{{ profile?.url }}"
+                target="_blank"
+              >
+                <i
+                  class="pi pi-file-pdf text-[#043d75]"
+                  style="font-size: 2rem "
+                ></i>
 
-        @if(invalidForm.selectedCompliance){
-            <small class="ml-2 p-error">Required</small>
-          }
+                <p class="text-base m-0 text-[#043d75] truncate">
+                  {{ profile?.fileName }}
+                </p>
+              </a>
+              @if(selectedRow?.compliances ){
+              <p-dropdown
+                class="flex-1 max-w-1/2"
+                [options]="compliances()"
+                placeholder="Add compliance *"
+                (onChange)="onOptionChange(profile, $event.value)"
+                optionLabel="standard"
+                styleClass="w-full"
+                [panelStyle]="{ width: '100%' }"
+                [id]="'dropdown-' + profile?.id"
+              />
 
+              } @if(invalidForm.selectedCompliance){
+              <small class="ml-2 p-error">Required</small>
+              }
+            </div>
+            }
+          </div>
+        </div>
+        <p-divider class="" />
+        <div>
+          <h6 class="text-base m-0 mb-8">Compliance validity</h6>
+          <div class="flex gap-8 ">
+            <span class="p-float-label flex flex-1 max-w-[46%]">
+              <input
+                class="w-full"
+                pInputText
+                id="request_issue_date"
+                [(ngModel)]="request_issue_date"
+                disabled="true"
+              />
+              <label for="request_issue_date">Issue Date *</label>
+            </span>
+            <div class="flex flex-1 max-w-[54%]">
+              <span class="p-float-label w-full">
+                <p-calendar
+                  [(ngModel)]="request_expiration_date"
+                  [iconDisplay]="'input'"
+                  [showIcon]="true"
+                  inputId="request_expiration_date"
+                  (ngModelChange)="
+                    this.invalidForm.request_expiration_date = false
+                  "
+                  appendTo="body"
+                  class="{{
+                    invalidForm.request_expiration_date
+                      ? 'ng-invalid ng-dirty'
+                      : ''
+                  }}"
+                  [minDate]="currentDate"
+                  [style]="{
+                    width: '100%',
+                    background: 'white',
+                    'background-color': 'white'
+                  }"
+                />
+                <label for="request_expiration_date">Expiration Date *</label>
+              </span>
+              @if(invalidForm.request_expiration_date){
+              <small class="ml-2 p-error">Required</small>
+              }
+            </div>
           </div>
 
-        <div class="flex gap-8 mt-6">
-          <span class="p-float-label w-full ">
+          <span class="p-float-label w-full mt-6">
             <input
               class="w-full"
               pInputText
-              id="request_issue_date"
-              [(ngModel)]="request_issue_date"
+              id="request_issuer_name"
+              [(ngModel)]="request_issuer_name"
               disabled="true"
             />
-            <label for="request_issue_date">Issue Date *</label>
+            <label for="request_issuer_name">Issuer *</label>
           </span>
-<div class= "w-full">
-  
-  <span class="p-float-label w-full">
-    <p-calendar
-    [(ngModel)]="request_expiration_date"
-              [iconDisplay]="'input'"
-              [showIcon]="true"
-              inputId="request_expiration_date"
-              (ngModelChange)="this.invalidForm.request_expiration_date = false"
-              appendTo="body"
-              class="{{ invalidForm.request_expiration_date ? 'ng-invalid ng-dirty' : '' }}"
-              [minDate]="currentDate"
-              [style]="{
-                width: '100%',
-                background: 'white',
-                'background-color': 'white'
-              }"
-            />
-            <label for="request_expiration_date">Expiration Date *</label>
-          </span>
-          @if(invalidForm.request_expiration_date){
-            <small class="ml-2 p-error">Required</small>
-          }
         </div>
-        </div>
-
-        <span class="p-float-label w-full mt-6">
-          <input
-            class="w-full"
-            pInputText
-            id="request_issuer_name"
-            [(ngModel)]="request_issuer_name"
-            disabled="true"
-          />
-          <label for="request_issuer_name">Issuer *</label>
-        </span>
       </div>
+
       <ng-template pTemplate="footer">
         <p-button
           label="Confirm and validate"
@@ -342,9 +378,13 @@ export class ModalProductDetails implements OnInit {
   private apiServices = inject(ApiServices);
   private messageService = inject(MessageService);
   private authService = inject(AuthService);
+  private tokenService = inject(TokenService);
+  private issuerService = inject(IssuerService);
+
   public vc = signal({} as any | null);
   public vcBlob = signal({} as any | null);
-  @Input() selectedRow: any = {};
+  public compliancesStandards = signal<CompliancesStandards[]>([]);
+  @Input() selectedRow!: ResPO;
   @Output() updateTable = new EventEmitter<void>();
   @Output() updateTableFromChild = new EventEmitter<void>();
 
@@ -355,7 +395,7 @@ export class ModalProductDetails implements OnInit {
   pdfSelected: any = {};
   computedVc = computed(() => this.vc());
   computedVcBlob = computed(() => this.vcBlob());
-  compliances = compliances;
+  compliances = computed(() => this.compliancesStandards());
 
   secondModal = false;
   isLoading = false;
@@ -370,7 +410,8 @@ export class ModalProductDetails implements OnInit {
   request_url_organization = '';
   currentDate = new Date();
 
-  selectedCompliance!: Compliaces[] | [];
+  selectedCompliance!: CompliancesStandards[] | [];
+  selectedCompliancesWithFilesAssociated: CompliancesToValidate[] = [];
 
   @ViewChild(PdfViewerComponent)
   private pdfComponent!: PdfViewerComponent;
@@ -379,6 +420,14 @@ export class ModalProductDetails implements OnInit {
 
   ngOnInit() {
     this.user = this.authService.getUserFromSessionStorage();
+    this.apiServices.getAllCompliancesStandards().subscribe((compliances) => {
+      this.compliancesStandards.set(compliances);
+    });
+  }
+  getAllStandards() {
+    this.apiServices.getAllCompliancesStandards().subscribe((standards) => {
+      this.compliancesStandards.set(standards);
+    });
   }
 
   handleOpen(service: ResPO) {
@@ -438,19 +487,76 @@ export class ModalProductDetails implements OnInit {
   }
 
   handleValidate(service: ResPO, status: string) {
-    // this.visible = false;
-
     const currentDate = moment();
-
-    // Calcular la fecha de expiración (2 años después)
-    const expirationDate = currentDate.add(2, 'years');
-    const expirationDateString = expirationDate.format('YYYY-MM-DD');
-
     // Convertir la fecha de expiración a una cadena en formato deseado
     this.secondModal = true;
     this.request_issue_date = currentDate.format('YYYY-MM-DD');
     this.request_issuer_name = this.user.organization_name;
     this.request_url_organization = service.url_organization;
+  }
+  onOptionChange(
+    profile: ComplianceProfile,
+    dropdownValue: CompliancesStandards
+  ) {
+    const handleCompliancesToValidate: CompliancesToValidate = {
+      description: dropdownValue.description,
+      hash: profile.hash,
+      profileId: profile.id,
+      standard: dropdownValue.standard,
+      standardId: dropdownValue.id,
+    };
+    this.selectedCompliancesWithFilesAssociated = [
+      ...this.selectedCompliancesWithFilesAssociated.filter(
+        ({ profileId: id }) => id !== profile.id
+      ),
+      handleCompliancesToValidate,
+    ];
+    console.log(this.selectedCompliancesWithFilesAssociated);
+  }
+
+  handleCloseValidateModal() {
+    this.selectedCompliance = [];
+    this.request_expiration_date = '';
+    this.invalidForm.selectedCompliance = false;
+    this.invalidForm.request_expiration_date = false;
+    this.secondModal = !this.secondModal;
+  }
+  handleCloseDetailsModal() {
+    this.visible = !this.visible;
+  }
+
+  handleConfirmValidation() {
+    console.log(this.selectedCompliancesWithFilesAssociated);
+    if (
+      !this.selectedCompliancesWithFilesAssociated ||
+      this.selectedCompliancesWithFilesAssociated.length !==
+        this.selectedRow?.complianceProfiles.length
+    ) {
+      this.invalidForm.selectedCompliance = true;
+    }
+    if (!this.request_expiration_date) {
+      this.invalidForm.request_expiration_date = true;
+    }
+    if (
+      this.invalidForm.selectedCompliance ||
+      this.invalidForm.request_expiration_date
+    ) {
+      return;
+    }
+
+    const data = {
+      status: 'VALIDATED',
+      expiration_date: this.request_expiration_date,
+      compliances: this.selectedCompliancesWithFilesAssociated.map(
+        (compliance) => ({
+          profileId: compliance.profileId,
+          standardId: compliance.standardId,
+        })
+      ),
+    };
+
+    // return;
+    this.sendValidateConfirmation(data, this.selectedRow.id);
   }
 
   sendValidateConfirmation(data, id) {
@@ -458,12 +564,49 @@ export class ModalProductDetails implements OnInit {
 
     this.apiServices.updateStatus(data, id).subscribe({
       complete: () => {
+        this.validateOnIssuerApi(
+          this.selectedRow,
+          this.selectedCompliancesWithFilesAssociated
+        );
+      },
+      error: (e) => {},
+      next: () => {
+        this.isLoading = false;
+      },
+    });
+  }
+
+  validateOnIssuerApi(
+    PO: ResPO,
+    compliancesToValidate: CompliancesToValidate[]
+  ) {
+    const oauthToken = this.tokenService.getOAuthToken();
+    if (!oauthToken) {
+      console.error('Please retry login');
+      return;
+    }
+    const compliances = compliancesToValidate
+      .filter((c) => c.standard === 'NOT SUPPORTED')
+      .map<IssuerCompliance>((c) => ({
+        hash: c.hash,
+        scope: c.description,
+        standard: c.standard,
+      }));
+
+    const payload = this.issuerService.createPayload(
+      PO,
+      compliances,
+      this.request_expiration_date
+    );
+
+    this.issuerService.issueCertificate(oauthToken, payload).subscribe({
+      complete: () => {
+        console.log('Response issuer ok');
         this.messageService.add({
           severity: 'success',
           summary: 'Validated',
           detail: 'Service status is Validated',
         });
-
         this.handleCloseValidateModal();
         this.handleCloseDetailsModal();
         this.updateTable.emit();
@@ -476,44 +619,10 @@ export class ModalProductDetails implements OnInit {
           detail: 'Failed to update service status',
         });
       },
-      next: () => {
-        this.isLoading = false;
-      },
     });
   }
+
   eventToParent() {
     this.updateTableFromChild.emit();
-  }
-
-  handleConfirmValidation() {
-    if (!this.selectedCompliance || this.selectedCompliance.length === 0) {
-      this.invalidForm.selectedCompliance = true;
-
-    }
-    if (!this.request_expiration_date) {
-      this.invalidForm.request_expiration_date = true;
-
-    }
-    if (this.invalidForm.selectedCompliance || this.invalidForm.request_expiration_date) {
-      return;
-    }
-
-    const data = {
-      status: 'VALIDATED',
-      expiration_date: this.request_expiration_date,
-      compliances: this.selectedCompliance.map((compliance) => compliance.name),
-    };
-    this.sendValidateConfirmation(data, this.selectedRow.id);
-  }
-
-  handleCloseValidateModal() {
-    this.selectedCompliance = [];
-    this.request_expiration_date = '';
-    this.invalidForm.selectedCompliance = false;
-    this.invalidForm.request_expiration_date = false;
-    this.secondModal = !this.secondModal;
-  }
-  handleCloseDetailsModal() {
-    this.visible = !this.visible;
   }
 }
