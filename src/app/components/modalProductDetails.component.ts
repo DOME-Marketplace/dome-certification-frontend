@@ -29,16 +29,15 @@ import { ApiServices } from '@services/api.service';
 import { ResPO } from '@models/ProductOffering';
 import { MultiSelectModule } from 'primeng/multiselect';
 import { FormsModule, ReactiveFormsModule } from '@angular/forms';
-import { Compliaces } from '@models/compliaces.mode';
 import { CalendarModule } from 'primeng/calendar';
 import { AuthService } from '@services/auth.service';
 import { User } from '@models/user.model';
 import { ModalRejectProductComponent } from '@components/modalRejectProduct.component';
 import { UserRole } from '@models/user.role.model';
-import { compliances } from '@utils/compliances';
 import { DropdownModule } from 'primeng/dropdown';
 import { TokenService } from '@services/token.service';
 import { IssuerService } from '@services/issuer.service';
+import { switchMap } from 'rxjs';
 
 @Component({
   selector: 'app-modal-product-details',
@@ -226,7 +225,7 @@ import { IssuerService } from '@services/issuer.service';
           icon="pi pi-check"
           size="small"
           [loading]="isLoading"
-          (onClick)="handleValidate(this.selectedRow, 'validated')"
+          (onClick)="handleOpenValidateModal(this.selectedRow)"
         ></p-button>
 
         <app-modal-reject-product
@@ -258,12 +257,12 @@ import { IssuerService } from '@services/issuer.service';
       <div class="flex flex-col  ">
         <div>
           <h6 class="text-base m-0 mb-4">Compliance uploads</h6>
-          <div class="flex flex-col gap-2">
+          <div class="flex flex-col gap-2 w-full">
             @for ( profile of selectedRow?.complianceProfiles ; track
             profile.id; ) {
-            <div class="flex items-center ">
+            <div class="flex items-center flex-1 ">
               <a
-                class="flex my-0 flex-1 max-w-1/2 flex-row items-center gap-2 no-underline text-"
+                class="flex my-0 flex-1  flex-row items-center gap-2 no-underline"
                 href="{{ profile?.url }}"
                 target="_blank"
               >
@@ -276,21 +275,28 @@ import { IssuerService } from '@services/issuer.service';
                   {{ profile?.fileName }}
                 </p>
               </a>
-              @if(selectedRow?.compliances ){
-              <p-dropdown
-                class="flex-1 max-w-1/2"
-                [options]="compliances()"
-                placeholder="Add compliance *"
-                (onChange)="onOptionChange(profile, $event.value)"
-                optionLabel="standard"
-                styleClass="w-full"
-                [panelStyle]="{ width: '100%' }"
-                [id]="'dropdown-' + profile?.id"
-              />
+              <div class="flex-1 ">
+                @if(selectedRow?.compliances ){
 
-              } @if(invalidForm.selectedCompliance){
-              <small class="ml-2 p-error">Required</small>
-              }
+                <p-dropdown
+                  class="w-full"
+                  [options]="compliances()"
+                  placeholder="Add compliance *"
+                  (onChange)="onOptionChange(profile, $event.value)"
+                  optionLabel="standard"
+                  styleClass="w-full"
+                  [showClear]="true"
+                  [panelStyle]="{ width: '100%' }"
+                  [id]="'dropdown-' + profile?.id"
+                  class="{{
+                    invalidForm.selectedCompliance ? 'ng-invalid ng-dirty' : ''
+                  }}"
+                />
+
+                } @if(invalidForm.selectedCompliance){
+                <small class="ml-2 p-error">Required</small>
+                }
+              </div>
             </div>
             }
           </div>
@@ -299,17 +305,19 @@ import { IssuerService } from '@services/issuer.service';
         <div>
           <h6 class="text-base m-0 mb-8">Compliance validity</h6>
           <div class="flex gap-8 ">
-            <span class="p-float-label flex flex-1 max-w-[46%]">
-              <input
-                class="w-full"
-                pInputText
-                id="request_issue_date"
-                [(ngModel)]="request_issue_date"
-                disabled="true"
-              />
-              <label for="request_issue_date">Issue Date *</label>
-            </span>
-            <div class="flex flex-1 max-w-[54%]">
+            <div class="flex flex-1 max-w-[46%] ">
+              <span class="p-float-label w-full ">
+                <input
+                  class="w-full"
+                  pInputText
+                  id="request_issue_date"
+                  [(ngModel)]="request_issue_date"
+                  disabled="true"
+                />
+                <label for="request_issue_date">Issue Date *</label>
+              </span>
+            </div>
+            <div class="flex flex-1 max-w-[54%] flex-col">
               <span class="p-float-label w-full">
                 <p-calendar
                   [(ngModel)]="request_expiration_date"
@@ -486,7 +494,7 @@ export class ModalProductDetails implements OnInit {
       });
   }
 
-  handleValidate(service: ResPO, status: string) {
+  handleOpenValidateModal(service: ResPO) {
     const currentDate = moment();
     // Convertir la fecha de expiración a una cadena en formato deseado
     this.secondModal = true;
@@ -498,6 +506,7 @@ export class ModalProductDetails implements OnInit {
     profile: ComplianceProfile,
     dropdownValue: CompliancesStandards
   ) {
+    this.invalidForm.selectedCompliance = false;
     const handleCompliancesToValidate: CompliancesToValidate = {
       description: dropdownValue.description,
       hash: profile.hash,
@@ -527,16 +536,16 @@ export class ModalProductDetails implements OnInit {
 
   handleConfirmValidation() {
     console.log(this.selectedCompliancesWithFilesAssociated);
-    if (
-      !this.selectedCompliancesWithFilesAssociated ||
-      this.selectedCompliancesWithFilesAssociated.length !==
-        this.selectedRow?.complianceProfiles.length
-    ) {
-      this.invalidForm.selectedCompliance = true;
-    }
-    if (!this.request_expiration_date) {
-      this.invalidForm.request_expiration_date = true;
-    }
+
+    // Validar form
+    this.invalidForm = {
+      selectedCompliance:
+        !this.selectedCompliancesWithFilesAssociated ||
+        this.selectedCompliancesWithFilesAssociated.length !==
+          this.selectedRow?.complianceProfiles.length,
+      request_expiration_date: !this.request_expiration_date,
+    };
+
     if (
       this.invalidForm.selectedCompliance ||
       this.invalidForm.request_expiration_date
@@ -544,6 +553,9 @@ export class ModalProductDetails implements OnInit {
       return;
     }
 
+    this.isLoading = true;
+
+    // Preparar datos para la llamada
     const data = {
       status: 'VALIDATED',
       expiration_date: this.request_expiration_date,
@@ -555,38 +567,15 @@ export class ModalProductDetails implements OnInit {
       ),
     };
 
-    // return;
-    this.sendValidateConfirmation(data, this.selectedRow.id);
-  }
-
-  sendValidateConfirmation(data, id) {
-    this.isLoading = true;
-
-    this.apiServices.updateStatus(data, id).subscribe({
-      complete: () => {
-        this.validateOnIssuerApi(
-          this.selectedRow,
-          this.selectedCompliancesWithFilesAssociated
-        );
-      },
-      error: (e) => {},
-      next: () => {
-        this.isLoading = false;
-      },
-    });
-  }
-
-  validateOnIssuerApi(
-    PO: ResPO,
-    compliancesToValidate: CompliancesToValidate[]
-  ) {
     const oauthToken = this.tokenService.getOAuthToken();
     if (!oauthToken) {
       console.error('Please retry login');
+      this.isLoading = false;
       return;
     }
-    const compliances = compliancesToValidate
-      .filter((c) => c.standard === 'NOT SUPPORTED')
+
+    const compliances = this.selectedCompliancesWithFilesAssociated
+      .filter((c) => c.standard !== 'NOT SUPPORTED')
       .map<IssuerCompliance>((c) => ({
         hash: c.hash,
         scope: c.description,
@@ -594,33 +583,139 @@ export class ModalProductDetails implements OnInit {
       }));
 
     const payload = this.issuerService.createPayload(
-      PO,
+      this.selectedRow,
       compliances,
       this.request_expiration_date
     );
 
-    this.issuerService.issueCertificate(oauthToken, payload).subscribe({
-      complete: () => {
-        console.log('Response issuer ok');
-        this.messageService.add({
-          severity: 'success',
-          summary: 'Validated',
-          detail: 'Service status is Validated',
-        });
-        this.handleCloseValidateModal();
-        this.handleCloseDetailsModal();
-        this.updateTable.emit();
-      },
-      error: (e) => {
-        console.error('Error:', e);
-        this.messageService.add({
-          severity: 'error',
-          summary: 'Error',
-          detail: 'Failed to update service status',
-        });
-      },
-    });
+    // Flujo secuencial usando switchMap
+    this.issuerService
+      .issueCertificate(oauthToken, payload)
+      .pipe(
+        switchMap(() =>
+          this.apiServices.updateStatus(data, this.selectedRow.id)
+        )
+      )
+      .subscribe({
+        next: () => {
+          this.messageService.add({
+            severity: 'success',
+            summary: 'Validated',
+            detail: 'Service status is Validated',
+          });
+          this.handleCloseValidateModal();
+          this.handleCloseDetailsModal();
+          this.updateTable.emit();
+        },
+        error: (e) => {
+          console.error('Error:', e);
+          this.messageService.add({
+            severity: 'error',
+            summary: 'Error',
+            detail: 'Failed to update service status',
+          });
+        },
+        complete: () => {
+          this.isLoading = false;
+        },
+      });
   }
+  // handleConfirmValidation() {
+  //   console.log(this.selectedCompliancesWithFilesAssociated);
+  //   if (
+  //     !this.selectedCompliancesWithFilesAssociated ||
+  //     this.selectedCompliancesWithFilesAssociated.length !==
+  //       this.selectedRow?.complianceProfiles.length
+  //   ) {
+  //     this.invalidForm.selectedCompliance = true;
+  //   }
+  //   if (!this.request_expiration_date) {
+  //     this.invalidForm.request_expiration_date = true;
+  //   }
+  //   if (
+  //     this.invalidForm.selectedCompliance ||
+  //     this.invalidForm.request_expiration_date
+  //   ) {
+  //     return;
+  //   }
+  //   this.isLoading = true;
+  //   const data = {
+  //     status: 'VALIDATED',
+  //     expiration_date: this.request_expiration_date,
+  //     compliances: this.selectedCompliancesWithFilesAssociated.map(
+  //       (compliance) => ({
+  //         profileId: compliance.profileId,
+  //         standardId: compliance.standardId,
+  //       })
+  //     ),
+  //   };
+
+  //   this.validateOnIssuerApi(
+  //     this.selectedRow,
+  //     this.selectedCompliancesWithFilesAssociated
+  //   );
+
+  //   this.sendValidateConfirmation(data, this.selectedRow.id);
+  // }
+
+  // sendValidateConfirmation(data, id) {
+
+  //   this.apiServices.updateStatus(data, id).subscribe({
+  //     complete: () => {
+  //       console.log('Response backend ok');
+  //       this.messageService.add({
+  //         severity: 'success',
+  //         summary: 'Validated',
+  //         detail: 'Service status is Validated',
+  //       });
+  //       this.handleCloseValidateModal();
+  //       this.handleCloseDetailsModal();
+  //       this.updateTable.emit();
+  //     },
+  //     error: (e) => {},
+  //     next: () => {
+  //       this.isLoading = false;
+  //     },
+  //   });
+  // }
+
+  // validateOnIssuerApi(
+  //   PO: ResPO,
+  //   compliancesToValidate: CompliancesToValidate[]
+  // ) {
+  //   const oauthToken = this.tokenService.getOAuthToken();
+  //   if (!oauthToken) {
+  //     console.error('Please retry login');
+  //     return;
+  //   }
+  //   const compliances = compliancesToValidate
+  //     .filter((c) => c.standard !== 'NOT SUPPORTED')
+  //     .map<IssuerCompliance>((c) => ({
+  //       hash: c.hash,
+  //       scope: c.description,
+  //       standard: c.standard,
+  //     }));
+
+  //   const payload = this.issuerService.createPayload(
+  //     PO,
+  //     compliances,
+  //     this.request_expiration_date
+  //   );
+
+  //   this.issuerService.issueCertificate(oauthToken, payload).subscribe({
+  //     complete: () => {
+  //       console.log('Response issuer ok');
+  //     },
+  //     error: (e) => {
+  //       console.error('Error:', e);
+  //       this.messageService.add({
+  //         severity: 'error',
+  //         summary: 'Error',
+  //         detail: 'Failed to update service status',
+  //       });
+  //     },
+  //   });
+  // }
 
   eventToParent() {
     this.updateTableFromChild.emit();

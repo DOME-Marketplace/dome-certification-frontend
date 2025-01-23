@@ -38,7 +38,7 @@ export class IssuerService {
             commonName: PO.name_organization,
             country: PO.ISO_Country_Code,
             email: PO.email_organization,
-            id: `did:elsi:VATES-${PO.vat_ID}`,
+            id: `did:elsi:VAT${PO.ISO_Country_Code}-${PO.vat_ID}`,
             organization: PO.name_organization,
           },
           compliance: compliances,
