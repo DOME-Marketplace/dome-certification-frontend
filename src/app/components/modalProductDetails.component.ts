@@ -64,6 +64,7 @@ import { switchMap } from 'rxjs';
       [maximizable]="true"
       [modal]="true"
       [style]="{ width: '69vw' }"
+      (onHide)="handleCloseDetailsModal()"
     >
       <ng-template pTemplate="header" class="flex flex-col items-start">
         <div class="flex items-center justify-between gap-2">
@@ -236,14 +237,14 @@ import { switchMap } from 'rxjs';
 
         }
 
-        <p-button
+        <!-- <p-button
           label="Close"
           [raised]="true"
           icon="pi pi-times"
           styleClass="p-button-outlined"
           size="small"
           (onClick)="handleCloseDetailsModal()"
-        ></p-button>
+        ></p-button> -->
       </ng-template>
     </p-dialog>
 
@@ -253,6 +254,7 @@ import { switchMap } from 'rxjs';
       [(visible)]="secondModal"
       [style]="{ width: '36vw' }"
       [modal]="true"
+      (onHide)="handleCloseValidateModal()"
     >
       <div class="flex flex-col  ">
         <div>
@@ -260,9 +262,9 @@ import { switchMap } from 'rxjs';
           <div class="flex flex-col gap-2 w-full">
             @for ( profile of selectedRow?.complianceProfiles ; track
             profile.id; ) {
-            <div class="flex items-center flex-1 ">
+            <div class="flex items-center flex-1 max-w-1/2 gap-2">
               <a
-                class="flex my-0 flex-1  flex-row items-center gap-2 no-underline"
+                class="flex my-0 flex-1 max-w-1/2 flex-row items-center gap-2 no-underline text-base m-0 text-[#043d75] truncate"
                 href="{{ profile?.url }}"
                 target="_blank"
               >
@@ -270,10 +272,9 @@ import { switchMap } from 'rxjs';
                   class="pi pi-file-pdf text-[#043d75]"
                   style="font-size: 2rem "
                 ></i>
-
-                <p class="text-base m-0 text-[#043d75] truncate">
+                <span class="truncate max-w-1/2 w-full ">
                   {{ profile?.fileName }}
-                </p>
+                </span>
               </a>
               <div class="flex-1 ">
                 @if(selectedRow?.compliances ){
@@ -370,14 +371,14 @@ import { switchMap } from 'rxjs';
           [loading]="isLoading"
           (onClick)="handleConfirmValidation()"
         ></p-button>
-        <p-button
+        <!-- <p-button
           label="Close"
           [raised]="true"
           icon="pi pi-times"
           size="small"
           severity="danger"
           (onClick)="handleCloseValidateModal()"
-        ></p-button>
+        ></p-button> -->
       </ng-template>
     </p-dialog>
   `,
@@ -528,10 +529,10 @@ export class ModalProductDetails implements OnInit {
     this.request_expiration_date = '';
     this.invalidForm.selectedCompliance = false;
     this.invalidForm.request_expiration_date = false;
-    this.secondModal = !this.secondModal;
+    this.secondModal = false;
   }
   handleCloseDetailsModal() {
-    this.visible = !this.visible;
+    this.visible = false;
   }
 
   handleConfirmValidation() {
@@ -620,102 +621,6 @@ export class ModalProductDetails implements OnInit {
         },
       });
   }
-  // handleConfirmValidation() {
-  //   console.log(this.selectedCompliancesWithFilesAssociated);
-  //   if (
-  //     !this.selectedCompliancesWithFilesAssociated ||
-  //     this.selectedCompliancesWithFilesAssociated.length !==
-  //       this.selectedRow?.complianceProfiles.length
-  //   ) {
-  //     this.invalidForm.selectedCompliance = true;
-  //   }
-  //   if (!this.request_expiration_date) {
-  //     this.invalidForm.request_expiration_date = true;
-  //   }
-  //   if (
-  //     this.invalidForm.selectedCompliance ||
-  //     this.invalidForm.request_expiration_date
-  //   ) {
-  //     return;
-  //   }
-  //   this.isLoading = true;
-  //   const data = {
-  //     status: 'VALIDATED',
-  //     expiration_date: this.request_expiration_date,
-  //     compliances: this.selectedCompliancesWithFilesAssociated.map(
-  //       (compliance) => ({
-  //         profileId: compliance.profileId,
-  //         standardId: compliance.standardId,
-  //       })
-  //     ),
-  //   };
-
-  //   this.validateOnIssuerApi(
-  //     this.selectedRow,
-  //     this.selectedCompliancesWithFilesAssociated
-  //   );
-
-  //   this.sendValidateConfirmation(data, this.selectedRow.id);
-  // }
-
-  // sendValidateConfirmation(data, id) {
-
-  //   this.apiServices.updateStatus(data, id).subscribe({
-  //     complete: () => {
-  //       console.log('Response backend ok');
-  //       this.messageService.add({
-  //         severity: 'success',
-  //         summary: 'Validated',
-  //         detail: 'Service status is Validated',
-  //       });
-  //       this.handleCloseValidateModal();
-  //       this.handleCloseDetailsModal();
-  //       this.updateTable.emit();
-  //     },
-  //     error: (e) => {},
-  //     next: () => {
-  //       this.isLoading = false;
-  //     },
-  //   });
-  // }
-
-  // validateOnIssuerApi(
-  //   PO: ResPO,
-  //   compliancesToValidate: CompliancesToValidate[]
-  // ) {
-  //   const oauthToken = this.tokenService.getOAuthToken();
-  //   if (!oauthToken) {
-  //     console.error('Please retry login');
-  //     return;
-  //   }
-  //   const compliances = compliancesToValidate
-  //     .filter((c) => c.standard !== 'NOT SUPPORTED')
-  //     .map<IssuerCompliance>((c) => ({
-  //       hash: c.hash,
-  //       scope: c.description,
-  //       standard: c.standard,
-  //     }));
-
-  //   const payload = this.issuerService.createPayload(
-  //     PO,
-  //     compliances,
-  //     this.request_expiration_date
-  //   );
-
-  //   this.issuerService.issueCertificate(oauthToken, payload).subscribe({
-  //     complete: () => {
-  //       console.log('Response issuer ok');
-  //     },
-  //     error: (e) => {
-  //       console.error('Error:', e);
-  //       this.messageService.add({
-  //         severity: 'error',
-  //         summary: 'Error',
-  //         detail: 'Failed to update service status',
-  //       });
-  //     },
-  //   });
-  // }
 
   eventToParent() {
     this.updateTableFromChild.emit();

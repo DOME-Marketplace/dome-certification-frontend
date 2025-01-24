@@ -10,7 +10,14 @@ export class TokenService {
     sessionStorage.setItem('token', token);
   }
   saveOAuthToken(token: string) {
-    sessionStorage.setItem('OAuthToken', token);
+    sessionStorage.setItem('oauth_token', token);
+  }
+
+  saveOAuthRefreshToken(token: string) {
+    sessionStorage.setItem('oauth_refresh_token', token);
+  }
+  saveClientAssertion(value: string) {
+    sessionStorage.setItem('client_assertion', value);
   }
 
   getToken() {
@@ -18,13 +25,27 @@ export class TokenService {
   }
 
   getOAuthToken() {
-    return sessionStorage.getItem('OAuthToken');
+    return sessionStorage.getItem('oauth_token');
+  }
+  getOAuthRefreshToken() {
+    return sessionStorage.getItem('oauth_refresh_token');
+  }
+  getClientAssertion() {
+    return sessionStorage.getItem('client_assertion');
   }
 
   clearToken() {
     sessionStorage.removeItem('token');
   }
   clearOAuthToken() {
-    sessionStorage.removeItem('OAuthToken');
+    sessionStorage.removeItem('oauth_token');
+  }
+
+  clearOAuthRefreshToken() {
+    sessionStorage.removeItem('oauth_refresh_token');
+  }
+
+  clearClientAssertion() {
+    sessionStorage.removeItem('client_assertion');
   }
 }
