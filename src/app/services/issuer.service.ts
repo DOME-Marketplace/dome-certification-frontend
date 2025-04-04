@@ -11,10 +11,10 @@ import moment from 'moment';
   providedIn: 'root',
 })
 export class IssuerService {
+  private http = inject(HttpClient);
   private issuerApi = environment.ISSUER_API;
   private marketPlaceURL = environment.DOME_MARKETPLACE;
 
-  constructor(private http: HttpClient) {}
 
   createPayload(
     PO: ResPO,

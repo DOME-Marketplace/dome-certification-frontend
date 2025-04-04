@@ -5,9 +5,10 @@ import { OAuthService as OAuth } from 'angular-oauth2-oidc';
 import { AuthService } from '@services/auth.service';
 import { MessageService } from 'primeng/api';
 import { Router } from '@angular/router';
-import { BehaviorSubject, firstValueFrom } from 'rxjs';
+import { BehaviorSubject, firstValueFrom, switchMap } from 'rxjs';
 import { TokenService } from '@services/token.service';
-import { HttpClient } from '@angular/common/http';
+import { HttpClient, HttpParams } from '@angular/common/http';
+import { ResM2MToken } from '@models/auth.model';
 
 @Injectable({
   providedIn: 'root',
@@ -134,6 +135,28 @@ export class CustomOAuthService {
       },
     });
   }
+
+  loginM2m2() {
+    const tokenUrl = `${environment.VERIFIER_URL}/oidc/token`;
+
+    return this.authService.getClientSecretM2M().pipe(
+      switchMap((clientAssertion: string) => {
+        const body = new HttpParams()
+          .set('client_id', environment.CLIENT_ID)
+          .set('grant_type', 'client_credentials')
+          .set(
+            'client_assertion_type',
+            'urn:ietf:params:oauth:client-assertion-type:jwt-bearer'
+          )
+          .set('client_assertion', clientAssertion);
+
+        return this.httpClient.post<ResM2MToken>(tokenUrl, body.toString(), {
+          headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+        });
+      })
+    );
+  }
+
   // Obtener el estado de autenticación (si está autenticado)
   isAuthenticated(): boolean {
     return this.oauthService.hasValidAccessToken();

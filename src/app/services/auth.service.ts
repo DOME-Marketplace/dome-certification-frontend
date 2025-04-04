@@ -62,6 +62,10 @@ export class AuthService {
     const url = `${environment.API_URL}/auth/client-assertion-token`;
     return this.http.get<any>(url, { responseType: 'text' as 'json' });
   }
+  getClientSecretM2M(): Observable<any> {
+    const url = `${environment.API_URL}/auth/client-assertion-token-m2m`;
+    return this.http.get<any>(url, { responseType: 'text' as 'json' });
+  }
 
   isAuthenticated(): boolean {
     return !!this.tokenService.getToken();

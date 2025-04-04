@@ -38,6 +38,8 @@ import { DropdownModule } from 'primeng/dropdown';
 import { TokenService } from '@services/token.service';
 import { IssuerService } from '@services/issuer.service';
 import { switchMap } from 'rxjs';
+import { OAuthService } from 'angular-oauth2-oidc';
+import { CustomOAuthService } from '@services/oauth.service';
 
 @Component({
   selector: 'app-modal-product-details',
@@ -389,6 +391,7 @@ export class ModalProductDetails implements OnInit {
   private authService = inject(AuthService);
   private tokenService = inject(TokenService);
   private issuerService = inject(IssuerService);
+  private oauthService = inject(CustomOAuthService);
 
   public vc = signal({} as any | null);
   public vcBlob = signal({} as any | null);
@@ -588,6 +591,9 @@ export class ModalProductDetails implements OnInit {
       compliances,
       this.request_expiration_date
     );
+
+    // TODO OBTENER EL TOKEN Y MANDAR SEGUND DIJO RUBEN EN EL MAIL
+    this.oauthService.loginM2m2().subscribe(() => {});
 
     // Flujo secuencial usando switchMap
     this.issuerService
