@@ -49,17 +49,19 @@ export class CustomOAuthService {
 
         await this.oauthService.tryLoginCodeFlow(loginOptions);
         const accessToken = this.oauthService.getAccessToken();
+        const idToken = this.oauthService.getIdToken();
 
-        if (!accessToken) {
+        if (!accessToken || !idToken) {
           return;
         }
         this.tokenService.saveOAuthToken(accessToken);
+        this.tokenService.saveOAuthIdToken(idToken);
         this.exchangeToken(accessToken);
       }
     } catch (error) {
       console.error('Error during discovery or login:', error);
-      const idtoken = this.oauthService.getAccessToken();
-      console.log(idtoken);
+      // const idtoken = this.oauthService.getAccessToken();
+      // console.log(idtoken);
     }
   }
 
@@ -136,7 +138,7 @@ export class CustomOAuthService {
     });
   }
 
-  loginM2m2() {
+  loginM2M() {
     const tokenUrl = `${environment.VERIFIER_URL}/oidc/token`;
 
     return this.authService.getClientSecretM2M().pipe(

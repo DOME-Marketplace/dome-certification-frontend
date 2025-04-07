@@ -12,6 +12,9 @@ export class TokenService {
   saveOAuthToken(token: string) {
     sessionStorage.setItem('oauth_token', token);
   }
+  saveOAuthIdToken(token: string) {
+    sessionStorage.setItem('oauth_id_token', token);
+  }
 
   saveOAuthRefreshToken(token: string) {
     sessionStorage.setItem('oauth_refresh_token', token);
@@ -27,6 +30,9 @@ export class TokenService {
   getOAuthToken() {
     return sessionStorage.getItem('oauth_token');
   }
+  getOAuthIdToken() {
+    return sessionStorage.getItem('oauth_id_token');
+  }
   getOAuthRefreshToken() {
     return sessionStorage.getItem('oauth_refresh_token');
   }
@@ -39,6 +45,9 @@ export class TokenService {
   }
   clearOAuthToken() {
     sessionStorage.removeItem('oauth_token');
+  }
+  clearOAuthIdToken() {
+    sessionStorage.removeItem('oauth_id_token');
   }
 
   clearOAuthRefreshToken() {

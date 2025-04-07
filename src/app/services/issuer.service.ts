@@ -15,7 +15,6 @@ export class IssuerService {
   private issuerApi = environment.ISSUER_API;
   private marketPlaceURL = environment.DOME_MARKETPLACE;
 
-
   createPayload(
     PO: ResPO,
     compliances: IssuerCompliance[],
@@ -54,10 +53,11 @@ export class IssuerService {
     };
   }
 
-  issueCertificate(token: string, body: any): Observable<any> {
+  issueCertificate(token: string, body: any, idToken: string): Observable<any> {
     const headers = new HttpHeaders({
       'Content-Type': 'application/json',
       Authorization: `Bearer ${token}`,
+      'X-ID-TOKEN': idToken,
     });
     const url = `${this.issuerApi}/issuer-api/vci/v1/issuances`;
     // Ignorar el interceptor

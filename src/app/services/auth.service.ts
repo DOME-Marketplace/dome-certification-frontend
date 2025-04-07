@@ -80,8 +80,12 @@ export class AuthService {
   }
   logout() {
     this.tokenService.clearToken();
-    this.setAuthState(null);
+    this.tokenService.clearOAuthToken();
+    this.tokenService.clearOAuthIdToken();
+    this.tokenService.clearOAuthRefreshToken();
     this.sessionStorageService.removeSessionStorageItem('user');
+    this.setAuthState(null);
+
     this.router.navigate(['/auth/login']);
   }
 }

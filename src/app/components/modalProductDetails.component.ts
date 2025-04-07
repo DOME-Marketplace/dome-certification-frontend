@@ -37,9 +37,10 @@ import { UserRole } from '@models/user.role.model';
 import { DropdownModule } from 'primeng/dropdown';
 import { TokenService } from '@services/token.service';
 import { IssuerService } from '@services/issuer.service';
-import { switchMap } from 'rxjs';
+import { finalize, switchMap } from 'rxjs';
 import { OAuthService } from 'angular-oauth2-oidc';
 import { CustomOAuthService } from '@services/oauth.service';
+import { ResM2MToken } from '@models/auth.model';
 
 @Component({
   selector: 'app-modal-product-details',
@@ -571,8 +572,8 @@ export class ModalProductDetails implements OnInit {
       ),
     };
 
-    const oauthToken = this.tokenService.getOAuthToken();
-    if (!oauthToken) {
+    const idToken = this.tokenService.getOAuthIdToken();
+    if (!idToken) {
       console.error('Please retry login');
       this.isLoading = false;
       return;
@@ -592,16 +593,23 @@ export class ModalProductDetails implements OnInit {
       this.request_expiration_date
     );
 
-    // TODO OBTENER EL TOKEN Y MANDAR SEGUND DIJO RUBEN EN EL MAIL
-    this.oauthService.loginM2m2().subscribe(() => {});
-
-    // Flujo secuencial usando switchMap
-    this.issuerService
-      .issueCertificate(oauthToken, payload)
+    this.oauthService
+      .loginM2M()
       .pipe(
+        switchMap((res: ResM2MToken) => {
+          const accessToken = res.access_token;
+          return this.issuerService.issueCertificate(
+            accessToken,
+            payload,
+            idToken
+          );
+        }),
         switchMap(() =>
           this.apiServices.updateStatus(data, this.selectedRow.id)
-        )
+        ),
+        finalize(() => {
+          this.isLoading = false;
+        })
       )
       .subscribe({
         next: () => {
@@ -621,9 +629,6 @@ export class ModalProductDetails implements OnInit {
             summary: 'Error',
             detail: 'Failed to update service status',
           });
-        },
-        complete: () => {
-          this.isLoading = false;
         },
       });
   }
