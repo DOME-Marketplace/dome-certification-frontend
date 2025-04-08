@@ -118,8 +118,6 @@ export class CustomOAuthService {
       .pipe(
         finalize(() => {
           this.setLoading(false);
-          this.tokenService.clearOAuthToken();
-          this.tokenService.clearOAuthIdToken();
           this.oauthService.logOut(true);
         })
       )
@@ -133,6 +131,8 @@ export class CustomOAuthService {
           this.router.navigate(['/']);
         },
         error: (error) => {
+          this.tokenService.clearOAuthToken();
+          this.tokenService.clearOAuthIdToken();
           console.error('Token exchange failed:', error);
           this.messageService.add({
             severity: 'error',
