@@ -5,7 +5,7 @@ import { OAuthService as OAuth } from 'angular-oauth2-oidc';
 import { AuthService } from '@services/auth.service';
 import { MessageService } from 'primeng/api';
 import { Router } from '@angular/router';
-import { BehaviorSubject, firstValueFrom, switchMap } from 'rxjs';
+import { BehaviorSubject, finalize, firstValueFrom, switchMap } from 'rxjs';
 import { TokenService } from '@services/token.service';
 import { HttpClient, HttpParams } from '@angular/common/http';
 import { ResM2MToken } from '@models/auth.model';
@@ -113,29 +113,34 @@ export class CustomOAuthService {
     }
     this.setLoading(true);
 
-    this.authService.exchangeToken(token).subscribe({
-      complete: () => {
-        this.messageService.add({
-          severity: 'success',
-          summary: 'Success',
-          detail: 'Login successful',
-        });
-        this.router.navigate(['/']);
-      },
-      error: (error) => {
-        console.error('Token exchange failed:', error);
-        this.messageService.add({
-          severity: 'error',
-          summary: 'Login Failed',
-          detail: 'Unable to exchange token. Please try again.',
-        });
-      },
-
-      next: (response) => {
-        this.oauthService.logOut(true);
-        this.setLoading(false);
-      },
-    });
+    this.authService
+      .exchangeToken(token)
+      .pipe(
+        finalize(() => {
+          this.setLoading(false);
+          this.tokenService.clearOAuthToken();
+          this.tokenService.clearOAuthIdToken();
+          this.oauthService.logOut(true);
+        })
+      )
+      .subscribe({
+        complete: () => {
+          this.messageService.add({
+            severity: 'success',
+            summary: 'Success',
+            detail: 'Login successful',
+          });
+          this.router.navigate(['/']);
+        },
+        error: (error) => {
+          console.error('Token exchange failed:', error);
+          this.messageService.add({
+            severity: 'error',
+            summary: 'Login Failed',
+            detail: 'Unable to exchange token. Please try again.',
+          });
+        },
+      });
   }
 
   loginM2M() {

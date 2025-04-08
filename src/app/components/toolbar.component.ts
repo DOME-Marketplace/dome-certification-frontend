@@ -26,7 +26,7 @@ import { ModalUserProfile } from '@components/modalUserProfile.component';
       >
         <div class="flex items-center justify-start gap-8 ">
           <a
-            class="no-underline flex justify-between items-center gap-3"
+            class="no-underline flex justify-between items-center gap-3  text-white"
             routerLink="/"
           >
             <img
@@ -35,7 +35,7 @@ import { ModalUserProfile } from '@components/modalUserProfile.component';
               alt="logo dome certification"
             />
             <span
-              class="self-center text-xl lg:text-[24px] font-semibold whitespace-nowrap dark:text-white"
+              class="self-center text-xl lg:text-[24px] font-semibold whitespace-nowrap text-white"
               >DOME CERTIFICATION
             </span>
           </a>

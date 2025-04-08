@@ -10,6 +10,7 @@ import { AuthService } from '@services/auth.service';
 import { MessageService } from 'primeng/api';
 import { DividerModule } from 'primeng/divider';
 import { OauthButtonComponent } from './Oauth.button.component';
+import { finalize } from 'rxjs';
 
 @Component({
   selector: 'app-auth-login',
@@ -101,7 +102,7 @@ import { OauthButtonComponent } from './Oauth.button.component';
               style="color: var(--primary-color)"
               href="https://knowledgebase.dome-marketplace.org/shelves/company-onboarding-process"
               target="_blank"
-              >Sing up</a
+              >Sign up</a
             >
           </div>
         </form>
@@ -135,6 +136,7 @@ export class LoginComponent {
 
     this.auth
       .login(this.username, this.password)
+      .pipe(finalize(() => (this.loading = false)))
       .subscribe({
         next: () => {
           this.messageService.add({
@@ -151,9 +153,6 @@ export class LoginComponent {
             detail: 'Invalid credentials',
           });
         },
-      })
-      .add(() => {
-        this.loading = false;
       });
   }
 }

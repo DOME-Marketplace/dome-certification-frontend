@@ -23,6 +23,8 @@ import { InputMaskModule } from 'primeng/inputmask';
 import { PO } from '@models/ProductOffering';
 import { ApiServices } from '@services/api.service';
 import { Router } from '@angular/router';
+import { finalize } from 'rxjs';
+import { validURL } from '@utils/validateUrl';
 
 interface City {
   name: string;
@@ -284,7 +286,7 @@ interface City {
                     <input
                       class="w-full"
                       pInputText
-                      type="url"
+                      type="text"
                       id="website"
                       formControlName="url_organization"
                       aria-errormessage="url_organization-error"
@@ -359,6 +361,7 @@ interface City {
               [multiple]="true"
               accept=".pdf"
               [maxFileSize]="10000000"
+              (onClear)="onFileUploadCancel($event)"
               uploadStyleClass="hidden"
               chooseStyleClass="md:min-w-72 md:mr-12 md:ml-2 "
               cancelStyleClass="md:min-w-72 "
@@ -426,7 +429,7 @@ export class FormRequestComponent implements OnInit {
       [
         Validators.required,
         Validators.pattern(
-          '^(https?://)?([\\da-z.-]+)\\.([a-z.]{2,6})[/\\w .-]*/?$'
+          '(https?://)?([\\da-z.-]+)\\.([a-z.]{2,6})[/\\w .-]*/?'
         ),
         Validators.maxLength(55),
       ],
@@ -460,8 +463,30 @@ export class FormRequestComponent implements OnInit {
     this.uploadedFiles = event.currentFiles;
     // Agregar cada archivo nuevo al array uploadedFiles
   }
+  onFileUploadCancel(event: any) {
+    this.uploadedFiles = [];
+  }
+
   submitForm() {
+    this.form.markAllAsTouched();
+
     if (this.form.valid && this.uploadedFiles.length > 0) {
+      // Validación de tamaño total
+      const maxSizeBytes = 10 * 1024 * 1024; // 10MB
+      const totalSize = this.uploadedFiles.reduce(
+        (sum, file) => sum + file.size,
+        0
+      );
+      if (totalSize > maxSizeBytes) {
+        this.messageService.add({
+          severity: 'error',
+          summary: 'Error',
+          detail:
+            'Total file size exceeds 10MB limit. Please upload smaller files.',
+        });
+        return;
+      }
+
       this.loading.set(true);
 
       const formData = new FormData();
@@ -478,9 +503,10 @@ export class FormRequestComponent implements OnInit {
         'address_organization',
         this.form.get('address_organization')?.value
       );
+
       const ISO_Country_Code: any = this.form.get('ISO_Country_Code')?.value;
       if (ISO_Country_Code) {
-        formData.append('ISO_Country_Code', ISO_Country_Code?.code);
+        formData.append('ISO_Country_Code', ISO_Country_Code.code);
       }
 
       formData.append('id_PO', this.form.get('id_PO')?.value);
@@ -493,36 +519,39 @@ export class FormRequestComponent implements OnInit {
         this.form.get('email_organization')?.value
       );
       formData.append('VAT_ID', this.form.get('VAT_ID')?.value);
-      // Append uploaded files to FormData under 'files' key
-      if (this.uploadedFiles && this.uploadedFiles.length > 0) {
-        this.uploadedFiles.forEach((file, index) => {
-          formData.append(`files`, file, file.name);
-        });
-      }
 
-      // Enviar el formData al servicio para crear una nueva PO
-      this.apiService.createPO(formData).subscribe({
-        next: (createdPO: PO) => {
-          this.form.reset();
-          this.fileUploadComponent.clear();
-          this.messageService.add({
-            severity: 'success',
-            summary: 'Success',
-            detail: 'Form sent successfully',
-          });
-          this.loading.set(false);
-          this.router.navigate(['/dashboard']);
-        },
-        error: (error) => {
-          console.error('Error al enviar formulario:', error);
-          this.messageService.add({
-            severity: 'error',
-            summary: 'Error',
-            detail: 'Failed to send form',
-          });
-          this.loading.set(false);
-        },
+      this.uploadedFiles.forEach((file) => {
+        formData.append('files', file, file.name);
       });
+
+      this.apiService
+        .createPO(formData)
+        .pipe(finalize(() => this.loading.set(false)))
+        .subscribe({
+          next: (createdPO: PO) => {
+            this.form.reset();
+            this.fileUploadComponent.clear();
+            this.messageService.add({
+              severity: 'success',
+              summary: 'Success',
+              detail: 'Form sent successfully',
+            });
+            this.router.navigate(['/dashboard']);
+          },
+          error: (error) => {
+            console.error('Error al enviar formulario:', error);
+            let detail = 'Failed to send form';
+            if (error?.status === 413) {
+              detail =
+                'The uploaded files are too large. Please reduce the file size and try again.';
+            }
+            this.messageService.add({
+              severity: 'error',
+              summary: 'Error',
+              detail,
+            });
+          },
+        });
     } else {
       this.messageService.add({
         severity: 'error',
@@ -530,7 +559,6 @@ export class FormRequestComponent implements OnInit {
         detail:
           'Please fill in all the required fields and upload at least one file',
       });
-      this.loading.set(false);
     }
   }
 
