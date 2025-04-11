@@ -117,7 +117,8 @@ import { ResM2MToken } from '@models/auth.model';
           <h6 class="text-base m-0">Website of the organization</h6>
           <a
             class="mt-0 mb-2 no-underline  text-sky-950"
-            href="{{ selectedRow.url_organization }}"
+            [href]="getOrganizationUrl()"
+            target="_blank"
             >{{ selectedRow.url_organization }}
             <i class="pi pi-external-link ml-1 text-xs"></i
           ></a>
@@ -337,6 +338,7 @@ import { ResM2MToken } from '@models/auth.model';
                       ? 'ng-invalid ng-dirty'
                       : ''
                   }}"
+                  dateFormat="yy-mm-dd"
                   [minDate]="currentDate"
                   [style]="{
                     width: '100%',
@@ -419,11 +421,13 @@ export class ModalProductDetails implements OnInit {
   };
   request_issuer_name = '';
   request_issue_date = '';
-  request_expiration_date = '';
+  request_expiration_date = moment().add(1, 'year').toDate();
   request_url_organization = '';
   currentDate = new Date();
+  // defaultExpirationDate = moment().add(1, 'year').toDate();
 
   selectedCompliance!: CompliancesStandards[] | [];
+
   selectedCompliancesWithFilesAssociated: CompliancesToValidate[] = [];
 
   @ViewChild(PdfViewerComponent)
@@ -436,6 +440,11 @@ export class ModalProductDetails implements OnInit {
     this.apiServices.getAllCompliancesStandards().subscribe((compliances) => {
       this.compliancesStandards.set(compliances);
     });
+  }
+
+  getOrganizationUrl(): string {
+    const url = this.selectedRow?.url_organization || '';
+    return url.startsWith('http') ? url : `https://${url}`;
   }
   getAllStandards() {
     this.apiServices.getAllCompliancesStandards().subscribe((standards) => {
@@ -530,7 +539,6 @@ export class ModalProductDetails implements OnInit {
 
   handleCloseValidateModal() {
     this.selectedCompliance = [];
-    this.request_expiration_date = '';
     this.invalidForm.selectedCompliance = false;
     this.invalidForm.request_expiration_date = false;
     this.secondModal = false;
@@ -573,6 +581,9 @@ export class ModalProductDetails implements OnInit {
     };
 
     const idToken = this.tokenService.getOAuthIdToken();
+    // const idToken =
+    //   'eyJraWQiOiJkaWQ6a2V5OnpEbmFldk44NVo3VkpnY0JvUWVxUVU3ZDhrWnB1VmhEU2RtOGhRdEpZV2p2ZWszVkwiLCJ0eXAiOiJKV1QiLCJhbGciOiJFUzI1NiJ9.eyJzdWIiOiJkaWQ6a2V5OnpEbmFlUzVZWXlCdlpNaWpIckNLQnV6YTIyOEY1YlVCTG1EYW5XeW5CVGpldks5cEUiLCJ2Y19qc29uIjoie1wiQGNvbnRleHRcIjpbXCJodHRwczovL3d3dy53My5vcmcvbnMvY3JlZGVudGlhbHMvdjJcIixcImh0dHBzOi8vdHJ1c3QtZnJhbWV3b3JrLmRvbWUtbWFya2V0cGxhY2UuZXUvY3JlZGVudGlhbHMvbGVhcmNyZWRlbnRpYWxlbXBsb3llZS92MVwiXSxcImNyZWRlbnRpYWxTdWJqZWN0XCI6e1wibWFuZGF0ZVwiOntcImlkXCI6XCI4NjBiOWY2ZC00OTg1LTRkNWUtOTY4ZC0wOTI4NWZlMzJjODJcIixcImxpZmVfc3BhblwiOntcImVuZF9kYXRlX3RpbWVcIjpcIjIwMjYtMDEtMjNUMDg6NTI6MDIuNzU3NjMzNTYyWlwiLFwic3RhcnRfZGF0ZV90aW1lXCI6XCIyMDI1LTAxLTIzVDA4OjUyOjAyLjc1NzYzMzU2MlpcIn0sXCJtYW5kYXRlZVwiOntcImVtYWlsXCI6XCJhbnRvbmlvLmFsdmFyZXpAZGVrcmEuY29tXCIsXCJmaXJzdF9uYW1lXCI6XCJBbnRvbmlvXCIsXCJpZFwiOlwiZGlkOmtleTp6RG5hZVM1WVl5QnZaTWlqSHJDS0J1emEyMjhGNWJVQkxtRGFuV3luQlRqZXZLOXBFXCIsXCJsYXN0X25hbWVcIjpcIkFsdmFyZXogTG9wZXpcIixcIm1vYmlsZV9waG9uZVwiOlwiKzM0IDY2NDc0MDA2MVwifSxcIm1hbmRhdG9yXCI6e1wiY29tbW9uTmFtZVwiOlwiTm9lbGlhIEd1ZXJyYSBNZWxnYXJlc1wiLFwiY291bnRyeVwiOlwiU3BhaW5cIixcImVtYWlsQWRkcmVzc1wiOlwibm9lbGlhLmd1ZXJyYUBkZWtyYS5jb21cIixcIm9yZ2FuaXphdGlvblwiOlwiREVLUkEgVGVzdGluZyBhbmQgQ2VydGlmaWNhdGlvbiwgUy5BLlUuXCIsXCJvcmdhbml6YXRpb25JZGVudGlmaWVyXCI6XCJWQVRFUy1BMjk1MDc0NTZcIixcInNlcmlhbE51bWJlclwiOlwiNTMzNzE4ODhDXCJ9LFwicG93ZXJcIjpbe1wiaWRcIjpcIjU0Mzk4YWZlLWNjYzYtNDQ0YS1iZDUxLWQwMjU3NzZiNDRhYlwiLFwidG1mX2FjdGlvblwiOltcIlVwbG9hZFwiLFwiQXR0ZXN0XCJdLFwidG1mX2RvbWFpblwiOlwiRE9NRVwiLFwidG1mX2Z1bmN0aW9uXCI6XCJDZXJ0aWZpY2F0aW9uXCIsXCJ0bWZfdHlwZVwiOlwiRG9tYWluXCJ9XSxcInNpZ25lclwiOntcImNvbW1vbk5hbWVcIjpcIlpFVVMgT0xJTVBPU1wiLFwiY291bnRyeVwiOlwiRVVcIixcImVtYWlsQWRkcmVzc1wiOlwiZG9tZXN1cHBvcnRAaW4yLmVzXCIsXCJvcmdhbml6YXRpb25cIjpcIk9MSU1QT1wiLFwib3JnYW5pemF0aW9uSWRlbnRpZmllclwiOlwiVkFURVUtQjk5OTk5OTk5XCIsXCJzZXJpYWxOdW1iZXJcIjpcIklEQ0VVLTk5OTk5OTk5UFwifX19LFwiaWRcIjpcIjMxN2Y4ZWRmLTU4YzUtNDgxYS04YjgwLTkzY2UyNzIyNmFlMFwiLFwiaXNzdWVyXCI6XCJkaWQ6ZWxzaTpWQVRFVS1COTk5OTk5OTlcIixcInR5cGVcIjpbXCJMRUFSQ3JlZGVudGlhbEVtcGxveWVlXCIsXCJWZXJpZmlhYmxlQ3JlZGVudGlhbFwiXSxcInZhbGlkRnJvbVwiOlwiMjAyNS0wMS0yM1QwODo1MjowMi43NTc2MzM1NjJaXCIsXCJ2YWxpZFVudGlsXCI6XCIyMDI2LTAxLTIzVDA4OjUyOjAyLjc1NzYzMzU2MlpcIn0iLCJlbWFpbF92ZXJpZmllZCI6dHJ1ZSwiaXNzIjoiaHR0cHM6Ly92ZXJpZmllci5kb21lLW1hcmtldHBsYWNlLXNieC5vcmciLCJnaXZlbl9uYW1lIjoiQW50b25pbyIsIm5vbmNlIjoiV1ZReFZYVTFVMmhpTUVkYUxsSXVhV3gtYVV3eFRGTllTRTQwVkZacE1tMDJNM1ZvU1dKRFJUVk5lbFpqIiwiYXVkIjoiZGlkOmtleTp6RG5hZWhta0Vob3liTGdSa1ZiS3BBdjQ3VnU4MVJ3NVRtTFVBNVByUkt1V1NiaHhuIiwiYWNyIjoiMCIsImF1dGhfdGltZSI6MTc0NDM2MDA1MywibmFtZSI6IkFudG9uaW8gQWx2YXJleiBMb3BleiIsImV4cCI6MTc0NDM2MDExMywiaWF0IjoxNzQ0MzYwMDUzLCJmYW1pbHlfbmFtZSI6IkFsdmFyZXogTG9wZXoiLCJlbWFpbCI6ImFudG9uaW8uYWx2YXJlekBkZWtyYS5jb20ifQ.fHca5WPUhN7cvyr_MO3ak3_WBip59BpZz2FmES9DKSGOE1M65FmFIEizR44cpLn8wXcn1oTkvv22p9-7L4wHOw';
+
     if (!idToken) {
       console.error('Please retry login');
       this.isLoading = false;
@@ -592,21 +603,10 @@ export class ModalProductDetails implements OnInit {
       compliances,
       this.request_expiration_date
     );
-
-    this.oauthService
-      .loginM2M()
+    console.log(payload);
+    this.issuerService
+      .issuanceCompliances(data, payload, idToken, this.selectedRow.id)
       .pipe(
-        switchMap((res: ResM2MToken) => {
-          const accessToken = res.access_token;
-          return this.issuerService.issueCertificate(
-            accessToken,
-            payload,
-            idToken
-          );
-        }),
-        switchMap(() =>
-          this.apiServices.updateStatus(data, this.selectedRow.id)
-        ),
         finalize(() => {
           this.isLoading = false;
         })

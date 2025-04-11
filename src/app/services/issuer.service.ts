@@ -14,11 +14,12 @@ export class IssuerService {
   private http = inject(HttpClient);
   private issuerApi = environment.ISSUER_API;
   private marketPlaceURL = environment.DOME_MARKETPLACE;
+  private baseUrl = environment.API_URL;
 
   createPayload(
     PO: ResPO,
     compliances: IssuerCompliance[],
-    expirationDate: string
+    expirationDate: Date
   ) {
     const validFrom = moment().utc().format('YYYY-MM-DD[T]HH:mm:ss[Z]');
     const validUntil = moment(expirationDate)
@@ -59,10 +60,28 @@ export class IssuerService {
       Authorization: `Bearer ${token}`,
       'X-ID-TOKEN': idToken,
     });
-    const url = `${this.issuerApi}/issuer-api/vci/v1/issuances`;
+    const url = `${this.issuerApi}/issuer-api/vci/v1/issuances/external`;
     // Ignorar el interceptor
     const context = new HttpContext().set(BYPASS_AUTH, true);
 
     return this.http.post(url, body, { headers, context });
+  }
+
+  issuanceCompliances(
+    data: any,
+    payload: Record<string, any>,
+    idToken: string,
+    poId: number
+  ): Observable<any> {
+    const url = `${this.baseUrl}/api/v1/product-offering/issuances`;
+
+    const body = {
+      poId,
+      idToken,
+      payload,
+      data,
+    };
+
+    return this.http.post(url, body);
   }
 }
