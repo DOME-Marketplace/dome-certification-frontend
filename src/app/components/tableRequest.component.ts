@@ -62,7 +62,6 @@ import { ModalCommentsComponent } from '@components/modalComments.component';
     >
       <p-table
         #dt
-        class="min-h-[800px]"
         [columns]="cols"
         [value]="productsArray()"
         [(contextMenuSelection)]="selectedRow"
@@ -70,7 +69,6 @@ import { ModalCommentsComponent } from '@components/modalComments.component';
         [tableStyle]="{
           'min-width': '80rem',
           'font-size': '14px',
-          'min-height': productsArray().length < 1 ? '600px' : 'auto',
 
         }"
         styleClass=" p-datatable-striped "

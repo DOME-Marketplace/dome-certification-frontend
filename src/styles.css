@@ -188,9 +188,9 @@ btn-primary:disabled:hover {
   overflow: scroll;
 }
 
-.p-datatable > .p-datatable-wrapper {
+/* .p-datatable > .p-datatable-wrapper {
   min-height: 680px;
-}
+} */
 
 .hidden {
   display: none !important;
@@ -205,4 +205,27 @@ btn-primary:disabled:hover {
 
 .custom-divider .p-divider-content {
   background-color: inherit;
+}
+
+input.ng-invalid.ng-touched {
+  border-color: #f87171; /* rojo tailwind/PrimeNG */
+}
+p-inputmask.ng-invalid.ng-touched input {
+  border-color: #f87171 !important;
+}
+p-dropdown.ng-invalid.ng-touched .p-dropdown {
+  border: 1px solid #f87171 !important;
+}
+
+p-fileupload.invalid-upload .p-fileupload-buttonbar {
+  border: 1px solid #f87171 !important;
+  border-top-right-radius: 6px;
+  border-top-left-radius: 6px;
+  border-bottom: none !important;
+}
+
+p-fileupload.invalid-upload .p-fileupload-content {
+  border: 1px solid #f87171 !important;
+  border-bottom-right-radius: 6px;
+  border-bottom-left-radius: 6px;
 }

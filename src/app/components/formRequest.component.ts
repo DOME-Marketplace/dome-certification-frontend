@@ -1,30 +1,30 @@
-import { CommonModule } from '@angular/common';
+import { CommonModule } from "@angular/common";
 import {
   Component,
   OnInit,
   ViewChild,
   ViewEncapsulation,
   signal,
-} from '@angular/core';
+} from "@angular/core";
 import {
   FormBuilder,
   FormsModule,
   ReactiveFormsModule,
   Validators,
-} from '@angular/forms';
-import { InputTextModule } from 'primeng/inputtext';
-import { ButtonModule } from 'primeng/button';
-import { FileUpload, FileUploadModule } from 'primeng/fileupload';
-import { MessageService } from 'primeng/api';
-import { DropdownFilterOptions } from 'primeng/dropdown';
-import { DropdownModule } from 'primeng/dropdown';
-import { countries } from '@utils/countries';
-import { InputMaskModule } from 'primeng/inputmask';
-import { PO } from '@models/ProductOffering';
-import { ApiServices } from '@services/api.service';
-import { Router } from '@angular/router';
-import { finalize } from 'rxjs';
-import { validURL } from '@utils/validateUrl';
+} from "@angular/forms";
+import { InputTextModule } from "primeng/inputtext";
+import { ButtonModule } from "primeng/button";
+import { FileUpload, FileUploadModule } from "primeng/fileupload";
+import { MessageService } from "primeng/api";
+import { DropdownFilterOptions } from "primeng/dropdown";
+import { DropdownModule } from "primeng/dropdown";
+import { countries } from "@utils/countries";
+import { InputMaskModule } from "primeng/inputmask";
+import { PO } from "@models/ProductOffering";
+import { ApiServices } from "@services/api.service";
+import { Router } from "@angular/router";
+import { finalize } from "rxjs";
+import { validURL } from "@utils/validateUrl";
 
 interface City {
   name: string;
@@ -32,7 +32,7 @@ interface City {
 }
 
 @Component({
-  selector: 'app-form-request',
+  selector: "app-form-request",
   standalone: true,
   imports: [
     CommonModule,
@@ -290,6 +290,7 @@ interface City {
                       id="website"
                       formControlName="url_organization"
                       aria-errormessage="url_organization-error"
+                      (blur)="form.get('url_organization')?.markAsTouched()"
                     />
                     <label for="website">Website of the Organization *</label>
                   </span>
@@ -304,11 +305,19 @@ interface City {
                   <small id="url_organization-error" class="ml-2 p-error">
                     {{ errorMessages.maxlength }}
                   </small>
-                  } @if(form.get('url_organization')?.touched &&
+                  } @if((form.get('url_organization')?.touched ||
+                  form.get('url_organization')?.dirty) &&
                   form.get('url_organization')?.hasError('pattern')){
 
                   <small id="url_organization-error" class="ml-2 p-error">
                     {{ errorMessages.pattern }}
+                  </small>
+                  } @if((form.get('url_organization')?.touched ||
+                  form.get('url_organization')?.dirty) &&
+                  form.get('url_organization')?.hasError('invalidUrl')){
+
+                  <small id="url_organization-error" class="ml-2 p-error">
+                    {{ errorMessages.invalidUrl }}
                   </small>
                   }
                 </div>
@@ -339,7 +348,7 @@ interface City {
                   } @if(form.get('email_organization')?.touched &&
                   form.get('email_organization')?.hasError('pattern')){
 
-                  <small id="email_organization-error" class="ml-2 p-error">
+                  <small id="email_organization-error" class="ml-2 p-error ">
                     {{ errorMessages.pattern }}
                   </small>
                   }
@@ -365,6 +374,8 @@ interface City {
               uploadStyleClass="hidden"
               chooseStyleClass="md:min-w-72 md:mr-12 md:ml-2 "
               cancelStyleClass="md:min-w-72 "
+              [ngClass]="{ 'invalid-upload': invalidFileUpload }"
+              progressStyleClass="opacity-0"
             >
               <ng-template pTemplate="file" let-file>
                 <div class="flex items-baseline gap-2 mb-4 mr-">
@@ -372,8 +383,8 @@ interface City {
                   <p class="truncate w-9/12 text-base m-0">
                     {{ file.name }}
                   </p>
-                  <p class="text-xs m-0 font-bold">
-                    ({{ file.size / 1048576 | number : '1.2-2' }} MB)
+                  <p class="text-xs m-0 ">
+                    ({{ file.size / 1048576 | number : "1.2-2" }} MB)
                   </p>
                 </div>
               </ng-template>
@@ -386,6 +397,12 @@ interface City {
                 }
               </ng-template>
             </p-fileUpload>
+            @if(invalidFileUpload){
+
+            <small id="email_organization-error" class="ml-2 mt-2 p-error">
+              {{ errorMessages.required }}
+            </small>
+            }
           </div>
         </div>
         <div class="mt-8">
@@ -402,44 +419,41 @@ interface City {
   `,
 })
 export class FormRequestComponent implements OnInit {
-  @ViewChild('fileUploadComponent')
+  @ViewChild("fileUploadComponent")
   fileUploadComponent!: FileUpload;
 
   errorMessages = {
-    required: 'Required.',
-    maxlength: 'Maximum length of 55 characters exceeded.',
-    maxlengthxs: 'Maximum length of 40 characters exceeded.',
-    maxlengthxl: 'Maximum length of 100 characters exceeded.',
-    pattern: 'Invalid format.',
+    required: "Required.",
+    maxlength: "Maximum length of 55 characters exceeded.",
+    maxlengthxs: "Maximum length of 40 characters exceeded.",
+    maxlengthxl: "Maximum length of 100 characters exceeded.",
+    pattern: "Invalid format.",
+    invalidUrl: "Invalid URL format.",
   };
+  urlRegex =
+    "^(https?:\\/\\/)?(www\\.)?[a-zA-Z0-9\\-]+\\.[a-zA-Z]{2,}(\\/.*)?$";
 
   form = this.fb.group({
-    service_name: ['', [Validators.required, Validators.maxLength(55)]],
+    service_name: ["", [Validators.required, Validators.maxLength(55)]],
     service_version: [null, Validators.required],
-    name_organization: ['', [Validators.required, Validators.maxLength(55)]],
+    name_organization: ["", [Validators.required, Validators.maxLength(55)]],
     address_organization: [
-      '',
+      "",
       [Validators.required, Validators.maxLength(100)],
     ],
     ISO_Country_Code: [null, Validators.required],
-    id_PO: ['', [Validators.required, Validators.maxLength(55)]],
-    VAT_ID: ['', [Validators.required, Validators.maxLength(40)]],
+    id_PO: ["", [Validators.required, Validators.maxLength(55)]],
+    VAT_ID: ["", [Validators.required, Validators.maxLength(40)]],
     url_organization: [
-      '',
-      [
-        Validators.required,
-        Validators.pattern(
-          '(https?://)?([\\da-z.-]+)\\.([a-z.]{2,6})[/\\w .-]*/?'
-        ),
-        Validators.maxLength(55),
-      ],
+      "",
+      [Validators.required, validURL, Validators.maxLength(55)],
     ],
     email_organization: [
-      '',
+      "",
       [
         Validators.required,
         Validators.maxLength(55),
-        Validators.pattern('^[a-z0-9._%+-]+@[a-z0-9.-]+\\.[a-z]{2,4}$'),
+        Validators.pattern("^[a-z0-9._%+-]+@[a-z0-9.-]+\\.[a-z]{2,4}$"),
       ],
     ],
   });
@@ -448,6 +462,7 @@ export class FormRequestComponent implements OnInit {
   filterValue!: string;
   //crear un signal para manejar el estado de carga
   loading = signal<boolean>(false);
+  invalidFileUpload = false;
 
   constructor(
     private fb: FormBuilder,
@@ -460,6 +475,7 @@ export class FormRequestComponent implements OnInit {
     this.countries = this.countries;
   }
   onFileUpload(event: any) {
+    this.invalidFileUpload = false;
     this.uploadedFiles = event.currentFiles;
     // Agregar cada archivo nuevo al array uploadedFiles
   }
@@ -469,6 +485,26 @@ export class FormRequestComponent implements OnInit {
 
   submitForm() {
     this.form.markAllAsTouched();
+    this.form.markAsDirty();
+    // console.log(this.form.get("url_organization")?.invalid);
+    // // Si el campo url_organization es inválido, no permitir   submit
+    // const urlControl = this.form.get("url_organization");
+    // urlControl?.markAsTouched();
+    // urlControl?.updateValueAndValidity();
+    // console.log(
+    //   "url_organization invalid:",
+    //   urlControl?.invalid,
+    //   "value:",
+    //   urlControl?.value
+    // );
+    // if (urlControl?.invalid) {
+    //   this.messageService.add({
+    //     severity: "error",
+    //     summary: "Error",
+    //     detail: "Please enter a valid website URL.",
+    //   });
+    //   return;
+    // }
 
     if (this.form.valid && this.uploadedFiles.length > 0) {
       // Validación de tamaño total
@@ -478,50 +514,51 @@ export class FormRequestComponent implements OnInit {
         0
       );
       if (totalSize > maxSizeBytes) {
+        this.invalidFileUpload = true;
         this.messageService.add({
-          severity: 'error',
-          summary: 'Error',
+          severity: "error",
+          summary: "Error",
           detail:
-            'Total file size exceeds 10MB limit. Please upload smaller files.',
+            "Total file size exceeds 10MB limit. Please upload smaller files.",
         });
         return;
       }
-
+      this.invalidFileUpload = false;
       this.loading.set(true);
 
       const formData = new FormData();
-      formData.append('service_name', this.form.get('service_name')?.value);
+      formData.append("service_name", this.form.get("service_name")?.value);
       formData.append(
-        'service_version',
-        this.form.get('service_version')?.value
+        "service_version",
+        this.form.get("service_version")?.value
       );
       formData.append(
-        'name_organization',
-        this.form.get('name_organization')?.value
+        "name_organization",
+        this.form.get("name_organization")?.value
       );
       formData.append(
-        'address_organization',
-        this.form.get('address_organization')?.value
+        "address_organization",
+        this.form.get("address_organization")?.value
       );
 
-      const ISO_Country_Code: any = this.form.get('ISO_Country_Code')?.value;
+      const ISO_Country_Code: any = this.form.get("ISO_Country_Code")?.value;
       if (ISO_Country_Code) {
-        formData.append('ISO_Country_Code', ISO_Country_Code.code);
+        formData.append("ISO_Country_Code", ISO_Country_Code.code);
       }
 
-      formData.append('id_PO', this.form.get('id_PO')?.value);
+      formData.append("id_PO", this.form.get("id_PO")?.value);
       formData.append(
-        'url_organization',
-        this.form.get('url_organization')?.value
+        "url_organization",
+        this.form.get("url_organization")?.value
       );
       formData.append(
-        'email_organization',
-        this.form.get('email_organization')?.value
+        "email_organization",
+        this.form.get("email_organization")?.value
       );
-      formData.append('VAT_ID', this.form.get('VAT_ID')?.value);
+      formData.append("VAT_ID", this.form.get("VAT_ID")?.value);
 
       this.uploadedFiles.forEach((file) => {
-        formData.append('files', file, file.name);
+        formData.append("files", file, file.name);
       });
 
       this.apiService
@@ -532,32 +569,35 @@ export class FormRequestComponent implements OnInit {
             this.form.reset();
             this.fileUploadComponent.clear();
             this.messageService.add({
-              severity: 'success',
-              summary: 'Success',
-              detail: 'Form sent successfully',
+              severity: "success",
+              summary: "Success",
+              detail: "Form sent successfully",
             });
-            this.router.navigate(['/dashboard']);
+            this.router.navigate(["/dashboard"]);
           },
           error: (error) => {
-            console.error('Error al enviar formulario:', error);
-            let detail = 'Failed to send form';
+            console.error("Error al enviar formulario:", error);
+            let detail = "Failed to send form";
             if (error?.status === 413) {
               detail =
-                'The uploaded files are too large. Please reduce the file size and try again.';
+                "The uploaded files are too large. Please reduce the file size and try again.";
             }
             this.messageService.add({
-              severity: 'error',
-              summary: 'Error',
+              severity: "error",
+              summary: "Error",
               detail,
             });
           },
         });
     } else {
+      if (this.uploadedFiles.length === 0) {
+        this.invalidFileUpload = true;
+      }
       this.messageService.add({
-        severity: 'error',
-        summary: 'Error',
+        severity: "error",
+        summary: "Error",
         detail:
-          'Please fill in all the required fields and upload at least one file',
+          "Please fill in all the required fields and upload at least one file",
       });
     }
   }
@@ -568,6 +608,6 @@ export class FormRequestComponent implements OnInit {
 
   resetFunction(options: DropdownFilterOptions) {
     options.reset();
-    this.filterValue = '';
+    this.filterValue = "";
   }
 }

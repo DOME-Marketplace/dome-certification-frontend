@@ -30,7 +30,7 @@ import { ModalUserProfile } from '@components/modalUserProfile.component';
             routerLink="/"
           >
             <img
-              src="../../assets/icon/DOME_Icon_White.svg"
+              src="../../assets/icon/DOME_Icon_White.png"
               class="h-4 lg:h-8"
               alt="logo dome certification"
             />
