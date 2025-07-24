@@ -41,6 +41,7 @@ import { finalize, switchMap } from 'rxjs';
 import { OAuthService } from 'angular-oauth2-oidc';
 import { CustomOAuthService } from '@services/oauth.service';
 import { ResM2MToken } from '@models/auth.model';
+import { PropertiesComponent } from '@ui/properties.component';
 
 @Component({
   selector: 'app-modal-product-details',
@@ -60,6 +61,7 @@ import { ResM2MToken } from '@models/auth.model';
     CalendarModule,
     ModalRejectProductComponent,
     ModalRejectProductComponent,
+    PropertiesComponent,
   ],
   template: `
     <p-dialog
@@ -93,111 +95,150 @@ import { ResM2MToken } from '@models/auth.model';
       </ng-template>
       @if(selectedRow){
       <div class="flex justify-between gap-8">
-        <div class="w-full max-w-md">
-          <div class="flex flex-col gap-4">
-            <p class="m-0">1. Product Information</p>
+        <div class="w-full max-w-md flex flex-col gap-4">
+          <div class="flex flex-col gap-2">
+            <div class="flex items-center gap-4">
+              <div>
+                <h5 class="m-0 text-xl">Product Information</h5>
+              </div>
+
+              <p-divider class="flex-1 m-0" />
+            </div>
             <div>
-              <h6 class="text-base m-0">Product Offering Id</h6>
-              <p class="mt-0 mb-2">{{ selectedRow.id_PO }}</p>
+              <app-property label="Product ID" [value]="selectedRow.id_PO" />
+              <app-property
+                label="Product Name"
+                [value]="selectedRow.service_name"
+              />
+              <app-property
+                label="Product Version"
+                [value]="selectedRow.service_version"
+              />
+            </div>
+          </div>
+
+          <div class="flex flex-col gap-2">
+            <div class="flex items-center gap-4">
+              <h5 class="m-0 text-xl flex-1 text-nowrap">
+                Organization Information
+              </h5>
+
+              <p-divider class="flex-1 m-0" />
             </div>
 
-            <h6 class="text-base m-0">Product Offering Name</h6>
-            <p class="mt-0 mb-2">{{ selectedRow.service_name }}</p>
-            <h6 class="text-base m-0">Product Offering Version</h6>
-            <p class="mt-0 mb-2">{{ selectedRow.service_version }}</p>
-          </div>
+            <div>
+              <app-property
+                label="Organization Name"
+                [value]="selectedRow.name_organization"
+              />
+              <app-property
+                label="Organization ID"
+                [value]="selectedRow.vat_ID"
+              />
 
-          <h6 class="text-base m-0">Name of the organization</h6>
-          <p class="mt-0 mb-2">{{ selectedRow.name_organization }}</p>
-          <h6 class="text-base m-0">VAT ID</h6>
-          <p class="mt-0 mb-2">{{ selectedRow.vat_ID }}</p>
+              <app-property
+                label="Organization Country"
+                [value]="selectedRow.ISO_Country_Code"
+              />
 
-          <h6 class="text-base m-0">ISO Country Code</h6>
-          <p class="mt-0 mb-2">{{ selectedRow.ISO_Country_Code }}</p>
-
-          <h6 class="text-base m-0">Address</h6>
-          <p class="mt-0 mb-2">{{ selectedRow.address_organization }}</p>
-
-          <h6 class="text-base m-0">Website of the organization</h6>
-          <a
-            class="mt-0 mb-2 no-underline  text-sky-950"
-            [href]="getOrganizationUrl()"
-            target="_blank"
-            >{{ selectedRow.url_organization }}
-            <i class="pi pi-external-link ml-1 text-xs"></i
-          ></a>
-
-          <h6 class="text-base m-0 mt-2">Organization email contact</h6>
-          <a
-            class="mt-0 mb-2 text no-underline text-sky-950"
-            href="mailto:{{ selectedRow.email_organization }}"
-            >{{ selectedRow.email_organization }}
-            <i class="pi pi-external-link ml-1 text-xs"></i>
-          </a>
-
-          <h6 class="text-base m-0 mt-2">Request Date</h6>
-          <p class="mt-0 mb-2">{{ selectedRow.request_date | date }}</p>
-
-          <h6 class="text-base m-0">Status</h6>
-          <p class="mt-0 mb-2">{{ selectedRow.status }}</p>
-
-          @if(selectedRow.issue_date && selectedRow.status !== 'REJECTED'){
-          <h6 class="text-base m-0">Issue Date</h6>
-          <p class="mt-0 mb-2">{{ selectedRow.issue_date | date }}</p>
-          } @if(selectedRow.expiration_date && selectedRow.status !==
-          'REJECTED'){
-          <h6 class="text-base m-0">Expiration Date</h6>
-          <p class="mt-0 mb-0">{{ selectedRow.expiration_date | date }}</p>
-          }
-
-          <p-divider />
-
-          <h6 class="text-base m-0">Compliance Profiles</h6>
-          <div class="grid grid-cols-3 gap-4 mt-4">
-            @for ( profile of selectedRow.complianceProfiles ; track profile.id
-            ) {
-            <div
-              class="flex flex-col items-center justify-center cursor-pointer p-2 rounded  {{
-                this.pdfSelected?.id == profile.id ? ' bg-[#2d58a721]' : ''
-              }} "
-              (click)="handlePdf(profile)"
-            >
-              <i class="pi pi-file-pdf" style="font-size: 2rem"></i>
-              <p class="truncate w-32 text-sm mb-0">
-                {{ profile.fileName }}.pdf
-              </p>
+              <app-property
+                label="Organization Contact Email"
+                value="mailto:{{ selectedRow.email_organization }}"
+                [displayValue]="selectedRow.email_organization"
+                [isLink]="true"
+              />
             </div>
-            }
           </div>
-          <p-divider />
 
-          @if(pdfSelected){
-          <ul>
-            <li class="text-sm">File: {{ pdfSelected.fileName }}</li>
-            <li class="text-sm">
-              Size: ({{ computedVcBlob().size / 1048576 | number : '1.2-2' }}
-              MB)
-            </li>
-          </ul>
+          <div class="flex flex-col gap-2">
+            <div class="flex items-center gap-4">
+              <div class="">
+                <h5 class="m-0 text-xl">Compliance Level Information</h5>
+              </div>
 
-          } @if(this.selectedRow.status == 'VALIDATED' ){
-          <p-divider />
-          <div class="flex flex-col  mt-4">
-            <h6 class="text-base m-0">Compliances Validated</h6>
+              <p-divider class="flex-1 m-0" />
+            </div>
+            <div>
+              <app-property
+                label="Requested Compliances Level"
+                value="Baseline"
+              />
+              <app-property
+                label="Requested Date"
+                [value]="selectedRow.request_date | date"
+              />
 
-            <ul>
-              @for ( compliance of this.selectedRow.compliances ; track
-              compliance?.id ) { @if(compliance?.complianceStandard.standard !==
-              "NOT SUPPORTED"){
-              <li class=" text-sm ">
-                {{ compliance?.complianceStandard?.standard }}
-              </li>
-              } }
-            </ul>
+              @if(selectedRow.issue_date && selectedRow.status !== 'REJECTED'){
+              <app-property
+                label="Issue Date"
+                [value]="selectedRow.issue_date | date"
+              />
+
+              } @if(selectedRow.expiration_date && selectedRow.status !==
+              'REJECTED'){
+              <app-property
+                label="Expiration Date"
+                [value]="selectedRow.expiration_date | date"
+              />
+              }
+              <app-property label="Status" [value]="selectedRow.status" />
+
+              <div class="flex items-center gap-4">
+                <div>
+                  <h5 class="m-0 text-lg">Documents</h5>
+                </div>
+
+                <p-divider class="flex-1 m-0" />
+              </div>
+
+              <div class="grid grid-cols-3 gap-4 mt-4">
+                @for ( profile of selectedRow.complianceProfiles ; track
+                profile.id ) {
+                <div
+                  class="flex flex-col items-center justify-center cursor-pointer p-2 rounded  {{
+                    this.pdfSelected?.id == profile.id ? ' bg-[#2d58a721]' : ''
+                  }} "
+                  (click)="handlePdf(profile)"
+                >
+                  <i class="pi pi-file-pdf" style="font-size: 2rem"></i>
+                  <p class="truncate w-32 text-sm mb-0">
+                    {{ profile.fileName }}.pdf
+                  </p>
+                </div>
+                }
+              </div>
+              <p-divider />
+
+              @if(pdfSelected){
+              <ul>
+                <li class="text-sm">File: {{ pdfSelected.fileName }}</li>
+                <li class="text-sm">
+                  Size: ({{
+                    computedVcBlob().size / 1048576 | number : '1.2-2'
+                  }}
+                  MB)
+                </li>
+              </ul>
+
+              } @if(this.selectedRow.status == 'VALIDATED' ){
+              <p-divider />
+              <div class="flex flex-col  mt-4">
+                <h6 class="text-base m-0">Compliances Level Validated</h6>
+
+                <ul>
+                  @for ( compliance of this.selectedRow.compliances ; track
+                  compliance?.id ) { @if(compliance?.complianceStandard.standard
+                  !== "NOT SUPPORTED"){
+                  <li class=" text-sm ">
+                    {{ compliance?.complianceStandard?.standard }}
+                  </li>
+                  } }
+                </ul>
+              </div>
+              }
+            </div>
           </div>
-          }
         </div>
-
         <!-- <pre class="code-window">
           {{ computedVc() | json }}
         </pre -->
