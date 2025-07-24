@@ -55,13 +55,13 @@ interface City {
       style="border: 1px solid #e5e5e5;"
     >
       <form [formGroup]="form">
-        <div class="flex flex-col gap-8 mt-4 md:flex-row">
-          <div class="flex flex-col justify-between  flex-1 ">
+        <div class="grid grid-cols-1 gap-8 mt-4 md:grid-cols-2">
+          <div class="flex flex-col  flex-1 ">
             <h3 class="text-2xl text-gray-500 font-medium m-0 text-center mb-8">
               Service information
             </h3>
             <div class="flex flex-col gap-8 ">
-              <div class="flex flex-col gap-4">
+              <div class="flex flex-col gap-8">
                 <p class="m-0">1. Product Information</p>
 
                 <div class="w-full">
@@ -135,237 +135,37 @@ interface City {
                   }
                 </div>
               </div>
-              <div class="flex flex-col gap-4">
-                <p class="m-0">2. Organization Information</p>
-                <div class="flex flex-col md:flex-row gap-8 ">
+
+              <div class="flex flex-col gap-8">
+                <p class="m-0">2. Compliance Level Information</p>
+                <div class="grid md:grid-cols-2 grid-cols-1 gap-8">
                   <div class="w-full">
                     <span class="p-float-label w-full">
-                      <input
-                        class="w-full"
-                        pInputText
-                        id="organization-name"
-                        formControlName="name_organization"
-                        aria-errormessage="organization-name-error"
+                      <p-dropdown
+                        id="requested-compliance-level"
+                        formControlName="requested_compliance_level"
+                        [options]="complianceLevelOptions"
+                        optionLabel="label"
+                        optionValue="value"
+                        placeholder="Requested Compliance Level *"
+                        styleClass="w-full"
                       />
-                      <label for="organization-name">Organization Name *</label>
+                      <label for="requested-compliance-level"
+                        >Requested Compliance Level *</label
+                      >
                     </span>
-
-                    @if(form.get('name_organization')?.touched &&
-                    form.get('name_organization')?.hasError('required')){
-
-                    <small id="name_organization-error" class="ml-2 p-error">
-                      {{ errorMessages.required }}
-                    </small>
-                    } @if(
-                    form.get('name_organization')?.hasError('maxlength')){
-
-                    <small id="name_organization-error" class="ml-2 p-error">
-                      {{ errorMessages.maxlength }}
-                    </small>
-                    }
-                  </div>
-
-                  <div class="w-full">
-                    <span class="p-float-label w-full">
-                      <input
-                        class="w-full"
-                        pInputText
-                        id="contact-email"
-                        formControlName="email_organization"
-                        aria-errormessage="email_organization-error"
-                      />
-                      <label for="contact-email">Organization Email *</label>
-                    </span>
-                    @if(form.get('email_organization')?.touched &&
-                    form.get('email_organization')?.hasError('required')){
-
-                    <small id="email_organization-error" class="ml-2 p-error">
-                      {{ errorMessages.required }}
-                    </small>
-                    } @if(
-                    form.get('email_organization')?.hasError('maxlength')){
-
-                    <small id="email_organization-error" class="ml-2 p-error">
-                      {{ errorMessages.maxlength }}
-                    </small>
-                    } @if(form.get('email_organization')?.touched &&
-                    form.get('email_organization')?.hasError('pattern')){
-
-                    <small id="email_organization-error" class="ml-2 p-error ">
-                      {{ errorMessages.pattern }}
-                    </small>
-                    }
-                  </div>
-                </div>
-                <!-- <div class="w-full">
-                  <span class="p-float-label w-full">
-                    <input
-                      class="w-full"
-                      pInputText
-                      id="address"
-                      formControlName="address_organization"
-                    />
-                    <label for="address">Address *</label>
-                  </span>
-                  @if(form.get('address_organization')?.touched &&
-                  form.get('address_organization')?.hasError('required')){
-
-                  <small id="address_organization-error" class="ml-2 p-error">
-                    {{ errorMessages.required }}
-                  </small>
-                  } @if(
-                  form.get('address_organization')?.hasError('maxlength')){
-
-                  <small id="address_organization-error" class="ml-2 p-error">
-                    {{ errorMessages.maxlengthxl }}
-                  </small>
-                  }
-                </div> -->
-
-                <div class="flex flex-col md:flex-row gap-8 ">
-                  <div class="w-full">
-                    <p-dropdown
-                      [options]="countries"
-                      formControlName="ISO_Country_Code"
-                      optionLabel="name"
-                      [filter]="true"
-                      filterBy="name"
-                      [panelStyle]="{ 'min-height': '220px' }"
-                      [showClear]="true"
-                      placeholder="Organization Country *"
-                      styleClass="w-full"
+                    @if(form.get('requested_compliance_level')?.touched &&
+                    form.get('requested_compliance_level')?.hasError('required')){
+                    <small
+                      id="requested_compliance_level-error"
+                      class="ml-2 p-error"
                     >
-                      <ng-template pTemplate="filter" let-options="options">
-                        <div class="flex gap-1 px-1 w-full ">
-                          <div
-                            class="p-inputgroup px-1"
-                            (click)="$event.stopPropagation()"
-                          >
-                            <span class="p-inputgroup-addon p-2 px-1">
-                              <i class="pi pi-search"></i>
-                            </span>
-                            <input
-                              type="text"
-                              pInputText
-                              placeholder="Filter"
-                              class="p-2"
-                              aria-errormessage="ISO_Country_Code-error"
-                              (keyup)="customFilterFunction($event, options)"
-                            />
-                          </div>
-                          <button
-                            pButton
-                            class="p-2"
-                            icon="pi pi-times"
-                            (click)="resetFunction(options)"
-                            severity="secondary"
-                          ></button>
-                        </div>
-                      </ng-template>
-                      <ng-template pTemplate="selectedItem" let-selectedOption>
-                        <div class="flex items-center gap-2 w-full">
-                          <img
-                            src="https://primefaces.org/cdn/primeng/images/demo/flag/flag_placeholder.png"
-                            [class]="
-                              'flag flag-' + selectedOption.code.toLowerCase()
-                            "
-                            style="width: 18px"
-                          />
-                          <div>{{ selectedOption.name }}</div>
-                        </div>
-                      </ng-template>
-                      <ng-template let-country pTemplate="item">
-                        <div class="flex items-center gap-2 w-full ">
-                          <img
-                            src="https://primefaces.org/cdn/primeng/images/demo/flag/flag_placeholder.png"
-                            [class]="'flag flag-' + country.code.toLowerCase()"
-                            style="width: 18px"
-                          />
-                          <div>{{ country.name }} - {{ country.code }}</div>
-                        </div>
-                      </ng-template>
-                    </p-dropdown>
-                    @if(form.get('ISO_Country_Code')?.touched &&
-                    form.get('ISO_Country_Code')?.hasError('required')){
-
-                    <small id="ISO_Country_Code-error" class="ml-2 p-error">
                       {{ errorMessages.required }}
-                    </small>
-                    }
-                  </div>
-                  <div class="w-full">
-                    <span class="p-float-label w-full">
-                      <input
-                        class="w-full"
-                        pInputText
-                        type="text"
-                        id="VAT_ID"
-                        formControlName="VAT_ID"
-                        aria-errormessage="VAT_ID-error"
-                      />
-                      <label for="VAT_ID">Organization ID *</label>
-                    </span>
-                    @if(form.get('VAT_ID')?.touched &&
-                    form.get('VAT_ID')?.hasError('required')){
-
-                    <small id="VAT_ID-error" class="ml-2 p-error">
-                      {{ errorMessages.required }}
-                    </small>
-                    } @if( form.get('VAT_ID')?.hasError('maxlength')){
-
-                    <small id="VAT_ID-error" class="ml-2 p-error">
-                      {{ errorMessages.maxlengthxs }}
                     </small>
                     }
                   </div>
                 </div>
               </div>
-              <div class="flex flex-col gap-4">
-                <p class="m-0">3. Compliance Level Information</p>
-              </div>
-
-              <!-- <div class="flex flex-col md:flex-row gap-8">
-                <div class="w-full">
-                  <span class="p-float-label w-full">
-                    <input
-                      class="w-full"
-                      pInputText
-                      type="text"
-                      id="website"
-                      formControlName="url_organization"
-                      aria-errormessage="url_organization-error"
-                      (blur)="form.get('url_organization')?.markAsTouched()"
-                    />
-                    <label for="website">Website of the Organization *</label>
-                  </span>
-                  @if(form.get('url_organization')?.touched &&
-                  form.get('url_organization')?.hasError('required')){
-
-                  <small id="url_organization-error" class="ml-2 p-error">
-                    {{ errorMessages.required }}
-                  </small>
-                  } @if( form.get('url_organization')?.hasError('maxlength')){
-
-                  <small id="url_organization-error" class="ml-2 p-error">
-                    {{ errorMessages.maxlength }}
-                  </small>
-                  } @if((form.get('url_organization')?.touched ||
-                  form.get('url_organization')?.dirty) &&
-                  form.get('url_organization')?.hasError('pattern')){
-
-                  <small id="url_organization-error" class="ml-2 p-error">
-                    {{ errorMessages.pattern }}
-                  </small>
-                  } @if((form.get('url_organization')?.touched ||
-                  form.get('url_organization')?.dirty) &&
-                  form.get('url_organization')?.hasError('invalidUrl')){
-
-                  <small id="url_organization-error" class="ml-2 p-error">
-                    {{ errorMessages.invalidUrl }}
-                  </small>
-                  }
-                </div>
-              </div> -->
             </div>
           </div>
           <div class="flex flex-col flex-1">
@@ -440,7 +240,7 @@ export class FormRequestComponent implements OnInit {
     maxlengthxs: 'Maximum length of 40 characters exceeded.',
     maxlengthxl: 'Maximum length of 100 characters exceeded.',
     pattern: 'Invalid format.',
-    invalidUrl: 'Invalid URL format.',
+    invalidURL: 'Invalid URL format.',
   };
   urlRegex =
     '^(https?:\\/\\/)?(www\\.)?[a-zA-Z0-9\\-]+\\.[a-zA-Z]{2,}(\\/.*)?$';
@@ -448,26 +248,8 @@ export class FormRequestComponent implements OnInit {
   form = this.fb.group({
     service_name: ['', [Validators.required, Validators.maxLength(55)]],
     service_version: [null, Validators.required],
-    name_organization: ['', [Validators.required, Validators.maxLength(55)]],
-    address_organization: [
-      '',
-      [Validators.required, Validators.maxLength(100)],
-    ],
-    ISO_Country_Code: [null, Validators.required],
     id_PO: ['', [Validators.required, Validators.maxLength(55)]],
-    VAT_ID: ['', [Validators.required, Validators.maxLength(40)]],
-    url_organization: [
-      '',
-      [Validators.required, validURL, Validators.maxLength(55)],
-    ],
-    email_organization: [
-      '',
-      [
-        Validators.required,
-        Validators.maxLength(55),
-        Validators.pattern('^[a-z0-9._%+-]+@[a-z0-9.-]+\\.[a-z]{2,4}$'),
-      ],
-    ],
+    requested_compliance_level: ['Baseline', Validators.required],
   });
   uploadedFiles: any[] = [];
   countries: City[] = countries;
@@ -475,6 +257,12 @@ export class FormRequestComponent implements OnInit {
   //crear un signal para manejar el estado de carga
   loading = signal<boolean>(false);
   invalidFileUpload = false;
+
+  complianceLevelOptions = [
+    { label: 'Baseline', value: 'Baseline' },
+    { label: 'Professional', value: 'Professional' },
+    { label: 'Professional +', value: 'Professional +' },
+  ];
 
   constructor(
     private fb: FormBuilder,
