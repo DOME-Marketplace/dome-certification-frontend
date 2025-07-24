@@ -44,7 +44,7 @@ import { ModalUserProfile } from '@components/modalUserProfile.component';
             class="cursor-pointer no-underline text-white ml-8"
             routerLink="/dashboard"
           >
-            Dasboard
+            Dashboard
           </a>
           @if(this.user?.role == "CUSTOMER" || this.user?.role == "ADMIN"){
           <a

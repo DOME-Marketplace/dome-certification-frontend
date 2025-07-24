@@ -94,14 +94,18 @@ import { ResM2MToken } from '@models/auth.model';
       @if(selectedRow){
       <div class="flex justify-between gap-8">
         <div class="w-full max-w-md">
-          <h6 class="text-base m-0">Product Offering Id</h6>
-          <p class="mt-0 mb-2">{{ selectedRow.id_PO }}</p>
+          <div class="flex flex-col gap-4">
+            <p class="m-0">1. Product Information</p>
+            <div>
+              <h6 class="text-base m-0">Product Offering Id</h6>
+              <p class="mt-0 mb-2">{{ selectedRow.id_PO }}</p>
+            </div>
 
-          <h6 class="text-base m-0">Product Offering Name</h6>
-          <p class="mt-0 mb-2">{{ selectedRow.service_name }}</p>
-
-          <h6 class="text-base m-0">Product Offering Version</h6>
-          <p class="mt-0 mb-2">{{ selectedRow.service_version }}</p>
+            <h6 class="text-base m-0">Product Offering Name</h6>
+            <p class="mt-0 mb-2">{{ selectedRow.service_name }}</p>
+            <h6 class="text-base m-0">Product Offering Version</h6>
+            <p class="mt-0 mb-2">{{ selectedRow.service_version }}</p>
+          </div>
 
           <h6 class="text-base m-0">Name of the organization</h6>
           <p class="mt-0 mb-2">{{ selectedRow.name_organization }}</p>
