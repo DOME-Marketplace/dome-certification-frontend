@@ -42,6 +42,7 @@ import { OAuthService } from 'angular-oauth2-oidc';
 import { CustomOAuthService } from '@services/oauth.service';
 import { ResM2MToken } from '@models/auth.model';
 import { PropertiesComponent } from '@ui/properties.component';
+import { TableComplianceCriteriaComponent } from './tableComplianceCriteria.component';
 
 @Component({
   selector: 'app-modal-product-details',
@@ -62,6 +63,7 @@ import { PropertiesComponent } from '@ui/properties.component';
     ModalRejectProductComponent,
     ModalRejectProductComponent,
     PropertiesComponent,
+    TableComplianceCriteriaComponent,
   ],
   template: `
     <p-dialog
@@ -161,7 +163,9 @@ import { PropertiesComponent } from '@ui/properties.component';
             <div>
               <app-property
                 label="Requested Compliances Level"
-                value="Baseline"
+                [value]="
+                  selectedRow.requestedComplianceLevel.value || 'No specified'
+                "
               />
               <app-property
                 label="Requested Date"
@@ -301,114 +305,125 @@ import { PropertiesComponent } from '@ui/properties.component';
     <p-dialog
       header="Validate Request"
       [(visible)]="secondModal"
-      [style]="{ width: '36vw' }"
+      [style]="{ width: '40 vw' }"
       [modal]="true"
       (onHide)="handleCloseValidateModal()"
     >
       <div class="flex flex-col  ">
-        <div>
-          <h6 class="text-base m-0 mb-4">Compliance uploads</h6>
-          <div class="flex flex-col gap-2 w-full">
-            @for ( profile of selectedRow?.complianceProfiles ; track
-            profile.id; ) {
-            <div class="flex items-center flex-1 max-w-1/2 gap-2">
-              <a
-                class="flex my-0 flex-1 max-w-1/2 flex-row items-center gap-2 no-underline text-base m-0 text-[#043d75] truncate"
-                href="{{ profile?.url }}"
-                target="_blank"
-              >
-                <i
-                  class="pi pi-file-pdf text-[#043d75]"
-                  style="font-size: 2rem "
-                ></i>
-                <span class="truncate max-w-1/2 w-full ">
-                  {{ profile?.fileName }}
-                </span>
-              </a>
-              <div class="flex-1 ">
-                @if(selectedRow?.compliances ){
+        <div class="grid grid-cols-2 gap-8">
+          <div>
+            <h6 class="text-xl m-0 mb-4">Compliance uploads</h6>
+            <div class="flex flex-col gap-2 w-full">
+              @for ( profile of selectedRow?.complianceProfiles ; track
+              profile.id; ) {
+              <div class="flex items-center flex-1 max-w-1/2 gap-2">
+                <a
+                  class="flex my-0 flex-1 max-w-1/2 flex-row items-center gap-2 no-underline text-base m-0 text-[#043d75] truncate"
+                  href="{{ profile?.url }}"
+                  target="_blank"
+                >
+                  <i
+                    class="pi pi-file-pdf text-[#043d75]"
+                    style="font-size: 2rem "
+                  ></i>
+                  <span class="truncate max-w-1/2 w-full ">
+                    {{ profile?.fileName }}
+                  </span>
+                </a>
+                <div class="flex-1 ">
+                  @if(selectedRow?.compliances ){
 
-                <p-dropdown
-                  class="w-full"
-                  [options]="compliances()"
-                  placeholder="Add compliance *"
-                  (onChange)="onOptionChange(profile, $event.value)"
-                  optionLabel="standard"
-                  styleClass="w-full"
-                  [showClear]="true"
-                  [panelStyle]="{ width: '100%' }"
-                  [id]="'dropdown-' + profile?.id"
-                  class="{{
-                    invalidForm.selectedCompliance ? 'ng-invalid ng-dirty' : ''
-                  }}"
-                />
+                  <p-dropdown
+                    class="w-full"
+                    [options]="compliances()"
+                    placeholder="Add compliance *"
+                    (onChange)="onOptionChange(profile, $event.value)"
+                    optionLabel="standard"
+                    styleClass="w-full"
+                    [showClear]="true"
+                    [panelStyle]="{ width: '100%' }"
+                    [id]="'dropdown-' + profile?.id"
+                    class="{{
+                      invalidForm.selectedCompliance
+                        ? 'ng-invalid ng-dirty'
+                        : ''
+                    }}"
+                  />
 
-                } @if(invalidForm.selectedCompliance){
-                <small class="ml-2 p-error">Required</small>
-                }
+                  } @if(invalidForm.selectedCompliance){
+                  <small class="ml-2 p-error">Required</small>
+                  }
+                </div>
               </div>
-            </div>
-            }
-          </div>
-        </div>
-        <p-divider class="" />
-        <div>
-          <h6 class="text-base m-0 mb-8">Compliance validity</h6>
-          <div class="flex gap-8 ">
-            <div class="flex flex-1 max-w-[46%] ">
-              <span class="p-float-label w-full ">
-                <input
-                  class="w-full"
-                  pInputText
-                  id="request_issue_date"
-                  [(ngModel)]="request_issue_date"
-                  disabled="true"
-                />
-                <label for="request_issue_date">Issue Date *</label>
-              </span>
-            </div>
-            <div class="flex flex-1 max-w-[54%] flex-col">
-              <span class="p-float-label w-full">
-                <p-calendar
-                  [(ngModel)]="request_expiration_date"
-                  [iconDisplay]="'input'"
-                  [showIcon]="true"
-                  inputId="request_expiration_date"
-                  (ngModelChange)="
-                    this.invalidForm.request_expiration_date = false
-                  "
-                  appendTo="body"
-                  class="{{
-                    invalidForm.request_expiration_date
-                      ? 'ng-invalid ng-dirty'
-                      : ''
-                  }}"
-                  dateFormat="yy-mm-dd"
-                  [minDate]="currentDate"
-                  [style]="{
-                    width: '100%',
-                    background: 'white',
-                    'background-color': 'white'
-                  }"
-                />
-                <label for="request_expiration_date">Expiration Date *</label>
-              </span>
-              @if(invalidForm.request_expiration_date){
-              <small class="ml-2 p-error">Required</small>
               }
             </div>
           </div>
 
-          <span class="p-float-label w-full mt-6">
-            <input
-              class="w-full"
-              pInputText
-              id="request_issuer_name"
-              [(ngModel)]="request_issuer_name"
-              disabled="true"
-            />
-            <label for="request_issuer_name">Issuer *</label>
-          </span>
+          <div>
+            <h6 class="text-xl m-0 mb-8">Compliance Validity</h6>
+            <div class="flex gap-8 ">
+              <div class="flex flex-1 max-w-[46%] ">
+                <span class="p-float-label w-full ">
+                  <input
+                    class="w-full"
+                    pInputText
+                    id="request_issue_date"
+                    [(ngModel)]="request_issue_date"
+                    disabled="true"
+                  />
+                  <label for="request_issue_date">Issue Date *</label>
+                </span>
+              </div>
+              <div class="flex flex-1 max-w-[54%] flex-col">
+                <span class="p-float-label w-full">
+                  <p-calendar
+                    [(ngModel)]="request_expiration_date"
+                    [iconDisplay]="'input'"
+                    [showIcon]="true"
+                    inputId="request_expiration_date"
+                    (ngModelChange)="
+                      this.invalidForm.request_expiration_date = false
+                    "
+                    appendTo="body"
+                    class="{{
+                      invalidForm.request_expiration_date
+                        ? 'ng-invalid ng-dirty'
+                        : ''
+                    }}"
+                    dateFormat="yy-mm-dd"
+                    [minDate]="currentDate"
+                    [style]="{
+                      width: '100%',
+                      background: 'white',
+                      'background-color': 'white'
+                    }"
+                  />
+                  <label for="request_expiration_date">Expiration Date *</label>
+                </span>
+                @if(invalidForm.request_expiration_date){
+                <small class="ml-2 p-error">Required</small>
+                }
+              </div>
+            </div>
+
+            <span class="p-float-label w-full mt-6">
+              <input
+                class="w-full"
+                pInputText
+                id="request_issuer_name"
+                [(ngModel)]="request_issuer_name"
+                disabled="true"
+              />
+              <label for="request_issuer_name">Issuer *</label>
+            </span>
+          </div>
+        </div>
+
+        <p-divider class="" />
+
+        <div>
+          <h6 class="text-xl m-0 mb-8">Compliance Criteria</h6>
+          <app-table-compliance-criteria />
         </div>
       </div>
 

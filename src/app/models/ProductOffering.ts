@@ -18,6 +18,7 @@ export interface PO {
   ISO_Country_Code: string;
   url_organization: string;
   email_organization: string;
+  requestedComplianceLevel: { value: string };
   files?: File[];
 }
 
@@ -56,6 +57,7 @@ export interface ResPO {
   complianceProfiles: ComplianceProfile[];
   iso_Country_Code: string;
   compliances: Compliances[];
+  requestedComplianceLevel: { value: string };
 }
 
 export interface Issuer {
@@ -63,10 +65,10 @@ export interface Issuer {
   username: string;
   firstname: string;
   lastname: string;
-  country_code: string;
-  address: string;
+  email: string;
+  organization_country_code: string;
+  organization_id: string;
   organization_name: string;
-  website: string;
   last_seen: Date;
   role: null;
 }

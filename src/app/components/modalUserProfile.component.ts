@@ -17,12 +17,12 @@ import { DialogModule } from 'primeng/dialog';
       [style]="{ width: '20vw' }"
     >
       <div class="flex flex-col text-start text-black gap-4">
-       @if(user?.username){
+        @if(user?.username){
         <div class="flex justify-between">
           <span class="font-bold">Username:</span>
           <span>{{ user?.username }}</span>
         </div>
-       } 
+        }
         <div class="flex justify-between">
           <span class="font-bold">First Name:</span>
           <span>{{ user?.firstname }}</span>
@@ -32,14 +32,21 @@ import { DialogModule } from 'primeng/dialog';
           <span>{{ user?.lastname }}</span>
         </div>
         <div class="flex justify-between">
-          <span class="font-bold">Country Code:</span>
-          <span>{{ user?.country_code }}</span>
-        </div>
-        <div class="flex justify-between">
           <span class="font-bold">Organization:</span>
           <span>{{ user?.organization_name }}</span>
         </div>
-
+        <div class="flex justify-between">
+          <span class="font-bold">Organization:</span>
+          <span>{{ user?.organization_email }}</span>
+        </div>
+        <div class="flex justify-between">
+          <span class="font-bold">Country Code:</span>
+          <span>{{ user?.organization_country_code }}</span>
+        </div>
+        <div class="flex justify-between">
+          <span class="font-bold">Organization:</span>
+          <span>{{ user?.organization_id }}</span>
+        </div>
       </div>
 
       <ng-template pTemplate="footer">

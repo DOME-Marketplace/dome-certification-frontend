@@ -4,6 +4,7 @@ import {
   OnInit,
   ViewChild,
   ViewEncapsulation,
+  inject,
   signal,
 } from '@angular/core';
 import {
@@ -25,6 +26,8 @@ import { ApiServices } from '@services/api.service';
 import { Router } from '@angular/router';
 import { finalize } from 'rxjs';
 import { validURL } from '@utils/validateUrl';
+import { AuthService } from '@services/auth.service';
+import { User } from '@models/user.model';
 
 interface City {
   name: string;
@@ -115,24 +118,26 @@ interface City {
                 </div>
 
                 <div class="grid md:grid-cols-2 grid-cols-1 gap-8">
-                  <span class="p-float-label ">
-                    <p-inputMask
-                      formControlName="service_version"
-                      styleClass="w-full"
-                      id="service-version"
-                      mask="9.9"
-                      aria-errormessage="service_version-error"
-                    ></p-inputMask>
+                  <div>
+                    <span class="p-float-label ">
+                      <p-inputMask
+                        formControlName="service_version"
+                        styleClass="w-full"
+                        id="service-version"
+                        mask="9.9"
+                        aria-errormessage="service_version-error"
+                      ></p-inputMask>
 
-                    <label for="service-version">Product Version *</label>
-                  </span>
-                  @if(form.get('service_version')?.touched &&
-                  form.get('service_version')?.hasError('required')){
+                      <label for="service-version">Product Version *</label>
+                    </span>
+                    @if(form.get('service_version')?.touched &&
+                    form.get('service_version')?.hasError('required')){
 
-                  <small id="service_version-error" class="ml-2 p-error">
-                    {{ errorMessages.required }}
-                  </small>
-                  }
+                    <small id="service_version-error" class="ml-2 p-error">
+                      {{ errorMessages.required }}
+                    </small>
+                    }
+                  </div>
                 </div>
               </div>
 
@@ -231,6 +236,12 @@ interface City {
   `,
 })
 export class FormRequestComponent implements OnInit {
+  private authService = inject(AuthService);
+  private fb = inject(FormBuilder);
+  private messageService = inject(MessageService);
+  private apiService = inject(ApiServices);
+  private router = inject(Router);
+
   @ViewChild('fileUploadComponent')
   fileUploadComponent!: FileUpload;
 
@@ -242,8 +253,6 @@ export class FormRequestComponent implements OnInit {
     pattern: 'Invalid format.',
     invalidURL: 'Invalid URL format.',
   };
-  urlRegex =
-    '^(https?:\\/\\/)?(www\\.)?[a-zA-Z0-9\\-]+\\.[a-zA-Z]{2,}(\\/.*)?$';
 
   form = this.fb.group({
     service_name: ['', [Validators.required, Validators.maxLength(55)]],
@@ -264,14 +273,10 @@ export class FormRequestComponent implements OnInit {
     { label: 'Professional +', value: 'Professional +' },
   ];
 
-  constructor(
-    private fb: FormBuilder,
-    private messageService: MessageService,
-    private apiService: ApiServices,
-    private router: Router
-  ) {}
+  user: User | null = null;
 
   ngOnInit() {
+    this.user = this.authService.getUserFromSessionStorage();
     this.countries = this.countries;
   }
   onFileUpload(event: any) {
@@ -286,25 +291,6 @@ export class FormRequestComponent implements OnInit {
   submitForm() {
     this.form.markAllAsTouched();
     this.form.markAsDirty();
-    // console.log(this.form.get("url_organization")?.invalid);
-    // // Si el campo url_organization es inválido, no permitir   submit
-    // const urlControl = this.form.get("url_organization");
-    // urlControl?.markAsTouched();
-    // urlControl?.updateValueAndValidity();
-    // console.log(
-    //   "url_organization invalid:",
-    //   urlControl?.invalid,
-    //   "value:",
-    //   urlControl?.value
-    // );
-    // if (urlControl?.invalid) {
-    //   this.messageService.add({
-    //     severity: "error",
-    //     summary: "Error",
-    //     detail: "Please enter a valid website URL.",
-    //   });
-    //   return;
-    // }
 
     if (this.form.valid && this.uploadedFiles.length > 0) {
       // Validación de tamaño total
@@ -326,36 +312,29 @@ export class FormRequestComponent implements OnInit {
       this.invalidFileUpload = false;
       this.loading.set(true);
 
+      const organization_country_code = this.user.organization_country_code;
+      const organization_name = this.user.organization_name;
+      const organization_email = this.user.organization_email;
+      const organization_id = this.user.organization_id;
+
       const formData = new FormData();
       formData.append('service_name', this.form.get('service_name')?.value);
       formData.append(
         'service_version',
         this.form.get('service_version')?.value
       );
-      formData.append(
-        'name_organization',
-        this.form.get('name_organization')?.value
-      );
-      formData.append(
-        'address_organization',
-        this.form.get('address_organization')?.value
-      );
-
-      const ISO_Country_Code: any = this.form.get('ISO_Country_Code')?.value;
-      if (ISO_Country_Code) {
-        formData.append('ISO_Country_Code', ISO_Country_Code.code);
-      }
+      formData.append('name_organization', organization_name);
+      formData.append('address_organization', organization_country_code);
 
       formData.append('id_PO', this.form.get('id_PO')?.value);
+      formData.append('url_organization', organization_name);
+      formData.append('email_organization', organization_email);
+      formData.append('VAT_ID', organization_id);
+      formData.append('ISO_Country_Code', organization_country_code);
       formData.append(
-        'url_organization',
-        this.form.get('url_organization')?.value
+        'requested_compliances_level',
+        this.form.get('requested_compliance_level')?.value
       );
-      formData.append(
-        'email_organization',
-        this.form.get('email_organization')?.value
-      );
-      formData.append('VAT_ID', this.form.get('VAT_ID')?.value);
 
       this.uploadedFiles.forEach((file) => {
         formData.append('files', file, file.name);

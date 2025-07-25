@@ -6,12 +6,10 @@ export interface User {
   email: string;
   firstname: string;
   lastname: string;
-  location: string;
   organization_name: string;
-  position: string;
+  organization_email: string;
+  organization_country_code: string;
+  organization_id: string;
   role: UserRole;
   last_seen: string;
-  website: string;
-  address: string;
-  country_code: string;
 }
