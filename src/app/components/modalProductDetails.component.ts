@@ -307,11 +307,12 @@ import { TableComplianceCriteriaComponent } from './tableComplianceCriteria.comp
       [(visible)]="secondModal"
       [style]="{ width: '40 vw' }"
       [modal]="true"
+      [focusOnShow]="false"
       (onHide)="handleCloseValidateModal()"
     >
       <div class="flex flex-col  ">
         <div class="grid grid-cols-2 gap-8">
-          <div>
+          <!-- <div>
             <h6 class="text-xl m-0 mb-4">Compliance uploads</h6>
             <div class="flex flex-col gap-2 w-full">
               @for ( profile of selectedRow?.complianceProfiles ; track
@@ -357,7 +358,7 @@ import { TableComplianceCriteriaComponent } from './tableComplianceCriteria.comp
               </div>
               }
             </div>
-          </div>
+          </div> -->
 
           <div>
             <h6 class="text-xl m-0 mb-8">Compliance Validity</h6>
@@ -423,7 +424,9 @@ import { TableComplianceCriteriaComponent } from './tableComplianceCriteria.comp
 
         <div>
           <h6 class="text-xl m-0 mb-8">Compliance Criteria</h6>
-          <app-table-compliance-criteria />
+          <app-table-compliance-criteria
+            [documents]="selectedRow?.complianceProfiles"
+          />
         </div>
       </div>
 

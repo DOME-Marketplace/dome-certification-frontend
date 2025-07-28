@@ -278,6 +278,7 @@ export class TableRequestComponent implements OnInit {
 
   showModal(service: ResPO) {
     this.selectedRow = service;
+    console.log(this.selectedRow);
     this.modalProductDetails.handleOpen(service);
   }
   showModalComment(service: ResPO) {
