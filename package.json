@@ -21,7 +21,7 @@
     "angular-oauth2-oidc": "^17.0.2",
     "angular-oauth2-oidc-jwks": "^17.0.2",
     "moment": "^2.30.1",
-    "ng2-pdf-viewer": "^10.0.0",
+    "ng2-pdf-viewer": "^10.4.0",
     "ngx-quill": "^26.0.8",
     "pdfjs-dist": "^4.1.392",
     "primeicons": "^6.0.1",

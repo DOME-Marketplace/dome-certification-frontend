@@ -164,7 +164,7 @@ import { TableComplianceCriteriaComponent } from './tableComplianceCriteria.comp
               <app-property
                 label="Requested Compliances Level"
                 [value]="
-                  selectedRow.requestedComplianceLevel.value || 'No specified'
+                  selectedRow.requestedComplianceLevel?.value || 'No specified'
                 "
               />
               <app-property
@@ -312,54 +312,6 @@ import { TableComplianceCriteriaComponent } from './tableComplianceCriteria.comp
     >
       <div class="flex flex-col  ">
         <div class="grid grid-cols-2 gap-8">
-          <!-- <div>
-            <h6 class="text-xl m-0 mb-4">Compliance uploads</h6>
-            <div class="flex flex-col gap-2 w-full">
-              @for ( profile of selectedRow?.complianceProfiles ; track
-              profile.id; ) {
-              <div class="flex items-center flex-1 max-w-1/2 gap-2">
-                <a
-                  class="flex my-0 flex-1 max-w-1/2 flex-row items-center gap-2 no-underline text-base m-0 text-[#043d75] truncate"
-                  href="{{ profile?.url }}"
-                  target="_blank"
-                >
-                  <i
-                    class="pi pi-file-pdf text-[#043d75]"
-                    style="font-size: 2rem "
-                  ></i>
-                  <span class="truncate max-w-1/2 w-full ">
-                    {{ profile?.fileName }}
-                  </span>
-                </a>
-                <div class="flex-1 ">
-                  @if(selectedRow?.compliances ){
-
-                  <p-dropdown
-                    class="w-full"
-                    [options]="compliances()"
-                    placeholder="Add compliance *"
-                    (onChange)="onOptionChange(profile, $event.value)"
-                    optionLabel="standard"
-                    styleClass="w-full"
-                    [showClear]="true"
-                    [panelStyle]="{ width: '100%' }"
-                    [id]="'dropdown-' + profile?.id"
-                    class="{{
-                      invalidForm.selectedCompliance
-                        ? 'ng-invalid ng-dirty'
-                        : ''
-                    }}"
-                  />
-
-                  } @if(invalidForm.selectedCompliance){
-                  <small class="ml-2 p-error">Required</small>
-                  }
-                </div>
-              </div>
-              }
-            </div>
-          </div> -->
-
           <div>
             <h6 class="text-xl m-0 mb-8">Compliance Validity</h6>
             <div class="flex gap-8 ">
@@ -420,7 +372,7 @@ import { TableComplianceCriteriaComponent } from './tableComplianceCriteria.comp
           </div>
         </div>
 
-        <p-divider class="" />
+        <p-divider />
 
         <div>
           <h6 class="text-xl m-0 mb-8">Compliance Criteria</h6>
@@ -479,7 +431,6 @@ export class ModalProductDetails implements OnInit {
   isLoading = false;
   rejectingLoading = false;
   invalidForm = {
-    selectedCompliance: false,
     request_expiration_date: false,
   };
   request_issuer_name = '';
@@ -497,6 +448,9 @@ export class ModalProductDetails implements OnInit {
   private pdfComponent!: PdfViewerComponent;
 
   @ViewChild('search') searchInput!: ElementRef;
+
+  @ViewChild(TableComplianceCriteriaComponent)
+  tableCriteria!: TableComplianceCriteriaComponent;
 
   ngOnInit() {
     this.user = this.authService.getUserFromSessionStorage();
@@ -579,30 +533,9 @@ export class ModalProductDetails implements OnInit {
     this.request_issuer_name = this.user.organization_name;
     this.request_url_organization = service.url_organization;
   }
-  onOptionChange(
-    profile: ComplianceProfile,
-    dropdownValue: CompliancesStandards
-  ) {
-    this.invalidForm.selectedCompliance = false;
-    const handleCompliancesToValidate: CompliancesToValidate = {
-      description: dropdownValue.description,
-      hash: profile.hash,
-      profileId: profile.id,
-      standard: dropdownValue.standard,
-      standardId: dropdownValue.id,
-    };
-    this.selectedCompliancesWithFilesAssociated = [
-      ...this.selectedCompliancesWithFilesAssociated.filter(
-        ({ profileId: id }) => id !== profile.id
-      ),
-      handleCompliancesToValidate,
-    ];
-    console.log(this.selectedCompliancesWithFilesAssociated);
-  }
 
   handleCloseValidateModal() {
     this.selectedCompliance = [];
-    this.invalidForm.selectedCompliance = false;
     this.invalidForm.request_expiration_date = false;
     this.secondModal = false;
   }
@@ -611,26 +544,27 @@ export class ModalProductDetails implements OnInit {
   }
 
   handleConfirmValidation() {
-    console.log(this.selectedCompliancesWithFilesAssociated);
+    // Get data from tableComplianceCriteriaComponent
+    const complianceData = this.tableCriteria
+      .getCompliaceData()
+      .filter((c) => c.compliance === 'Yes')
+      .map((cd) => ({
+        complianceCriteriaId: cd.id,
+      }));
 
-    // Validar form
+    console.log('complianceData', complianceData);
+
+    // Validation of expiration date
     this.invalidForm = {
-      selectedCompliance:
-        !this.selectedCompliancesWithFilesAssociated ||
-        this.selectedCompliancesWithFilesAssociated.length !==
-          this.selectedRow?.complianceProfiles.length,
       request_expiration_date: !this.request_expiration_date,
     };
 
-    if (
-      this.invalidForm.selectedCompliance ||
-      this.invalidForm.request_expiration_date
-    ) {
+    if (this.invalidForm.request_expiration_date) {
       return;
     }
 
     this.isLoading = true;
-
+    return;
     // Preparar datos para la llamada
     const data = {
       status: 'VALIDATED',

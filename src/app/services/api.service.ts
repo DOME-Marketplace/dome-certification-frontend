@@ -4,6 +4,7 @@ import { Injectable, inject } from '@angular/core';
 import { environment } from '@env/environment';
 import { Observable } from 'rxjs';
 import { CompliancesStandards } from '@models/compliances';
+import { CompliancesCriteraRes } from '@models/compliancesCriteria.model';
 
 @Injectable({
   providedIn: 'root',
@@ -56,5 +57,11 @@ export class ApiServices {
   resendEmail(id: number): Observable<string> {
     const url = `${environment.API_URL}/api/v1/product-offering/resend-email/${id}`;
     return this.http.post(url, {}, { responseType: 'text' });
+  }
+
+  getCompliancesCriteria() {
+    return this.http.get<CompliancesCriteraRes[]>(
+      `${environment.API_URL}/api/v1/compliances-criteria`
+    );
   }
 }

@@ -181,12 +181,15 @@ import { ModalCommentsComponent } from '@components/modalComments.component';
         </ng-template>
       </p-table>
     </div>
+    @if(selectedRow){
+
     <app-modal-product-details
       [selectedRow]="selectedRow"
       (updateTable)="getAllPOs()"
       (updateTableFromChild)="getAllPOs()"
     />
     <app-modal-comments [selectedRow]="selectedRow" />
+    }
   `,
 })
 export class TableRequestComponent implements OnInit {
