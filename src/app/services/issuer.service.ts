@@ -13,7 +13,7 @@ import moment from 'moment';
 export class IssuerService {
   private http = inject(HttpClient);
   private issuerApi = environment.ISSUER_API;
-  private marketPlaceURL = environment.DOME_MARKETPLACE;
+  public marketPlaceURL = environment.DOME_MARKETPLACE;
   private baseUrl = environment.API_URL;
 
   createPayload(
@@ -83,5 +83,12 @@ export class IssuerService {
     };
 
     return this.http.post(url, body);
+  }
+
+  createlabelCredential(payload: any) {
+    return this.http.post(
+      `${this.baseUrl}/api/v1/product-offering/generate-label-credential`,
+      payload
+    );
   }
 }

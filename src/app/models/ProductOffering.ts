@@ -39,6 +39,7 @@ interface File {
 export interface ResPO {
   id: number;
   id_PO: string;
+  email: string;
   service_name: string;
   service_version: string;
   name_organization: string;
