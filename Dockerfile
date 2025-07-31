@@ -1,5 +1,5 @@
 # Etapa de compilación (build)
-FROM node:20.11 as build
+FROM node:22.16 as build
 
 WORKDIR /app
 
