@@ -5,6 +5,7 @@ import { environment } from '@env/environment';
 import { Observable } from 'rxjs';
 import { CompliancesStandards } from '@models/compliances';
 import { CompliancesCriteraRes } from '@models/compliancesCriteria.model';
+import { CompliancesValidatedRes } from '@models/compliancesCriteriaValidated.model';
 
 @Injectable({
   providedIn: 'root',
@@ -62,6 +63,12 @@ export class ApiServices {
   getCompliancesCriteria() {
     return this.http.get<CompliancesCriteraRes[]>(
       `${environment.API_URL}/api/v1/compliances-criteria`
+    );
+  }
+
+  getProductCompliances(id: number) {
+    return this.http.get<CompliancesValidatedRes[]>(
+      `${environment.API_URL}/api/v1/compliances/by-product/${id}`
     );
   }
 }

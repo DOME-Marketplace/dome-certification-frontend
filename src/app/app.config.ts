@@ -12,6 +12,7 @@ import { MessageService } from 'primeng/api';
 import { TokenInterceptor } from './interceptors/token.interceptor';
 import { provideQuillConfig } from 'ngx-quill';
 import { modules } from 'src/app/quill/quill.config';
+import { DialogService } from 'primeng/dynamicdialog';
 
 export const appConfig: ApplicationConfig = {
   providers: [
@@ -23,7 +24,7 @@ export const appConfig: ApplicationConfig = {
     provideHttpClient(withInterceptorsFromDi()),
     provideAnimations(),
     provideOAuthClient(),
-
+    DialogService,
     MessageService,
   ],
 };
