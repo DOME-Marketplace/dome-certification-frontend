@@ -6,6 +6,7 @@ import { Observable } from 'rxjs';
 import { CompliancesStandards } from '@models/compliances';
 import { CompliancesCriteraRes } from '@models/compliancesCriteria.model';
 import { CompliancesValidatedRes } from '@models/compliancesCriteriaValidated.model';
+import { ExternalProduct } from '@models/externalProduct.model';
 
 @Injectable({
   providedIn: 'root',
@@ -70,5 +71,14 @@ export class ApiServices {
     return this.http.get<CompliancesValidatedRes[]>(
       `${environment.API_URL}/api/v1/compliances/by-product/${id}`
     );
+  }
+
+  getExternalProductByLink(link: string) {
+    const apiUrl = new URL(
+      '/api/v1/external-product-offering/proxy',
+      environment.API_URL
+    );
+    apiUrl.searchParams.set('url', link);
+    return this.http.get<ExternalProduct>(apiUrl.toString());
   }
 }

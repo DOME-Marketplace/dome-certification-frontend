@@ -272,7 +272,7 @@ import { ModalCompliancesValidatedComponent } from './modalCompliancesValidated.
       }
 
       <ng-template pTemplate="footer">
-        @if(selectedRow.status !== 'IN_PROGRESS' && (user.role == userRole.ADMIN
+        <!-- @if(selectedRow.status !== 'IN_PROGRESS' && (user.role == userRole.ADMIN
         || user.role == userRole.EMPLOYEE)) {
         <p-button
           label="Resend Email"
@@ -282,8 +282,10 @@ import { ModalCompliancesValidatedComponent } from './modalCompliancesValidated.
           [loading]="isLoading"
           (onClick)="handleResendEmail(selectedRow)"
         ></p-button>
-        } @if (selectedRow.status == 'IN_PROGRESS' && (user.role ==
-        userRole.ADMIN || user.role == userRole.EMPLOYEE)) {
+        }
+         -->
+        @if (selectedRow.status == 'IN_PROGRESS' && (user.role == userRole.ADMIN
+        || user.role == userRole.EMPLOYEE)) {
         <p-button
           label="Validate"
           [raised]="true"

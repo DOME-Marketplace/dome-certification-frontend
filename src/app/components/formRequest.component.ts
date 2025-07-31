@@ -25,7 +25,7 @@ import { PO } from '@models/ProductOffering';
 import { ApiServices } from '@services/api.service';
 import { Router } from '@angular/router';
 import { finalize } from 'rxjs';
-import { validURL } from '@utils/validateUrl';
+import { isValidExternalProductLink, validURL } from '@utils/validateUrl';
 import { AuthService } from '@services/auth.service';
 import { User } from '@models/user.model';
 
@@ -64,6 +64,40 @@ interface City {
               Service information
             </h3>
             <div class="flex flex-col gap-8 ">
+              <!-- Campo para pegar el link -->
+              <div class="flex flex-col gap-6">
+                <!-- <p class="m-0">Paste product link here:</p> -->
+                <div class="flex gap-4 items-end ">
+                  <span class="p-float-label flex-1">
+                    <input
+                      pInputText
+                      class="w-full "
+                      id="external-link"
+                      [(ngModel)]="externalLink"
+                      (input)="validateExternalLink()"
+                      [ngModelOptions]="{ standalone: true }"
+                    />
+                    <label for="external-link">Paste Product link here</label>
+                  </span>
+
+                  <p-button
+                    label="Autofill"
+                    icon="pi pi-download"
+                    (onClick)="autofillFromLink()"
+                    outlined="true"
+                    [disabled]="!validLink || loading()"
+                  ></p-button>
+                </div>
+
+                <!-- Mostrar mensaje de error si el link no es válido -->
+                @if(!validLink && externalLink){
+                <small class="p-error block mt-1"
+                  >Invalid DOME Marketplace link</small
+                >
+                }
+                <!-- <p class="text-center mb-0">Or</p> -->
+              </div>
+
               <div class="flex flex-col gap-8">
                 <p class="m-0">1. Product Information</p>
 
@@ -152,9 +186,11 @@ interface City {
                         [options]="complianceLevelOptions"
                         optionLabel="label"
                         optionValue="value"
+                        optionDisabled="disabled"
                         placeholder="Requested Compliance Level *"
                         styleClass="w-full"
                       />
+
                       <label for="requested-compliance-level"
                         >Requested Compliance Level *</label
                       >
@@ -245,6 +281,9 @@ export class FormRequestComponent implements OnInit {
   @ViewChild('fileUploadComponent')
   fileUploadComponent!: FileUpload;
 
+  externalLink = '';
+  validLink = false;
+
   errorMessages = {
     required: 'Required.',
     maxlength: 'Maximum length of 55 characters exceeded.',
@@ -256,7 +295,7 @@ export class FormRequestComponent implements OnInit {
 
   form = this.fb.group({
     service_name: ['', [Validators.required, Validators.maxLength(55)]],
-    service_version: [null, Validators.required],
+    service_version: ['', Validators.required],
     id_PO: ['', [Validators.required, Validators.maxLength(55)]],
     requested_compliance_level: ['Baseline', Validators.required],
   });
@@ -268,9 +307,17 @@ export class FormRequestComponent implements OnInit {
   invalidFileUpload = false;
 
   complianceLevelOptions = [
-    { label: 'Baseline', value: 'Baseline' },
-    { label: 'Professional', value: 'Professional' },
-    { label: 'Professional +', value: 'Professional +' },
+    { label: 'Baseline', value: 'Baseline', disabled: false },
+    {
+      label: 'Professional (Not available)',
+      value: 'Professional',
+      disabled: true,
+    },
+    {
+      label: 'Professional + (Not available)',
+      value: 'Professional +',
+      disabled: true,
+    },
   ];
 
   user: User | null = null;
@@ -388,5 +435,42 @@ export class FormRequestComponent implements OnInit {
   resetFunction(options: DropdownFilterOptions) {
     options.reset();
     this.filterValue = '';
+  }
+
+  validateExternalLink() {
+    this.validLink = isValidExternalProductLink(this.externalLink);
+  }
+
+  autofillFromLink() {
+    if (!this.validLink) return;
+    this.loading.set(true);
+
+    this.apiService.getExternalProductByLink(this.externalLink).subscribe({
+      next: (product) => {
+        const id = product.productSpecification.id.split(':').pop() || '';
+        this.form.patchValue({
+          service_name: product.productSpecification.name,
+          service_version: product.productSpecification.version,
+          id_PO: id,
+        });
+        this.loading.set(false);
+        this.messageService.add({
+          severity: 'success',
+          summary: 'Product loaded',
+          detail: `Product "${product.name}" has been loaded successfully.`,
+        });
+      },
+      error: () => {
+        this.loading.set(false);
+        this.messageService.add({
+          severity: 'error',
+          summary: 'Error',
+          detail: 'Could not fetch product details from the provided link.',
+        });
+      },
+    });
+  }
+  isOptionDisabled(option: any) {
+    return option.value !== this.complianceLevelOptions[0].value;
   }
 }
