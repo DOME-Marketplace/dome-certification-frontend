@@ -379,7 +379,7 @@ export class FormRequestComponent implements OnInit {
       formData.append('VAT_ID', organization_id);
       formData.append('ISO_Country_Code', organization_country_code);
       formData.append(
-        'requested_compliances_level',
+        'requested_compliance_level',
         this.form.get('requested_compliance_level')?.value
       );
 

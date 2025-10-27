@@ -44,7 +44,7 @@ interface ComplianceData {
               [options]="complianceOptions"
               (onChange)="onComplianceChange($event.value, rowIndex)"
               styleClass="w-28 font-bold"
-              [panelStyle]="{ width: '6rem' }"
+              appendTo="body"
             />
           </td>
           <td>
@@ -52,7 +52,7 @@ interface ComplianceData {
               [options]="documentOptions()"
               (onChange)="onDocumentChange($event.value, rowIndex)"
               styleClass="w-48 font-bold"
-              [panelStyle]="{ width: '6rem' }"
+              appendTo="body"
             />
           </td>
         </tr>

@@ -7,6 +7,7 @@ import { QuillEditorComponent } from 'ngx-quill';
 import { MessageService } from 'primeng/api';
 import { ButtonModule } from 'primeng/button';
 import { DialogModule } from 'primeng/dialog';
+import { finalize } from 'rxjs';
 
 @Component({
   selector: 'app-modal-reject-product',
@@ -80,6 +81,11 @@ export class ModalRejectProductComponent {
 
     this.apiServices
       .updateStatus({ status: 'REJECTED', comments: this.content }, service.id)
+      .pipe(
+        finalize(() => {
+          this.rejectingLoading = false;
+        })
+      )
       .subscribe({
         complete: () => {
           this.messageService.add({
@@ -98,9 +104,6 @@ export class ModalRejectProductComponent {
             summary: 'Connection Error',
             detail: 'Failed to connect with server',
           });
-        },
-        next: () => {
-          this.rejectingLoading = false;
         },
       });
   }
