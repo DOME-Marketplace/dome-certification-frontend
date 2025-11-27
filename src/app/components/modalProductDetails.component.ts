@@ -619,10 +619,7 @@ export class ModalProductDetails implements OnInit {
       validUntil: this.request_expiration_date,
       idToken,
       response_uri: `${this.issuerService.marketPlaceURL}/admin/uploadcertificate/urn:ngsi-ld:product-specification:${this.selectedRow.id_PO}`,
-      credential_owner_email: this.selectedRow.email_organization,
     };
-    console.log(requestBody);
-    // return;
 
     this.issuerService
       .createlabelCredential(requestBody)
