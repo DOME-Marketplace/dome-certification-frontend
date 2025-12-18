@@ -3,7 +3,7 @@ export const environment = {
   production: false,
   API_URL: 'https://dome-certification-api.dome-marketplace-dev2.org',
   VERIFIER_URL: 'https://verifier.dome-marketplace-dev2.org',
-  CLIENT_ID: 'did:key:zDnaeyHsmMc4FUtvGcJCK6HyFEbFw1fBxRNdwjX5DvfBxy5hh',
+  CLIENT_ID: 'did:key:zDnaeVWq9mxASnJtKm43AsHDSFSvxrazpuqgf9BVFA8edQHri',
   REQUEST_URI:
     'https://dome-certification-api.dome-marketplace-dev2.org/auth/oauth-token',
   REDIRECT_URI:
