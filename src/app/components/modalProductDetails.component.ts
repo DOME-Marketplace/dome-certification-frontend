@@ -34,7 +34,7 @@ import { AuthService } from '@services/auth.service';
 import { User } from '@models/user.model';
 import { ModalRejectProductComponent } from '@components/modalRejectProduct.component';
 import { UserRole } from '@models/user.role.model';
-import { DropdownModule } from 'primeng/dropdown';
+import { TooltipModule } from 'primeng/tooltip';
 import { TokenService } from '@services/token.service';
 import { IssuerService } from '@services/issuer.service';
 import { finalize, switchMap } from 'rxjs';
@@ -60,12 +60,12 @@ import { ModalCompliancesValidatedComponent } from './modalCompliancesValidated.
     PdfViewerModule,
     InputTextModule,
     MultiSelectModule,
-    DropdownModule,
     CalendarModule,
     ModalRejectProductComponent,
     ModalRejectProductComponent,
     PropertiesComponent,
     TableComplianceCriteriaComponent,
+    TooltipModule,
   ],
   template: `
     <p-dialog
@@ -163,12 +163,6 @@ import { ModalCompliancesValidatedComponent } from './modalCompliancesValidated.
               <p-divider class="flex-1 m-0" />
             </div>
             <div>
-              <app-property
-                label="Requested Compliances Level"
-                [value]="
-                  selectedRow.requestedComplianceLevel?.value || 'No specified'
-                "
-              />
               <app-property
                 label="Requested Date"
                 [value]="selectedRow.request_date | date"
@@ -408,14 +402,27 @@ import { ModalCompliancesValidatedComponent } from './modalCompliancesValidated.
       </div>
 
       <ng-template pTemplate="footer">
-        <p-button
-          label="Confirm and validate"
-          [raised]="true"
-          icon="pi pi-check"
-          size="small"
-          [loading]="isLoading"
-          (onClick)="handleConfirmValidation()"
-        ></p-button>
+        <div class="flex items-center gap-3">
+          <span class="px-3 py-1 rounded-full text-sm font-bold border {{ certificationLevelStyle() }}">
+            {{ certificationLevelLabel() }}
+          </span>
+          @if(certificationLevelLabel() !== 'Rejected') {
+          <p-button
+            label="Confirm and validate"
+            [raised]="true"
+            icon="pi pi-check"
+            size="small"
+            [loading]="isLoading"
+            (onClick)="handleConfirmValidation()"
+          ></p-button>
+          } @else {
+          <app-modal-reject-product
+            [selectedRow]="selectedRow"
+            (updateTableFromChild)="eventToParent()"
+            (closeModalFromChild)="handleCloseValidateModal(); handleCloseDetailsModal()"
+          />
+          }
+        </div>
         <!-- <p-button
           label="Close"
           [raised]="true"
@@ -454,6 +461,19 @@ export class ModalProductDetails implements OnInit {
   computedVc = computed(() => this.vc());
   computedVcBlob = computed(() => this.vcBlob());
   compliances = computed(() => this.compliancesStandards());
+
+  certificationLevelLabel(): string {
+    return this.tableCriteria?.certificationLevel() ?? '';
+  }
+
+  certificationLevelStyle(): string {
+    switch (this.certificationLevelLabel()) {
+      case 'Professional Plus': return 'bg-purple-100 text-purple-800 border-purple-300';
+      case 'Professional': return 'bg-blue-100 text-blue-800 border-blue-300';
+      case 'Baseline': return 'bg-green-100 text-green-800 border-green-300';
+      default: return 'bg-red-100 text-red-800 border-red-300';
+    }
+  }
 
   secondModal = false;
   isLoading = false;

@@ -100,17 +100,29 @@ import { ModalCommentsComponent } from '@components/modalComments.component';
         </ng-template> -->
         <ng-template pTemplate="header" let-columns>
           <tr>
+            <th style="width: 80px;"></th>
             @for( col of columns ; track col.field ){
             <th style=" white-space: nowrap " pSortableColumn="{{ col.field }}">
               {{ col.header }} <p-sortIcon field="{{ col.field }}"></p-sortIcon>
             </th>
             }
-            <th style="width: 80px;"></th>
           </tr>
         </ng-template>
 
         <ng-template pTemplate="body" let-service let-ri="rowIndex">
           <tr [pSelectableRow]="service" [pContextMenuRow]="service">
+            <td>
+              <div class="flex items-center justify-center h-4 ">
+                <button
+                  pButton
+                  pRipple
+                  type="button"
+                  icon="pi pi-external-link"
+                  (click)="showModal(service)"
+                  class="p-button-rounded p-button-text "
+                ></button>
+              </div>
+            </td>
             <td class="text-nowrap">{{ service.id_PO }}</td>
             <td class="text-nowrap">{{ service.service_name }}</td>
             <td class="text-nowrap">{{ service.service_version }}</td>
@@ -137,19 +149,6 @@ import { ModalCommentsComponent } from '@components/modalComments.component';
                 (onClick)="onModalCommentsToggle(service)"
               />
               }
-            </td>
-
-            <td>
-              <div class="flex items-center justify-center h-4 ">
-                <button
-                  pButton
-                  pRipple
-                  type="button"
-                  icon="pi pi-external-link"
-                  (click)="showModal(service)"
-                  class="p-button-rounded p-button-text "
-                ></button>
-              </div>
             </td>
           </tr>
         </ng-template>
@@ -310,13 +309,13 @@ export class TableRequestComponent implements OnInit {
 }
 
 const cols = [
-  { field: 'id_PO', header: 'PO ID' },
+  { field: 'id_PO', header: 'Product ID' },
   { field: 'service_name', header: 'Name' },
-  { field: 'service_version', header: 'Ver.' },
+  { field: 'service_version', header: 'Version' },
   { field: 'status', header: 'Status' },
   { field: 'request_date', header: 'Request Date' },
   { field: 'issue_date', header: 'Issue Date' },
-  { field: 'expiration_date', header: 'Exp. Date' },
+  { field: 'expiration_date', header: 'Expiration Date' },
   {
     field: 'issuer',
     header: 'Issuer',

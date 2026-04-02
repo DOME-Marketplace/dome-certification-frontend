@@ -6,6 +6,8 @@ import { ComplianceProfile } from '@models/compliances';
 import { ApiServices } from '@services/api.service';
 import { CompliancesCriteraRes } from '@models/compliancesCriteria.model';
 
+type ComplianceValue = 'Yes' | 'Yes with Certification' | 'No';
+
 interface ComplianceData {
   id: number;
   labelLevel: string;
@@ -13,7 +15,7 @@ interface ComplianceData {
   category: string;
   code: string;
   link: string;
-  compliance: 'Yes' | 'No';
+  compliance: ComplianceValue;
   document: ComplianceProfile;
 }
 
@@ -89,11 +91,39 @@ export class TableComplianceCriteriaComponent {
 
   complianceOptions = [
     { label: 'Yes', value: 'Yes' },
+    { label: 'Yes with Certification', value: 'Yes with Certification' },
     { label: 'No', value: 'No' },
   ];
 
   tableData = signal<CompliancesCriteraRes[]>([]);
   complianceData = signal<ComplianceData[]>([]);
+
+  certificationLevel = computed(() => {
+    const data = this.complianceData();
+    const first24 = data.slice(0, 24);
+    const last7 = data.slice(24, 31);
+
+    const isYesOrCert = (v: ComplianceValue) => v === 'Yes' || v === 'Yes with Certification';
+
+    const first24AllCert = first24.every(r => r.compliance === 'Yes with Certification');
+    const first24AllYesOrCert = first24.every(r => isYesOrCert(r.compliance));
+    const last7AllCert = last7.every(r => r.compliance === 'Yes with Certification');
+    const last7AllYesOrCert = last7.every(r => isYesOrCert(r.compliance));
+
+    if (first24AllCert && last7AllCert) return 'Professional Plus';
+    if (first24AllCert && last7AllYesOrCert) return 'Professional';
+    if (first24AllYesOrCert) return 'Baseline';
+    return 'Rejected';
+  });
+
+  certificationLevelStyle = computed(() => {
+    switch (this.certificationLevel()) {
+      case 'Professional Plus': return 'bg-purple-100 text-purple-800 border-purple-300';
+      case 'Professional': return 'bg-blue-100 text-blue-800 border-blue-300';
+      case 'Baseline': return 'bg-green-100 text-green-800 border-green-300';
+      default: return 'bg-red-100 text-red-800 border-red-300';
+    }
+  });
 
   getCompliaceData() {
     return this.complianceData();
@@ -117,9 +147,9 @@ export class TableComplianceCriteriaComponent {
     });
   }
 
-  onComplianceChange(newValue: 'Yes' | 'No', rowIndex: number) {
-    const updatedData = this.complianceData();
-    updatedData[rowIndex].compliance = newValue;
+  onComplianceChange(newValue: ComplianceValue, rowIndex: number) {
+    const updatedData = [...this.complianceData()];
+    updatedData[rowIndex] = { ...updatedData[rowIndex], compliance: newValue };
     this.complianceData.set(updatedData);
   }
   onDocumentChange(docId: number, rowIndex: number) {
