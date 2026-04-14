@@ -44,6 +44,7 @@ interface ComplianceData {
           <td>
             <p-dropdown
               [options]="complianceOptions"
+              [ngModel]="complianceData()[rowIndex]?.compliance"
               (onChange)="onComplianceChange($event.value, rowIndex)"
               styleClass="w-28 font-bold"
               appendTo="body"
@@ -52,8 +53,9 @@ interface ComplianceData {
           <td>
             <p-dropdown
               [options]="documentOptions()"
+              [ngModel]="complianceData()[rowIndex]?.document?.id"
               (onChange)="onDocumentChange($event.value, rowIndex)"
-              styleClass="w-48 font-bold"
+              [styleClass]="!complianceData()[rowIndex]?.document ? 'w-48 font-bold ng-invalid ng-dirty' : 'w-48 font-bold'"
               appendTo="body"
             />
           </td>
@@ -124,6 +126,10 @@ export class TableComplianceCriteriaComponent {
       default: return 'bg-red-100 text-red-800 border-red-300';
     }
   });
+
+  allDocumentsSelected = computed(() =>
+    this.complianceData().length > 0 && this.complianceData().every(r => !!r.document)
+  );
 
   getCompliaceData() {
     return this.complianceData();

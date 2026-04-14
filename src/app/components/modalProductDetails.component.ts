@@ -601,6 +601,15 @@ export class ModalProductDetails implements OnInit {
       return;
     }
 
+    if (!this.tableCriteria.allDocumentsSelected()) {
+      this.messageService.add({
+        severity: 'error',
+        summary: 'Validation Error',
+        detail: 'Please select a document for each compliance criteria row.',
+      });
+      return;
+    }
+
     this.isLoading = true;
 
     // Preparar datos para la llamada
