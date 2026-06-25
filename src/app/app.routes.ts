@@ -4,10 +4,7 @@ import { UserRole } from '@models/user.role.model';
 import { DashboardComponent } from '@pages/dashboard/dashboard.component';
 import { NewRequestComponent } from '@pages/newRequest/newRequest.component';
 import { UnauthorizedComponent } from '@pages/unauthorized/unauthorized.component';
-import { ForgotComponent } from './auth/forgot.component';
 import { LoginComponent } from './auth/login.component';
-import { RegisterComponent } from './auth/register.component';
-import { ResetComponent } from './auth/reset.component';
 import { LayoutComponent } from './layout/layout.component';
 import { IndexComponent } from '@pages/index/index.component';
 
@@ -58,18 +55,6 @@ export const routes: Routes = [
       {
         path: 'login',
         component: LoginComponent,
-      },
-      {
-        path: 'register',
-        component: RegisterComponent,
-      },
-      {
-        path: 'forgot',
-        component: ForgotComponent,
-      },
-      {
-        path: 'reset/:token',
-        component: ResetComponent,
       },
       {
         path: '**',

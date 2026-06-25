@@ -286,6 +286,9 @@ import { ModalCompliancesValidatedComponent } from './modalCompliancesValidated.
           icon="pi pi-check"
           size="small"
           [loading]="isLoading"
+          [disabled]="!hasWalletSession()"
+          [pTooltip]="hasWalletSession() ? '' : 'DOME Wallet session required. Please log in via DOME Wallet to validate requests.'"
+          tooltipPosition="top"
           (onClick)="handleOpenValidateModal(this.selectedRow)"
         ></p-button>
 
@@ -573,6 +576,10 @@ export class ModalProductDetails implements OnInit {
       });
   }
 
+  hasWalletSession(): boolean {
+    return !!this.tokenService.getOAuthIdToken();
+  }
+
   handleOpenValidateModal(service: ResPO) {
     const currentDate = moment();
     // Convertir la fecha de expiración a una cadena en formato deseado
@@ -628,18 +635,6 @@ export class ModalProductDetails implements OnInit {
       }));
 
     const idToken = this.tokenService.getOAuthIdToken();
-    // const idToken =
-    //   'eyJraWQiOiJkaWQ6a2V5OnpEbmFlWmYxOHNuSGpQd2tvSEJwMkRCVUVmVFpLNU5KZEJYM0Z2QjVqcUZCbnB1Ym8iLCJ0eXAiOiJKV1QiLCJhbGciOiJFUzI1NiJ9.eyJzdWIiOiJkaWQ6a2V5OnpEbmFlYzEzUFpRRFVxdHVucTdzdGNHR2k0dk4xeWRURG85eU16d3pqc1BXcG5uVGUiLCJ2Y19qc29uIjoie1wiQGNvbnRleHRcIjpbXCJodHRwczovL3d3dy53My5vcmcvbnMvY3JlZGVudGlhbHMvdjJcIixcImh0dHBzOi8vd3d3LmRvbWUtbWFya2V0cGxhY2UuZXUvMjAyNS9jcmVkZW50aWFscy9sZWFyY3JlZGVudGlhbGVtcGxveWVlL3YyXCJdLFwiY3JlZGVudGlhbFN1YmplY3RcIjp7XCJtYW5kYXRlXCI6e1wiaWRcIjpcIjAxZGRlZTE4LWU4NGQtNDJhNi1iODc1LWIzZTljNmNjZTViNVwiLFwibWFuZGF0ZWVcIjp7XCJlbWFpbFwiOlwiYW50b25pby5hbHZhcmV6QGRla3JhLmNvbVwiLFwiZmlyc3ROYW1lXCI6XCJBbnRvbmlvXCIsXCJmaXJzdF9uYW1lXCI6XCJBbnRvbmlvXCIsXCJpZFwiOlwiZGlkOmtleTp6RG5hZWMxM1BaUURVcXR1bnE3c3RjR0dpNHZOMXlkVERvOXlNend6anNQV3BublRlXCIsXCJsYXN0TmFtZVwiOlwiQWx2YXJleiBMb3BlelwiLFwibGFzdF9uYW1lXCI6XCJBbHZhcmV6IExvcGV6XCIsXCJuYXRpb25hbGl0eVwiOlwiU3BhaW5cIn0sXCJtYW5kYXRvclwiOntcImNvbW1vbk5hbWVcIjpcIk5vZWxpYSBHdWVycmEgTWVsZ2FyZXNcIixcImNvdW50cnlcIjpcIlNwYWluXCIsXCJlbWFpbEFkZHJlc3NcIjpcIm5vZWxpYS5ndWVycmFAZGVrcmEuY29tXCIsXCJvcmdhbml6YXRpb25cIjpcIkRFS1JBIFRlc3RpbmcgYW5kIENlcnRpZmljYXRpb24sIFMuQS5VLlwiLFwib3JnYW5pemF0aW9uSWRlbnRpZmllclwiOlwiVkFURVMtQTI5NTA3NDU2XCIsXCJzZXJpYWxOdW1iZXJcIjpcIlwifSxcInBvd2VyXCI6W3tcImFjdGlvblwiOltcIlVwbG9hZFwiLFwiQXR0ZXN0XCJdLFwiZG9tYWluXCI6XCJET01FXCIsXCJmdW5jdGlvblwiOlwiQ2VydGlmaWNhdGlvblwiLFwiaWRcIjpcImE0ZThkYzY2LTIxNWQtNGIwMy05MDM2LTFmYWY1MzZmYmUwZlwiLFwidG1mX2FjdGlvblwiOltcIlVwbG9hZFwiLFwiQXR0ZXN0XCJdLFwidG1mX2RvbWFpblwiOlwiRE9NRVwiLFwidG1mX2Z1bmN0aW9uXCI6XCJDZXJ0aWZpY2F0aW9uXCIsXCJ0bWZfdHlwZVwiOlwiRG9tYWluXCIsXCJ0eXBlXCI6XCJEb21haW5cIn1dfX0sXCJkZXNjcmlwdGlvblwiOlwiVmVyaWZpYWJsZSBDcmVkZW50aWFsIGZvciBlbXBsb3llZXMgb2YgYW4gb3JnYW5pemF0aW9uXCIsXCJpZFwiOlwiN2VhYmMyZjQtY2M1Mi00OWM1LWExZGYtOTI2ZmFhYTAwY2ViXCIsXCJpc3N1ZXJcIjp7XCJjb21tb25OYW1lXCI6XCJTZWFsIFNpZ25hdHVyZSBDcmVkZW50aWFscyBpbiBTQlggZm9yIHRlc3RpbmdcIixcImNvdW50cnlcIjpcIkVTXCIsXCJlbWFpbEFkZHJlc3NcIjpcIm5vZWxpYS5ndWVycmFAZGVrcmEuY29tXCIsXCJpZFwiOlwiZGlkOmVsc2k6VkFURVMtQjYwNjQ1OTAwXCIsXCJvcmdhbml6YXRpb25cIjpcIklOMlwiLFwib3JnYW5pemF0aW9uSWRlbnRpZmllclwiOlwiVkFURVMtQjYwNjQ1OTAwXCIsXCJzZXJpYWxOdW1iZXJcIjpcIkI0NzQ0NzU2MFwifSxcInR5cGVcIjpbXCJMRUFSQ3JlZGVudGlhbEVtcGxveWVlXCIsXCJWZXJpZmlhYmxlQ3JlZGVudGlhbFwiXSxcInZhbGlkRnJvbVwiOlwiMjAyNS0wNi0xMFQxMDowMjoyNy44NTY1NzU2MThaXCIsXCJ2YWxpZFVudGlsXCI6XCIyMDI2LTA2LTEwVDEwOjAyOjI3Ljg1NjU3NTYxOFpcIn0iLCJlbWFpbF92ZXJpZmllZCI6dHJ1ZSwiaXNzIjoiaHR0cHM6Ly92ZXJpZmllci5kb21lLW1hcmtldHBsYWNlLWRldjIub3JnIiwiZ2l2ZW5fbmFtZSI6IkFudG9uaW8iLCJub25jZSI6IlgweE9aM2xQWlhoc1N6UkdlVll4Tm5sWGIzSkJZMk5ETVRreU1rZExOVkF4YXk0elIzTnNhMGxETlZWViIsImF1ZCI6ImRpZDprZXk6ekRuYWVtdUZ6R25iZVNweEdVS21YTW8zNTROaHZpdmZhbzNVanJOcUx5SktYMzRndyIsImFjciI6IjAiLCJhdXRoX3RpbWUiOjE3NjM2NTk4MzMsIm5hbWUiOiJBbnRvbmlvIEFsdmFyZXogTG9wZXoiLCJleHAiOjE3NjM2NTk4OTMsImlhdCI6MTc2MzY1OTgzMywiZmFtaWx5X25hbWUiOiJBbHZhcmV6IExvcGV6IiwiZW1haWwiOiJhbnRvbmlvLmFsdmFyZXpAZGVrcmEuY29tIn0.BrsSgtA0fDweYqvilgDSqWR-2t-aOLEJTJa1lD59sp8-o7bvKBCkRecOWXiWRKG82xRMz_w1pfE3_D-9AFDRtQ';
-    if (!idToken) {
-      this.messageService.add({
-        severity: 'error',
-        summary: 'Error',
-        detail:
-          'You are not logged with DOME-WALLET or your session has expired.',
-      });
-      this.isLoading = false;
-      return;
-    }
 
     const requestBody = {
       poId: this.selectedRow.id,

@@ -447,10 +447,14 @@ export class FormRequestComponent implements OnInit {
 
     this.apiService.getExternalProductByLink(this.externalLink).subscribe({
       next: (product) => {
-        const id = product.productSpecification.id.split(':').pop() || '';
+        const spec = product.productSpecification;
+        const name = spec?.name || product.name || '';
+        const version = spec?.version || product.version || '';
+        const rawId = spec?.id || product.id || '';
+        const id = rawId.split(':').pop() || '';
         this.form.patchValue({
-          service_name: product.productSpecification.name,
-          service_version: product.productSpecification.version,
+          service_name: name,
+          service_version: version,
           id_PO: id,
         });
         this.loading.set(false);
