@@ -45,6 +45,15 @@ import { PropertiesComponent } from '@ui/properties.component';
 import { TableComplianceCriteriaComponent } from './tableComplianceCriteria.component';
 import { DialogService, DynamicDialogRef } from 'primeng/dynamicdialog';
 import { ModalCompliancesValidatedComponent } from './modalCompliancesValidated.component';
+import { DropdownModule } from 'primeng/dropdown';
+import { CheckboxModule } from 'primeng/checkbox';
+import {
+  ACCEPTED_CERTIFICATES,
+  ALL_DOMAINS,
+  Domain,
+  FileClassification,
+  FileType,
+} from '@utils/certificateCriteriaMap';
 
 @Component({
   selector: 'app-modal-product-details',
@@ -66,6 +75,8 @@ import { ModalCompliancesValidatedComponent } from './modalCompliancesValidated.
     PropertiesComponent,
     TableComplianceCriteriaComponent,
     TooltipModule,
+    DropdownModule,
+    CheckboxModule,
   ],
   template: `
     <p-dialog
@@ -397,9 +408,56 @@ import { ModalCompliancesValidatedComponent } from './modalCompliancesValidated.
         <p-divider />
 
         <div>
-          <h6 class="text-xl m-0 mb-8">Compliance Criteria</h6>
+          <h6 class="text-xl m-0 mb-4">Document Classification</h6>
+          <div class="flex flex-col gap-3 mb-6">
+            @for (profile of selectedRow?.complianceProfiles; track profile.id) {
+            <div class="border rounded-lg p-3 flex flex-col gap-2"
+                 [class]="pdfSelected?.id == profile.id ? 'border-blue-400 bg-blue-50' : 'border-gray-200'">
+              <div class="flex items-center gap-2 cursor-pointer" (click)="handlePdf(profile)">
+                <i class="pi pi-file-pdf text-red-500"></i>
+                <span class="text-sm font-medium truncate flex-1">{{ profile.fileName }}</span>
+                <i class="pi pi-eye text-gray-400 text-xs"></i>
+              </div>
+              <div class="flex gap-2 flex-wrap" (click)="$event.stopPropagation()">
+                <p-dropdown
+                  [options]="fileTypeOptions"
+                  [ngModel]="getClassification(profile.id).type"
+                  (onChange)="onFileTypeChange(profile.id, $event.value)"
+                  placeholder="Select type"
+                  styleClass="text-sm"
+                  appendTo="body"
+                />
+                @if (getClassification(profile.id).type === 'certificate') {
+                <p-dropdown
+                  [options]="certOptions"
+                  [ngModel]="getClassification(profile.id).certName"
+                  (onChange)="onCertChange(profile.id, $event.value)"
+                  placeholder="Select certificate"
+                  styleClass="text-sm"
+                  appendTo="body"
+                />
+                }
+                @if (getClassification(profile.id).type === 'self-attestation') {
+                <div class="flex gap-3 flex-wrap pt-1">
+                  @for (domain of allDomains; track domain) {
+                  <p-checkbox
+                    [ngModel]="isDomainChecked(profile.id, domain)"
+                    (onChange)="onDomainToggle(profile.id, domain, $event.checked)"
+                    [binary]="true"
+                    [label]="domain"
+                  />
+                  }
+                </div>
+                }
+              </div>
+            </div>
+            }
+          </div>
+
+          <h6 class="text-xl m-0 mb-4">Compliance Criteria</h6>
           <app-table-compliance-criteria
             [documents]="selectedRow?.complianceProfiles"
+            [fileClassifications]="fileClassifications()"
           />
         </div>
       </div>
@@ -503,6 +561,14 @@ export class ModalProductDetails implements OnInit {
   @ViewChild(TableComplianceCriteriaComponent)
   tableCriteria!: TableComplianceCriteriaComponent;
 
+  fileClassifications = signal<FileClassification[]>([]);
+  allDomains = ALL_DOMAINS;
+  fileTypeOptions = [
+    { label: 'Certificate', value: 'certificate' },
+    { label: 'Self-attestation', value: 'self-attestation' },
+  ];
+  certOptions = ACCEPTED_CERTIFICATES.map((c) => ({ label: c, value: c }));
+
   ngOnInit() {
     this.user = this.authService.getUserFromSessionStorage();
     this.apiServices.getAllCompliancesStandards().subscribe((compliances) => {
@@ -587,15 +653,69 @@ export class ModalProductDetails implements OnInit {
     this.request_issue_date = currentDate.format('YYYY-MM-DD');
     this.request_issuer_name = this.user.organization_name;
     this.request_url_organization = service.url_organization;
+    this.fileClassifications.set(
+      (service.complianceProfiles ?? []).map((p) => ({
+        profileId: p.id,
+        fileName: p.fileName,
+        type: null,
+        certName: null,
+        coveredDomains: [],
+      }))
+    );
   }
 
   handleCloseValidateModal() {
     this.selectedCompliance = [];
     this.invalidForm.request_expiration_date = false;
     this.secondModal = false;
+    this.fileClassifications.set([]);
   }
   handleCloseDetailsModal() {
     this.visible = false;
+  }
+
+  getClassification(profileId: number): FileClassification {
+    return (
+      this.fileClassifications().find((fc) => fc.profileId === profileId) ?? {
+        profileId,
+        fileName: '',
+        type: null,
+        certName: null,
+        coveredDomains: [],
+      }
+    );
+  }
+
+  isDomainChecked(profileId: number, domain: Domain): boolean {
+    return this.getClassification(profileId).coveredDomains.includes(domain);
+  }
+
+  onFileTypeChange(profileId: number, type: FileType | null) {
+    this.fileClassifications.update((list) =>
+      list.map((fc) =>
+        fc.profileId === profileId
+          ? { ...fc, type, certName: null, coveredDomains: [] }
+          : fc
+      )
+    );
+  }
+
+  onCertChange(profileId: number, certName: string) {
+    this.fileClassifications.update((list) =>
+      list.map((fc) => (fc.profileId === profileId ? { ...fc, certName } : fc))
+    );
+  }
+
+  onDomainToggle(profileId: number, domain: Domain, checked: boolean) {
+    this.fileClassifications.update((list) =>
+      list.map((fc) => {
+        if (fc.profileId !== profileId) return fc;
+        const coveredDomains = checked
+          ? [...fc.coveredDomains, domain]
+          : fc.coveredDomains.filter((d) => d !== domain);
+        return { ...fc, coveredDomains };
+      })
+    );
   }
 
   handleConfirmValidation() {
@@ -608,11 +728,23 @@ export class ModalProductDetails implements OnInit {
       return;
     }
 
-    if (!this.tableCriteria.allDocumentsSelected()) {
+    if (!this.tableCriteria.allClassificationsComplete()) {
       this.messageService.add({
         severity: 'error',
         summary: 'Validation Error',
-        detail: 'Please select a document for each compliance criteria row.',
+        detail: 'Please classify all uploaded documents before confirming.',
+      });
+      return;
+    }
+
+    // A product that does not reach Baseline (labelCode === null) cannot be issued a
+    // label credential — the certifier must reject it instead of validating.
+    if (this.tableCriteria.labelCode() === null) {
+      this.messageService.add({
+        severity: 'error',
+        summary: 'Cannot validate',
+        detail:
+          'This product does not meet the Baseline compliance level and cannot be certified. Please reject it instead.',
       });
       return;
     }
@@ -625,10 +757,11 @@ export class ModalProductDetails implements OnInit {
       expiration_date: this.request_expiration_date,
     };
 
-    // Get data from tableComplianceCriteriaComponent
+    // Get data from tableComplianceCriteriaComponent — include every met criterion
+    // (both "Yes" and "Yes with Certification") so the VC lists all validated criteria.
     const complianceData = this.tableCriteria
       .getCompliaceData()
-      .filter((c) => c.compliance === 'Yes')
+      .filter((c) => c.compliance !== 'No')
       .map((cd) => ({
         complianceCriteriaId: cd.id,
         complianceProfileId: cd.document.id,
@@ -642,6 +775,7 @@ export class ModalProductDetails implements OnInit {
       data,
       validUntil: this.request_expiration_date,
       idToken,
+      labelLevel: this.tableCriteria.labelCode(),
       response_uri: `${this.issuerService.marketPlaceURL}/admin/uploadcertificate/urn:ngsi-ld:product-specification:${this.selectedRow.id_PO}`,
     };
 
