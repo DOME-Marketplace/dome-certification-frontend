@@ -36,7 +36,7 @@ interface ComplianceData {
       <ng-template pTemplate="header">
         <tr>
           <th>CATEGORY</th>
-          <th style="width: 80px;">CODE</th>
+          <th style="width: 110px;">CODE</th>
           <th>CRITERIA</th>
           <th style="width: 140px;">COVERAGE</th>
           <th>DOCUMENT</th>
@@ -45,8 +45,11 @@ interface ComplianceData {
       <ng-template pTemplate="body" let-row>
         <tr [class]="row.coverage === 'gap' ? 'bg-red-50' : ''">
           <td>{{ row.category }}</td>
-          <td style="width: 80px;">
+          <td style="width: 110px;">
             <a [href]="row.link" target="_blank">{{ row.code }}</a>
+            @if (row.labelLevel === 'P') {
+            <p-tag value="Prof" severity="warning" styleClass="text-xs ml-1" />
+            }
           </td>
           <td class="text-sm">{{ row.criteria }}</td>
           <td style="width: 140px;">
@@ -78,6 +81,9 @@ export class TableComplianceCriteriaComponent {
   documents = input<ComplianceProfile[]>([]);
   fileClassifications = input<FileClassification[]>([]);
 
+  // Criteria come from the backend. Some are Professional-tier (labelLevel 'P') even within the
+  // Cybersecurity category — CS-20 in particular (intentional). They stay grouped with CS but are
+  // flagged with a "Prof" tag in the table so the certifier can tell them from Baseline ('BL').
   tableData = signal<CompliancesCriteraRes[]>([]);
 
   constructor() {
@@ -148,18 +154,23 @@ export class TableComplianceCriteriaComponent {
     const p = data.filter((r) => r.labelLevel === 'P');
 
     const allBLCovered = bl.length > 0 && bl.every((r) => covered(r.compliance));
-    const allPCovered = p.every((r) => covered(r.compliance)); // vacuously true if no P criteria
+    // Guard: an empty professional-tier set must NOT vacuously pass (fail closed) — otherwise a
+    // criteria feed missing the P-tier rows would silently grant Professional.
+    const allPCovered = p.length > 0 && p.every((r) => covered(r.compliance));
     const hasSecurityCert = data.some(
       (r) =>
         (r.category === 'DATA PROTECTION & MANAGEMENT' || r.category === 'CYBERSECURITY') &&
         r.compliance === 'Yes with Certification'
     );
-    const hasGreenCert = data.some(
-      (r) => r.category === 'SUSTAINABILITY' && r.compliance === 'Yes with Certification'
+    // Professional Plus needs a Portability OR Sustainability certificate (not just green/ST).
+    const hasPtStCert = data.some(
+      (r) =>
+        (r.category === 'PORTABILITY' || r.category === 'SUSTAINABILITY') &&
+        r.compliance === 'Yes with Certification'
     );
 
     if (!allBLCovered) return 'Rejected';
-    if (allPCovered && hasSecurityCert && hasGreenCert) return 'Professional Plus';
+    if (allPCovered && hasSecurityCert && hasPtStCert) return 'Professional Plus';
     if (allPCovered && hasSecurityCert) return 'Professional';
     return 'Baseline';
   });
@@ -204,7 +215,7 @@ export class TableComplianceCriteriaComponent {
       return `To reach Professional: ${needs.join('; ')}.`;
     }
     // Professional -> Professional Plus
-    return 'To reach Professional Plus: classify at least one green-deal / Sustainability certificate (e.g. CNDCP).';
+    return 'To reach Professional Plus: classify at least one Portability or Sustainability certificate (e.g. SWIPO IaaS or CNDCP).';
   });
 
   certificationLevelStyle = computed(() => {

@@ -274,6 +274,64 @@ import {
         </pdf-viewer>
         }
       </div>
+
+      @if (selectedRow.status == 'IN_PROGRESS' && (user.role == userRole.ADMIN ||
+      user.role == userRole.EMPLOYEE)) {
+      <p-divider />
+      <div>
+        <h5 class="m-0 text-xl mb-2">Document Classification</h5>
+        <p class="text-sm text-gray-500 mb-4">
+          Classify each uploaded document — this drives the compliance criteria
+          coverage and the resulting label level (reviewed on Validate).
+        </p>
+        <div class="flex flex-col gap-3 mb-2">
+          @for (profile of selectedRow.complianceProfiles; track profile.id) {
+          <div
+            class="border rounded-lg p-3 flex flex-col gap-2"
+            [class]="pdfSelected?.id == profile.id ? 'border-blue-400 bg-blue-50' : 'border-gray-200'"
+          >
+            <div class="flex items-center gap-2 cursor-pointer" (click)="handlePdf(profile)">
+              <i class="pi pi-file-pdf text-red-500"></i>
+              <span class="text-sm font-medium truncate flex-1">{{ profile.fileName }}</span>
+              <i class="pi pi-eye text-gray-400 text-xs"></i>
+            </div>
+            <div class="flex gap-2 flex-wrap" (click)="$event.stopPropagation()">
+              <p-dropdown
+                [options]="fileTypeOptions"
+                [ngModel]="getClassification(profile.id).type"
+                (onChange)="onFileTypeChange(profile.id, $event.value)"
+                placeholder="Select type"
+                styleClass="text-sm"
+                appendTo="body"
+              />
+              @if (getClassification(profile.id).type === 'certificate') {
+              <p-dropdown
+                [options]="certOptions"
+                [ngModel]="getClassification(profile.id).certName"
+                (onChange)="onCertChange(profile.id, $event.value)"
+                placeholder="Select certificate"
+                styleClass="text-sm"
+                appendTo="body"
+              />
+              }
+              @if (getClassification(profile.id).type === 'self-attestation') {
+              <div class="flex gap-3 flex-wrap pt-1">
+                @for (domain of allDomains; track domain) {
+                <p-checkbox
+                  [ngModel]="isDomainChecked(profile.id, domain)"
+                  (onChange)="onDomainToggle(profile.id, domain, $event.checked)"
+                  [binary]="true"
+                  [label]="domain"
+                />
+                }
+              </div>
+              }
+            </div>
+          </div>
+          }
+        </div>
+      </div>
+      }
       }
 
       <ng-template pTemplate="footer">
@@ -408,52 +466,6 @@ import {
         <p-divider />
 
         <div>
-          <h6 class="text-xl m-0 mb-4">Document Classification</h6>
-          <div class="flex flex-col gap-3 mb-6">
-            @for (profile of selectedRow?.complianceProfiles; track profile.id) {
-            <div class="border rounded-lg p-3 flex flex-col gap-2"
-                 [class]="pdfSelected?.id == profile.id ? 'border-blue-400 bg-blue-50' : 'border-gray-200'">
-              <div class="flex items-center gap-2 cursor-pointer" (click)="handlePdf(profile)">
-                <i class="pi pi-file-pdf text-red-500"></i>
-                <span class="text-sm font-medium truncate flex-1">{{ profile.fileName }}</span>
-                <i class="pi pi-eye text-gray-400 text-xs"></i>
-              </div>
-              <div class="flex gap-2 flex-wrap" (click)="$event.stopPropagation()">
-                <p-dropdown
-                  [options]="fileTypeOptions"
-                  [ngModel]="getClassification(profile.id).type"
-                  (onChange)="onFileTypeChange(profile.id, $event.value)"
-                  placeholder="Select type"
-                  styleClass="text-sm"
-                  appendTo="body"
-                />
-                @if (getClassification(profile.id).type === 'certificate') {
-                <p-dropdown
-                  [options]="certOptions"
-                  [ngModel]="getClassification(profile.id).certName"
-                  (onChange)="onCertChange(profile.id, $event.value)"
-                  placeholder="Select certificate"
-                  styleClass="text-sm"
-                  appendTo="body"
-                />
-                }
-                @if (getClassification(profile.id).type === 'self-attestation') {
-                <div class="flex gap-3 flex-wrap pt-1">
-                  @for (domain of allDomains; track domain) {
-                  <p-checkbox
-                    [ngModel]="isDomainChecked(profile.id, domain)"
-                    (onChange)="onDomainToggle(profile.id, domain, $event.checked)"
-                    [binary]="true"
-                    [label]="domain"
-                  />
-                  }
-                </div>
-                }
-              </div>
-            </div>
-            }
-          </div>
-
           <h6 class="text-xl m-0 mb-4">Compliance Criteria</h6>
           <app-table-compliance-criteria
             [documents]="selectedRow?.complianceProfiles"
@@ -591,6 +603,17 @@ export class ModalProductDetails implements OnInit {
     this.selectedRow = service;
     this.pdfSelected = this.selectedRow?.complianceProfiles[0];
     this.handlePdf(this.pdfSelected);
+    // Seed classifications on open so the certifier can classify documents on the product page
+    // (the selectors now live here, not in the validate modal).
+    this.fileClassifications.set(
+      (service.complianceProfiles ?? []).map((p) => ({
+        profileId: p.id,
+        fileName: p.fileName,
+        type: null,
+        certName: null,
+        coveredDomains: [],
+      }))
+    );
   }
 
   handleSearch() {
@@ -648,30 +671,24 @@ export class ModalProductDetails implements OnInit {
 
   handleOpenValidateModal(service: ResPO) {
     const currentDate = moment();
-    // Convertir la fecha de expiración a una cadena en formato deseado
+    // Classifications are already set on the product page (handleOpen); the validate modal only
+    // reviews the resulting criteria coverage + level and confirms.
     this.secondModal = true;
     this.request_issue_date = currentDate.format('YYYY-MM-DD');
     this.request_issuer_name = this.user.organization_name;
     this.request_url_organization = service.url_organization;
-    this.fileClassifications.set(
-      (service.complianceProfiles ?? []).map((p) => ({
-        profileId: p.id,
-        fileName: p.fileName,
-        type: null,
-        certName: null,
-        coveredDomains: [],
-      }))
-    );
   }
 
   handleCloseValidateModal() {
     this.selectedCompliance = [];
     this.invalidForm.request_expiration_date = false;
     this.secondModal = false;
-    this.fileClassifications.set([]);
+    // Do NOT clear classifications here — they belong to the product page and should survive
+    // reopening the validate modal. They are cleared when the product details modal closes.
   }
   handleCloseDetailsModal() {
     this.visible = false;
+    this.fileClassifications.set([]);
   }
 
   getClassification(profileId: number): FileClassification {
