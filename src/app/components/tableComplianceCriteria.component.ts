@@ -5,6 +5,7 @@ import { ComplianceProfile } from '@models/compliances';
 import { ApiServices } from '@services/api.service';
 import { CompliancesCriteraRes } from '@models/compliancesCriteria.model';
 import {
+  allFilesClassified,
   CATEGORY_TO_DOMAIN,
   certCovers,
   criterionNumber,
@@ -231,17 +232,9 @@ export class TableComplianceCriteriaComponent {
     }
   });
 
-  // Every uploaded document must be fully classified before validating.
-  allClassificationsComplete = computed(() => {
-    const cls = this.fileClassifications();
-    if (cls.length === 0) return false;
-    return cls.every((fc) => {
-      if (!fc.type) return false;
-      if (fc.type === 'certificate') return !!fc.certName;
-      if (fc.type === 'self-attestation') return fc.coveredDomains.length > 0;
-      return false;
-    });
-  });
+  // Every uploaded document must be classified (or explicitly discarded) before validating.
+  // Delegates to the shared helper so the product-page gate and this table agree on "complete".
+  allClassificationsComplete = computed(() => allFilesClassified(this.fileClassifications()));
 
   // Rows fed to the backend payload (only met criteria; the modal filters out 'No').
   getCompliaceData() {

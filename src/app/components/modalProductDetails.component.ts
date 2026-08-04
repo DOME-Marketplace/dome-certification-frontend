@@ -50,6 +50,7 @@ import { CheckboxModule } from 'primeng/checkbox';
 import {
   ACCEPTED_CERTIFICATES,
   ALL_DOMAINS,
+  allFilesClassified,
   Domain,
   FileClassification,
   FileType,
@@ -326,6 +327,11 @@ import {
                 }
               </div>
               }
+              @if (getClassification(profile.id).type === 'discarded') {
+              <span class="text-xs text-gray-400 italic self-center">
+                Set aside as not valid — excluded from certification; the label is still issued from the remaining documents.
+              </span>
+              }
             </div>
           </div>
           }
@@ -355,8 +361,8 @@ import {
           icon="pi pi-check"
           size="small"
           [loading]="isLoading"
-          [disabled]="!hasWalletSession()"
-          [pTooltip]="hasWalletSession() ? '' : 'DOME Wallet session required. Please log in via DOME Wallet to validate requests.'"
+          [disabled]="!hasWalletSession() || !allClassificationsComplete()"
+          [pTooltip]="validateDisabledReason()"
           tooltipPosition="top"
           (onClick)="handleOpenValidateModal(this.selectedRow)"
         ></p-button>
@@ -486,6 +492,9 @@ import {
             icon="pi pi-check"
             size="small"
             [loading]="isLoading"
+            [disabled]="!allClassificationsComplete()"
+            [pTooltip]="allClassificationsComplete() ? '' : 'Classify every uploaded document (or mark it as “Discard”) before confirming.'"
+            tooltipPosition="top"
             (onClick)="handleConfirmValidation()"
           ></p-button>
           } @else {
@@ -578,8 +587,26 @@ export class ModalProductDetails implements OnInit {
   fileTypeOptions = [
     { label: 'Certificate', value: 'certificate' },
     { label: 'Self-attestation', value: 'self-attestation' },
+    { label: 'Discard (not valid)', value: 'discarded' },
   ];
   certOptions = ACCEPTED_CERTIFICATES.map((c) => ({ label: c, value: c }));
+
+  // Product-page gate: every uploaded document must be classified (or discarded) before the
+  // certifier can open Validate. Computed here (not read off the child table component) because
+  // the table only renders inside the validate modal, so its `allClassificationsComplete()` is
+  // unavailable while the certifier is still on the product page.
+  allClassificationsComplete = computed(() => allFilesClassified(this.fileClassifications()));
+
+  // Tooltip / disabled reason for the Validate button (wallet first, then classification).
+  validateDisabledReason(): string {
+    if (!this.hasWalletSession()) {
+      return 'DOME Wallet session required. Please log in via DOME Wallet to validate requests.';
+    }
+    if (!this.allClassificationsComplete()) {
+      return 'Classify every uploaded document (or mark it as “Discard”) before validating.';
+    }
+    return '';
+  }
 
   ngOnInit() {
     this.user = this.authService.getUserFromSessionStorage();
@@ -745,11 +772,11 @@ export class ModalProductDetails implements OnInit {
       return;
     }
 
-    if (!this.tableCriteria.allClassificationsComplete()) {
+    if (!this.allClassificationsComplete()) {
       this.messageService.add({
         severity: 'error',
         summary: 'Validation Error',
-        detail: 'Please classify all uploaded documents before confirming.',
+        detail: 'Please classify all uploaded documents (or mark them as discarded) before confirming.',
       });
       return;
     }

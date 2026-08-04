@@ -5,7 +5,10 @@
 // (see "Compliance Dome/PROPOSED_cert_criteria_mapping.md").
 
 export type Domain = 'DP' | 'CS' | 'PT' | 'ST';
-export type FileType = 'certificate' | 'self-attestation';
+// 'discarded' = a document the certifier explicitly sets aside (e.g. an invalid certificate in a
+// bundle). It contributes nothing to coverage but must NOT block validation — the label can still
+// be issued from the remaining valid documents.
+export type FileType = 'certificate' | 'self-attestation' | 'discarded';
 
 export interface FileClassification {
   profileId: number;
@@ -13,6 +16,25 @@ export interface FileClassification {
   type: FileType | null;
   certName: string | null;
   coveredDomains: Domain[];
+}
+
+// A single document is "decided" when the certifier has classified it enough to act on:
+//   certificate      -> a certificate is selected
+//   self-attestation -> at least one domain is checked
+//   discarded        -> explicitly set aside (always complete; excluded from coverage)
+//   null             -> still undecided
+export function isFileClassificationComplete(fc: FileClassification): boolean {
+  if (fc.type === 'certificate') return !!fc.certName;
+  if (fc.type === 'self-attestation') return fc.coveredDomains.length > 0;
+  if (fc.type === 'discarded') return true;
+  return false;
+}
+
+// Every uploaded document must be decided before the request can advance to / be confirmed on
+// Validate. Discarded files count as decided; an empty document set is never complete.
+export function allFilesClassified(list: FileClassification[]): boolean {
+  if (list.length === 0) return false;
+  return list.every(isFileClassificationComplete);
 }
 
 // Backend criterion `category` -> short domain code.
