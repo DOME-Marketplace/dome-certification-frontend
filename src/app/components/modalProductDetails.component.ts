@@ -216,6 +216,9 @@ import {
                   <p class="truncate w-32 text-sm mb-0">
                     {{ profile.fileName }}.pdf
                   </p>
+                  @if (profile.uploadedAt) {
+                  <p class="text-xs text-gray-500 mb-0">{{ profile.uploadedAt | date: 'dd/MM/yyyy HH:mm' }}</p>
+                  }
                 </div>
                 }
               </div>
@@ -294,6 +297,9 @@ import {
             <div class="flex items-center gap-2 cursor-pointer" (click)="handlePdf(profile)">
               <i class="pi pi-file-pdf text-red-500"></i>
               <span class="text-sm font-medium truncate flex-1">{{ profile.fileName }}</span>
+              @if (profile.uploadedAt) {
+              <span class="text-xs text-gray-500 whitespace-nowrap">{{ profile.uploadedAt | date: 'dd/MM/yyyy HH:mm' }}</span>
+              }
               <i class="pi pi-eye text-gray-400 text-xs"></i>
             </div>
             <div class="flex gap-2 flex-wrap" (click)="$event.stopPropagation()">

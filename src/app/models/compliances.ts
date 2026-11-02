@@ -42,4 +42,5 @@ export interface ComplianceProfile {
   fileName: string;
   url: string;
   hash: string;
+  uploadedAt?: string | null;
 }
