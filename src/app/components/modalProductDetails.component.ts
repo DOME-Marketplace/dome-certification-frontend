@@ -55,6 +55,7 @@ import {
   FileClassification,
   FileType,
 } from '@utils/certificateCriteriaMap';
+import { productSpecUrn } from '@utils/productUrn';
 
 @Component({
   selector: 'app-modal-product-details',
@@ -826,7 +827,7 @@ export class ModalProductDetails implements OnInit {
       validUntil: this.request_expiration_date,
       idToken,
       labelLevel: this.tableCriteria.labelCode(),
-      response_uri: `${this.issuerService.marketPlaceURL}/admin/uploadcertificate/urn:ngsi-ld:product-specification:${this.selectedRow.id_PO}`,
+      response_uri: `${this.issuerService.marketPlaceURL}/admin/uploadcertificate/${productSpecUrn(this.selectedRow.id_PO)}`,
     };
 
     this.issuerService
