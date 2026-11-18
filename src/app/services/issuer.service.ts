@@ -6,6 +6,7 @@ import { environment } from '@env/environment';
 import { IssuerCompliance } from '@models/compliances';
 import { PO, ResPO } from '@models/ProductOffering';
 import moment from 'moment';
+import { productSpecUrn } from '@utils/productUrn';
 
 @Injectable({
   providedIn: 'root',
@@ -29,7 +30,7 @@ export class IssuerService {
       schema: 'VerifiableCertification',
       operation_mode: 'S',
       format: 'jwt_vc_json',
-      response_uri: `${this.marketPlaceURL}/admin/uploadcertificate/urn:ngsi-ld:product-specification:${PO.id_PO}`,
+      response_uri: `${this.marketPlaceURL}/admin/uploadcertificate/${productSpecUrn(PO.id_PO)}`,
       payload: {
         type: ['ProductOfferingCredential'],
         credentialSubject: {
@@ -43,7 +44,7 @@ export class IssuerService {
           },
           compliance: compliances,
           product: {
-            productId: `urn:ngsi-ld:product-specification:${PO.id_PO}`,
+            productId: productSpecUrn(PO.id_PO),
             productName: PO.service_name,
             productVersion: PO.service_version,
           },
